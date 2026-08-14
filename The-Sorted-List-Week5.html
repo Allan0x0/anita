@@ -1,0 +1,736 @@
+<meta charset="utf-8">
+<title>The Sorted List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    /* light = drafting paper */
+    --page:   #E7ECEF;
+    --paper:  #F6F8FA;
+    --ink:    #16232B;
+    --muted:  #56676F;
+    --line:   #C9D4DB;
+    --blue:   #1D5A80;   /* drafting ink */
+    --blue-2: #2E7BA8;
+    --timber: #B57C33;   /* sawn pine = progress/build */
+    --timber-soft: #F0E4D0;
+    --good:   #2F7D53;
+    --bad:    #B23A3A;
+    --shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(20,40,55,.5);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page:   #0A1620;
+      --paper:  #10283A;
+      --ink:    #DCE7EE;
+      --muted:  #8AA0AD;
+      --line:   #22465F;
+      --blue:   #58ADDD;
+      --blue-2: #7AC2EA;
+      --timber: #E0A857;
+      --timber-soft: #2A3B34;
+      --good:   #64C48C;
+      --bad:    #E27B7B;
+      --shadow: 0 1px 0 rgba(0,0,0,.4), 0 18px 40px -22px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --page:   #0A1620;
+    --paper:  #10283A;
+    --ink:    #DCE7EE;
+    --muted:  #8AA0AD;
+    --line:   #22465F;
+    --blue:   #58ADDD;
+    --blue-2: #7AC2EA;
+    --timber: #E0A857;
+    --timber-soft: #2A3B34;
+    --good:   #64C48C;
+    --bad:    #E27B7B;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 18px 40px -22px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font: 16px/1.6 -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
+    /* faint drafting grid */
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    background-position: -1px -1px;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 18px 64px; }
+
+  .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--blue); font-weight: 600;
+  }
+
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand .eyebrow { display: block; }
+  .brand h1 {
+    margin: 2px 0 0; font-size: 26px; line-height: 1.1; letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .toggle {
+    flex: 0 0 auto; background: var(--paper); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px;
+    font-size: 13px; cursor: pointer; box-shadow: var(--shadow);
+  }
+  .toggle:focus-visible, button:focus-visible, .opt:focus-visible {
+    outline: 2px solid var(--blue); outline-offset: 2px;
+  }
+
+  /* hero blueprint */
+  .hero {
+    margin: 18px 0 8px; background: var(--paper); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px; box-shadow: var(--shadow);
+  }
+  .hero svg { width: 100%; height: auto; display: block; }
+  .hero p { margin: 12px 2px 0; color: var(--muted); font-size: 15px; }
+  .hero p b { color: var(--ink); }
+  @media (prefers-reduced-motion: no-preference) {
+    .draw { stroke-dasharray: 1; stroke-dashoffset: 1; pathLength: 1;
+      animation: draw 1.1s ease forwards; }
+    .draw.d2 { animation-delay: .35s; }
+    .draw.d3 { animation-delay: .7s; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+  }
+
+  /* progress rail */
+  .rail { display: flex; gap: 6px; margin: 20px 0 14px; }
+  .node {
+    flex: 1 1 0; border: none; background: var(--paper); cursor: pointer;
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 4px 7px;
+    text-align: center; color: var(--muted); box-shadow: var(--shadow);
+  }
+  .node .n { display: block; font-weight: 700; font-size: 15px; color: var(--ink); }
+  .node .t { display: block; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+  .node[aria-current="true"] { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue), var(--shadow); }
+  .node.done { background: var(--timber-soft); border-color: var(--timber); }
+  .node.done .n::after { content: " ✓"; color: var(--timber); }
+
+  /* day panel */
+  .day { display: none; }
+  .day.active { display: block; }
+  .card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; box-shadow: var(--shadow); margin-top: 6px;
+  }
+  .card h2 { margin: 6px 0 0; font-size: 22px; letter-spacing: -.01em; text-wrap: balance; }
+  .idea { color: var(--ink); }
+  .idea p { margin: 12px 0; }
+  .idea .lead { font-size: 17px; }
+  strong.term { color: var(--blue); font-weight: 600; }
+
+  h3.mini {
+    font-family: ui-monospace, monospace; font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); margin: 22px 0 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h3.mini::before { content: ""; width: 14px; height: 1px; background: var(--line); }
+
+  /* code block */
+  figure.code { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  figure.code figcaption {
+    background: var(--blue); color: #fff; font-family: ui-monospace, monospace;
+    font-size: 12px; padding: 6px 12px; letter-spacing: .03em;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  :root[data-theme="dark"] figure.code figcaption,
+  :root:not([data-theme="light"]) figure.code figcaption { color: #08151E; }
+  figure.code pre {
+    margin: 0; padding: 14px 14px; overflow-x: auto; background: var(--page);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px; line-height: 1.55; color: var(--ink);
+  }
+  figure.code .cm { color: var(--muted); font-style: italic; }
+  .copy { background: rgba(255,255,255,.18); border: none; color: inherit;
+    font: inherit; cursor: pointer; border-radius: 5px; padding: 2px 8px; }
+
+  /* build callout */
+  .build {
+    border-left: 3px solid var(--timber); background: var(--timber-soft);
+    border-radius: 0 10px 10px 0; padding: 12px 14px; margin-top: 8px;
+  }
+  .build .cmd { display: block; margin-top: 8px; }
+  .build code { font-family: ui-monospace, monospace; font-size: 13px;
+    background: var(--page); border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 6px; }
+
+  /* trade-off table */
+  table.tradeoff { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13.5px; }
+  table.tradeoff th, table.tradeoff td {
+    border: 1px solid var(--line); padding: 7px 9px; text-align: left;
+  }
+  table.tradeoff th { background: var(--page); color: var(--muted); font-size: 12px;
+    text-transform: uppercase; letter-spacing: .04em; }
+  table.tradeoff td code { font-size: 12.5px; }
+
+  /* quiz */
+  .q { margin: 14px 0; }
+  .q p.ask { font-weight: 600; margin: 0 0 8px; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt {
+    text-align: left; background: var(--page); border: 1px solid var(--line);
+    border-radius: 9px; padding: 11px 13px; font: inherit; color: var(--ink);
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .opt:hover { border-color: var(--blue); }
+  .opt.correct { border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--page)); }
+  .opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--page)); }
+  .opt[disabled] { cursor: default; opacity: .9; }
+  .explain {
+    display: none; margin-top: 8px; font-size: 14px; color: var(--muted);
+    border-top: 1px dashed var(--line); padding-top: 8px;
+  }
+  .explain.show { display: block; }
+  .explain b { color: var(--ink); }
+
+  /* nav */
+  .nav { display: flex; gap: 10px; margin-top: 22px; align-items: center; }
+  .nav button {
+    font: inherit; border-radius: 9px; padding: 11px 16px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    box-shadow: var(--shadow);
+  }
+  .nav .done-btn { margin-left: auto; background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
+  :root[data-theme="dark"] .nav .done-btn,
+  :root:not([data-theme="light"]) .nav .done-btn { color: #08151E; }
+  .nav button:disabled { opacity: .4; cursor: default; }
+
+  footer { margin-top: 30px; color: var(--muted); font-size: 13px; text-align: center; }
+  footer b { color: var(--ink); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">BITH132 · Week 5</span>
+      <h1>The Sorted List</h1>
+    </div>
+    <button class="toggle" id="themeBtn" aria-label="Switch light or dark">◐ Theme</button>
+  </header>
+
+  <section class="hero" aria-label="An unsorted cut-list sorted, then binary-searched">
+    <svg viewBox="0 0 596 168" role="img" aria-label="Timber lengths sorted ascending, then a binary search halving the range to find one">
+      <g class="mono">
+        <text x="20" y="20" fill="var(--muted)" font-size="12">SORT: cut-list of timber lengths, ascending</text>
+
+        <rect x="20" y="34" width="52" height="34" rx="5" fill="var(--paper)" stroke="var(--blue)" stroke-width="2"/>
+        <text x="46" y="56" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="700">0.8</text>
+        <rect x="78" y="34" width="52" height="34" rx="5" fill="var(--paper)" stroke="var(--blue)" stroke-width="2"/>
+        <text x="104" y="56" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="700">1.1</text>
+        <rect x="136" y="34" width="52" height="34" rx="5" fill="var(--paper)" stroke="var(--blue)" stroke-width="2"/>
+        <text x="162" y="56" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="700">1.6</text>
+        <rect x="194" y="34" width="52" height="34" rx="5" fill="var(--timber-soft)" stroke="var(--timber)" stroke-width="2.5"/>
+        <text x="220" y="56" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="700">2.4</text>
+        <rect x="252" y="34" width="52" height="34" rx="5" fill="var(--paper)" stroke="var(--blue)" stroke-width="2"/>
+        <text x="278" y="56" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="700">3.2</text>
+
+        <text x="20" y="98" fill="var(--muted)" font-size="12">SEARCH: halve the range to find 2.4 m</text>
+
+        <line x1="20" y1="112" x2="304" y2="112" stroke="var(--line)" stroke-width="2"/>
+        <text x="20" y="128" fill="var(--muted)" font-size="10">lo</text>
+        <text x="150" y="128" text-anchor="middle" fill="var(--blue)" font-size="10">mid</text>
+        <text x="304" y="128" text-anchor="end" fill="var(--muted)" font-size="10">hi</text>
+
+        <line x1="150" y1="106" x2="150" y2="118" stroke="var(--blue)" stroke-width="2.5"/>
+        <line x1="162" y1="140" x2="304" y2="140" stroke="var(--timber)" stroke-width="3" marker-end="url(#arrowt)"/>
+        <text x="233" y="156" text-anchor="middle" fill="var(--timber)" font-size="10">2.4 &gt; mid, keep right half</text>
+
+        <rect x="470" y="34" width="106" height="34" rx="5" fill="var(--timber-soft)" stroke="var(--timber)" stroke-width="2.5"/>
+        <text x="523" y="56" text-anchor="middle" fill="var(--ink)" font-size="11" font-weight="700">found: 2.4</text>
+        <text x="470" y="88" fill="var(--muted)" font-size="10">O(log n) steps</text>
+
+        <defs>
+          <marker id="arrowt" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="var(--timber)"/>
+          </marker>
+        </defs>
+      </g>
+    </svg>
+    <p><b>Unit 8: Sorting. Unit 9: Searching.</b> Put the cut-list in order, then
+      find a member fast. Simple sorts (bubble, selection) cost O(n squared);
+      quicksort averages O(n log n). Linear search scans everything at O(n);
+      binary search halves a sorted list each step at O(log n).</p>
+  </section>
+
+  <nav class="rail" id="rail" aria-label="Days"></nav>
+
+  <article class="day active" data-day="1">
+    <div class="card">
+      <span class="eyebrow">Day 1 · Bubble sort</span>
+      <h2>Swap neighbours until the cut-list is in order</h2>
+      <div class="idea"><p class="lead"><strong class="term">Bubble sort</strong> is the simplest way to order the cut-list of timber lengths. Walk the list comparing each length with the one next to it, and <strong class="term">swap</strong> any pair that is out of order. The biggest length keeps drifting right until it settles at the end.</p><p>One walk is not enough, so you repeat the walk. Two nested loops over n lengths make this <strong class="term">O(n squared)</strong>: slow on a long list, but easy to see and to write. After the last pass the whole cut-list is sorted ascending.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day1_bubble.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float cuts[] = {2.4f, 0.8f, 1.6f, 3.2f, 1.1f};
+    int n = sizeof(cuts) / sizeof(cuts[0]);
+    int i, j;
+
+    <span class="cm">/* each pass pushes the next-largest length to the end */</span>
+    for (i = 0; i &lt; n - 1; i++) {
+        for (j = 0; j &lt; n - 1 - i; j++) {
+            if (cuts[j] &gt; cuts[j + 1]) {
+                float tmp = cuts[j];   <span class="cm">/* swap neighbours */</span>
+                cuts[j] = cuts[j + 1];
+                cuts[j + 1] = tmp;
+            }
+        }
+    }
+
+    printf(&quot;sorted cut-list:&quot;);
+    for (i = 0; i &lt; n; i++) {
+        printf(&quot; %.1f&quot;, cuts[i]);   <span class="cm">/* 0.8 1.1 1.6 2.4 3.2 */</span>
+    }
+    printf(&quot;\n&quot;);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">The inner loop stops one earlier each pass (<code>n - 1 - i</code>): the tail is already sorted, so there is no point re-checking it.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Compile and run: <code>gcc -Wall day1_bubble.c -o day1</code> then <code>./day1</code>. Then add a <code>swapped</code> flag: if a full pass makes no swap, the list is sorted, so <code>break</code> early.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="2">
+    <div class="card">
+      <span class="eyebrow">Day 2 · Selection sort</span>
+      <h2>Find the smallest, swap it to the front, repeat</h2>
+      <div class="idea"><p class="lead"><strong class="term">Selection sort</strong> keeps a sorted front and an unsorted tail. Each round it scans the tail for the <strong class="term">minimum</strong> length and swaps that into the front. Grow the sorted front by one, shrink the tail, repeat until the cut-list is ordered.</p><p>It compares as much as bubble sort, so it is still <strong class="term">O(n squared)</strong>, but it does at most one swap per round instead of many. A sorted cut-list lets you pack pieces against the stock in order, leaving smaller offcuts.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day2_selection.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float cuts[] = {2.4f, 0.8f, 1.6f, 3.2f, 1.1f};
+    int n = sizeof(cuts) / sizeof(cuts[0]);
+    int i, j;
+
+    for (i = 0; i &lt; n - 1; i++) {
+        int min = i;   <span class="cm">/* front of the tail, for now */</span>
+        for (j = i + 1; j &lt; n; j++) {
+            if (cuts[j] &lt; cuts[min]) {
+                min = j;   <span class="cm">/* smaller length further along */</span>
+            }
+        }
+        if (min != i) {
+            float tmp = cuts[i];   <span class="cm">/* one swap per round */</span>
+            cuts[i] = cuts[min];
+            cuts[min] = tmp;
+        }
+    }
+
+    printf(&quot;sorted cut-list:&quot;);
+    for (i = 0; i &lt; n; i++) {
+        printf(&quot; %.1f&quot;, cuts[i]);   <span class="cm">/* 0.8 1.1 1.6 2.4 3.2 */</span>
+    }
+    printf(&quot;\n&quot;);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">Bubble sort swaps on every out-of-order pair it meets; selection sort waits, finds the true minimum, and swaps just once per round.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then add a <code>swaps</code> counter, increment it on each swap, and print the total: at most <code>n - 1</code>.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="3">
+    <div class="card">
+      <span class="eyebrow">Day 3 · Quicksort</span>
+      <h2>Divide and conquer: partition, then recurse</h2>
+      <div class="idea"><p class="lead"><strong class="term">Quicksort</strong> is the fast one. Pick a <strong class="term">pivot</strong> length, then <strong class="term">partition</strong> the cut-list so smaller lengths sit left of the pivot and larger sit right. The pivot is now in its final place. Sort each side the same way.</p><p>This is <strong class="term">divide-and-conquer</strong>: split the problem into two halves and recurse. Halving each level gives <strong class="term">O(n log n)</strong> on average, which beats the O(n squared) simple sorts on a long list. Worst case is O(n squared) when the pivot is always the smallest or largest.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day3_quicksort.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+void swap(float *a, float *b) {
+    float tmp = *a; *a = *b; *b = tmp;
+}
+
+<span class="cm">/* partition around the last element; return pivot index */</span>
+int partition(float a[], int lo, int hi) {
+    float pivot = a[hi];
+    int i = lo - 1;   <span class="cm">/* edge of the smaller-than-pivot zone */</span>
+    int j;
+    for (j = lo; j &lt; hi; j++) {
+        if (a[j] &lt;= pivot) {
+            i++;
+            swap(&amp;a[i], &amp;a[j]);
+        }
+    }
+    swap(&amp;a[i + 1], &amp;a[hi]);   <span class="cm">/* pivot into place */</span>
+    return i + 1;
+}
+
+void quicksort(float a[], int lo, int hi) {
+    if (lo &lt; hi) {
+        int p = partition(a, lo, hi);
+        quicksort(a, lo, p - 1);   <span class="cm">/* smaller side */</span>
+        quicksort(a, p + 1, hi);   <span class="cm">/* larger side */</span>
+    }
+}
+
+int main(void) {
+    float cuts[] = {2.4f, 0.8f, 1.6f, 3.2f, 1.1f};
+    int n = sizeof(cuts) / sizeof(cuts[0]);
+    int i;
+
+    quicksort(cuts, 0, n - 1);
+
+    printf(&quot;sorted cut-list:&quot;);
+    for (i = 0; i &lt; n; i++) {
+        printf(&quot; %.1f&quot;, cuts[i]);   <span class="cm">/* 0.8 1.1 1.6 2.4 3.2 */</span>
+    }
+    printf(&quot;\n&quot;);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">A function that calls itself on smaller pieces is <code>recursion</code>. Each call handles one side of the partition until the piece has one element, which is sorted by definition.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then print the whole array at the end of <code>partition</code> to watch each split fall into shape.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="4">
+    <div class="card">
+      <span class="eyebrow">Day 4 · Linear search</span>
+      <h2>Walk the cut-list until you hit the spec</h2>
+      <div class="idea"><p class="lead"><strong class="term">Linear search</strong> is the search that always works. Start at the front of the cut-list and check each length in turn until one matches the spec you want. No order required, so it runs on the raw, unsorted list straight off the saw.</p><p>The catch is speed: a match near the end, or no match at all, means you touch every length. That makes it <strong class="term">O(n)</strong>, growing straight with the list size. Return the <strong class="term">index</strong> of the first match, or -1 to say it is absent.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day4_linear.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+<span class="cm">/* index of first length == target, or -1 if none */</span>
+int linear_search(float a[], int n, float target) {
+    int i;
+    for (i = 0; i &lt; n; i++) {
+        if (a[i] == target) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int main(void) {
+    float cuts[] = {2.4f, 0.8f, 1.6f, 3.2f, 1.1f};
+    int n = sizeof(cuts) / sizeof(cuts[0]);
+
+    int hit = linear_search(cuts, n, 1.6f);
+    int miss = linear_search(cuts, n, 2.0f);
+
+    printf(&quot;1.6 m found at index %d\n&quot;, hit);    <span class="cm">/* index 2 */</span>
+    printf(&quot;2.0 m found at index %d\n&quot;, miss);   <span class="cm">/* -1 (absent) */</span>
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">Returning -1 for "not found" is a common C idiom: a real index is never negative, so -1 can never be mistaken for a hit.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. It already tests a present length and an absent one; confirm the present one returns its index and the absent one returns <code>-1</code>.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="5">
+    <div class="card">
+      <span class="eyebrow">Day 5 · Binary search</span>
+      <h2>Halve a sorted cut-list each step to find a length</h2>
+      <div class="idea"><p class="lead"><strong class="term">Binary search</strong> is the reason sorting pays off. Keep a range from <code>lo</code> to <code>hi</code> and look at the <strong class="term">middle</strong> length. If it is the target, done. If the target is larger, drop the left half; if smaller, drop the right. Each step throws away half the range.</p><p>It needs <strong class="term">sorted input</strong>, because dropping half assumes everything past the middle is larger. Halving each step makes it <strong class="term">O(log n)</strong>, which crushes linear O(n) at scale: a million lengths take about 20 steps, not a million.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day5_binary.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+<span class="cm">/* index of target in sorted a, or -1 if absent */</span>
+int binary_search(float a[], int n, float target) {
+    int lo = 0;
+    int hi = n - 1;
+    while (lo &lt;= hi) {
+        int mid = lo + (hi - lo) / 2;   <span class="cm">/* middle, no overflow */</span>
+        if (a[mid] == target) {
+            return mid;
+        } else if (a[mid] &lt; target) {
+            lo = mid + 1;   <span class="cm">/* target is right */</span>
+        } else {
+            hi = mid - 1;   <span class="cm">/* target is left */</span>
+        }
+    }
+    return -1;
+}
+
+int main(void) {
+    float cuts[] = {0.8f, 1.1f, 1.6f, 2.4f, 3.2f};   <span class="cm">/* sorted */</span>
+    int n = sizeof(cuts) / sizeof(cuts[0]);
+
+    int hit = binary_search(cuts, n, 2.4f);
+    int miss = binary_search(cuts, n, 2.0f);
+
+    printf(&quot;2.4 m found at index %d\n&quot;, hit);    <span class="cm">/* index 3 */</span>
+    printf(&quot;2.0 m found at index %d\n&quot;, miss);   <span class="cm">/* -1 (absent) */</span>
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">Writing <code>lo + (hi - lo) / 2</code> instead of <code>(lo + hi) / 2</code> avoids an overflow when the two indexes are huge. The result is the same middle.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then print <code>lo</code>, <code>mid</code> and <code>hi</code> at the top of each loop and watch the range halve toward the answer.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="6">
+    <div class="card">
+      <span class="eyebrow">Day 6 · Tie it together</span>
+      <h2>Sort once, then search fast, forever</h2>
+      <div class="idea"><p class="lead">The two units meet here. An unsorted cut-list off the saw is fine for one linear search. But if you will search it again and again, <strong class="term">sort it once</strong> and every later search can be binary: O(log n) instead of O(n). The sort is a cost you pay once to make searching cheap.</p></div>
+
+      <table class="tradeoff">
+        <tr><th>Job</th><th>Simple choice</th><th>Fast choice</th></tr>
+        <tr><td>Sorting</td><td>Bubble / selection, O(n squared)</td><td>Quicksort, O(n log n) average</td></tr>
+        <tr><td>Searching</td><td>Linear, O(n), any order</td><td>Binary, O(log n), sorted only</td></tr>
+        <tr><td>Needs sorted input</td><td>No</td><td>Binary search does</td></tr>
+        <tr><td>Pick it when</td><td>Small list, or a one-off search</td><td>Large list searched many times</td></tr>
+      </table>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day6_both.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+void selection_sort(float a[], int n) {
+    int i, j;
+    for (i = 0; i &lt; n - 1; i++) {
+        int min = i;
+        for (j = i + 1; j &lt; n; j++) {
+            if (a[j] &lt; a[min]) { min = j; }
+        }
+        if (min != i) {
+            float tmp = a[i]; a[i] = a[min]; a[min] = tmp;
+        }
+    }
+}
+
+int binary_search(float a[], int n, float target) {
+    int lo = 0, hi = n - 1;
+    while (lo &lt;= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (a[mid] == target) { return mid; }
+        else if (a[mid] &lt; target) { lo = mid + 1; }
+        else { hi = mid - 1; }
+    }
+    return -1;
+}
+
+int main(void) {
+    float cuts[] = {2.4f, 0.8f, 1.6f, 3.2f, 1.1f};
+    int n = sizeof(cuts) / sizeof(cuts[0]);
+    int i, idx;
+
+    selection_sort(cuts, n);   <span class="cm">/* pay the sort once */</span>
+
+    printf(&quot;sorted cut-list:&quot;);
+    for (i = 0; i &lt; n; i++) { printf(&quot; %.1f&quot;, cuts[i]); }
+    printf(&quot;\n&quot;);
+
+    idx = binary_search(cuts, n, 1.6f);
+    printf(&quot;1.6 m -&gt; index %d\n&quot;, idx);   <span class="cm">/* index 2 */</span>
+
+    idx = binary_search(cuts, n, 2.0f);
+    if (idx == -1) { printf(&quot;2.0 m -&gt; not found\n&quot;); }
+    else { printf(&quot;2.0 m -&gt; index %d\n&quot;, idx); }
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">Sort first, search second: the order is not optional. Binary search on the raw list would give wrong answers, because it trusts that every length past the middle is larger.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then search for a length that is not in the list and confirm it prints <code>not found</code> (the search returns -1).</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <nav class="nav">
+    <button id="prev">← Prev</button>
+    <button id="next">Next →</button>
+    <button id="doneBtn" class="done-btn">Mark day done ✓</button>
+  </nav>
+
+  <footer>
+    Week 5 of 8 · Sorting (Unit 8) &amp; Searching (Unit 9). Works offline once loaded.
+  </footer>
+</div>
+
+<script>
+  const DAYS = [
+    {t:"Bubble sort", quiz:[
+      {q:"Why is bubble sort O(n squared)?", a:["It sorts in one pass", "Two nested loops each run up to n times", "It halves the list each step"], c:1,
+       e:"An outer loop of passes wraps an inner loop of comparisons, so the work grows with n times n."},
+      {q:"What does one swap do in bubble sort?", a:["Exchanges two out-of-order neighbours", "Moves the smallest to the front", "Deletes a duplicate"], c:0,
+       e:"When a length is bigger than the one after it, the two are exchanged so the bigger drifts right."},
+      {q:"After the first full pass, which length is in its final place?", a:["The smallest, at the front", "The largest, at the end", "The middle one"], c:1,
+       e:"Each pass bubbles the largest remaining length to the end, so the tail is sorted first."}
+    ]},
+    {t:"Selection sort", quiz:[
+      {q:"What does each round of selection sort do?", a:["Swaps every out-of-order pair", "Finds the minimum of the tail and swaps it to the front", "Splits the list in two"], c:1,
+       e:"It scans the unsorted tail for the smallest length, then swaps that into the front of the tail."},
+      {q:"How does it compare with bubble sort?", a:["Faster order of growth", "Same O(n squared), but fewer swaps", "It needs sorted input"], c:1,
+       e:"Both do about n times n comparisons, but selection sort swaps at most once per round instead of many times."},
+      {q:"At most how many swaps does selection sort do for n lengths?", a:["n squared", "n minus 1", "log n"], c:1,
+       e:"One swap per round and n minus 1 rounds gives at most n minus 1 swaps total."}
+    ]},
+    {t:"Quicksort", quiz:[
+      {q:"What does partition do?", a:["Reverses the list", "Puts smaller lengths left of the pivot and larger right", "Removes the pivot"], c:1,
+       e:"Partition rearranges the list around the pivot so it lands in its final sorted place, small on one side, large on the other."},
+      {q:"Why is quicksort O(n log n) on average?", a:["It never swaps", "Each level halves the work and there are about log n levels", "It scans once"], c:1,
+       e:"Divide-and-conquer splits the list roughly in half each time, so about log n levels of n work each."},
+      {q:"When does quicksort hit its O(n squared) worst case?", a:["When the list is empty", "When the pivot is always the smallest or largest", "When all lengths are equal to the pivot"], c:1,
+       e:"A pivot at one extreme leaves one side empty and the other full, so the splits do not halve and the levels pile up."}
+    ]},
+    {t:"Linear search", quiz:[
+      {q:"What is the cost of linear search?", a:["O(1)", "O(n)", "O(log n)"], c:1,
+       e:"It may check every length before finding a match or giving up, so the work grows straight with n."},
+      {q:"Does linear search need a sorted list?", a:["Yes, always", "No, it works on any order", "Only for numbers"], c:1,
+       e:"It checks each length in turn regardless of order, which is exactly why it works on the raw cut-list."},
+      {q:"What does the function return when the length is absent?", a:["0", "-1", "The list size"], c:1,
+       e:"A real index is never negative, so -1 is a safe signal that no match was found."}
+    ]},
+    {t:"Binary search", quiz:[
+      {q:"Why does binary search need sorted input?", a:["To count the items", "Because dropping half assumes one side is all larger", "To avoid recursion"], c:1,
+       e:"It throws away half the range based on the middle value, which only holds if the list is in order."},
+      {q:"What is the cost of binary search?", a:["O(n)", "O(log n)", "O(n squared)"], c:1,
+       e:"Each step halves the range, so it takes about log n steps: 20 for a million lengths."},
+      {q:"After checking the middle, what happens if the target is larger than it?", a:["Keep the left half", "Keep the right half", "Stop, not found"], c:1,
+       e:"Everything from the middle leftward is smaller, so the target can only be in the right half."}
+    ]},
+    {t:"Tie it together", quiz:[
+      {q:"Why sort the cut-list before searching it many times?", a:["Sorting is free", "So each later search can be binary, O(log n) not O(n)", "Linear search needs sorted input"], c:1,
+       e:"You pay the sort once, then every binary search on the sorted list is far cheaper than a linear scan."},
+      {q:"Which pairing is right?", a:["Binary search on unsorted, linear on sorted", "Linear on any order, binary on sorted only", "Both need sorted input"], c:1,
+       e:"Linear search works on any order; binary search trusts that the list is sorted, or it gives wrong answers."},
+      {q:"You binary-search for a length that is not in the list. What comes back?", a:["The nearest length", "-1, not found", "The last index"], c:1,
+       e:"When lo passes hi with no match, the loop ends and the function returns -1 to say absent."}
+    ]}
+  ];
+
+  let cur = 1;
+  const done = new Set();
+  const rail = document.getElementById('rail');
+  const panels = [...document.querySelectorAll('.day')];
+
+  // build rail
+  DAYS.forEach((d, idx) => {
+    const b = document.createElement('button');
+    b.className = 'node'; b.dataset.day = idx + 1;
+    b.innerHTML = `<span class="n">${idx+1}</span><span class="t">${d.t}</span>`;
+    b.addEventListener('click', () => go(idx + 1));
+    rail.appendChild(b);
+  });
+
+  // build quizzes
+  panels.forEach((panel) => {
+    const day = +panel.dataset.day;
+    const host = panel.querySelector('.quiz');
+    DAYS[day - 1].quiz.forEach((item) => {
+      const q = document.createElement('div'); q.className = 'q';
+      q.innerHTML = `<p class="ask">${item.q}</p>`;
+      const opts = document.createElement('div'); opts.className = 'opts';
+      item.a.forEach((txt, i) => {
+        const o = document.createElement('button');
+        o.className = 'opt'; o.type = 'button'; o.innerHTML = txt;
+        o.addEventListener('click', () => {
+          if (o.disabled) return;
+          [...opts.children].forEach(x => x.disabled = true);
+          if (i === item.c) { o.classList.add('correct'); }
+          else { o.classList.add('wrong'); opts.children[item.c].classList.add('correct'); }
+          q.querySelector('.explain').classList.add('show');
+        });
+        opts.appendChild(o);
+      });
+      q.appendChild(opts);
+      const ex = document.createElement('div'); ex.className = 'explain';
+      ex.innerHTML = item.e; q.appendChild(ex);
+      host.appendChild(q);
+    });
+  });
+
+  function go(n) {
+    cur = n;
+    panels.forEach(p => p.classList.toggle('active', +p.dataset.day === n));
+    [...rail.children].forEach(b => b.setAttribute('aria-current', +b.dataset.day === n ? 'true' : 'false'));
+    document.getElementById('prev').disabled = (n === 1);
+    document.getElementById('next').disabled = (n === DAYS.length);
+    const db = document.getElementById('doneBtn');
+    db.textContent = done.has(n) ? 'Day done ✓' : 'Mark day done ✓';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  document.getElementById('prev').addEventListener('click', () => go(Math.max(1, cur-1)));
+  document.getElementById('next').addEventListener('click', () => go(Math.min(DAYS.length, cur+1)));
+  document.getElementById('doneBtn').addEventListener('click', () => {
+    done.add(cur);
+    rail.children[cur-1].classList.add('done');
+    if (cur < DAYS.length) go(cur+1); else go(cur);
+  });
+
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.closest('figure').querySelector('pre').innerText;
+      navigator.clipboard?.writeText(code);
+      const old = btn.textContent; btn.textContent = 'copied ✓';
+      setTimeout(() => btn.textContent = old, 1200);
+    });
+  });
+
+  // theme toggle: light -> dark -> system
+  const root = document.documentElement;
+  const order = ['light','dark',null];
+  let ti = 0;
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    ti = (ti + 1) % order.length;
+    if (order[ti]) root.setAttribute('data-theme', order[ti]);
+    else root.removeAttribute('data-theme');
+    document.getElementById('themeBtn').textContent =
+      order[ti] === 'light' ? '☀ Light' : order[ti] === 'dark' ? '☾ Dark' : '◐ Theme';
+  });
+
+  go(1);
+</script>

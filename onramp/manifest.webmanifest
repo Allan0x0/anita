@@ -1,0 +1,15 @@
+{
+  "name": "The C On-Ramp",
+  "short_name": "C On-Ramp",
+  "description": "BITH132 Week 0 - just enough C to start, by building a roof truss.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A1620",
+  "theme_color": "#123A54",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

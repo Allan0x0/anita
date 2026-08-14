@@ -1,0 +1,674 @@
+<title>The C On-Ramp</title>
+<meta name="theme-color" content="#123A54">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="C On-Ramp">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    /* light = drafting paper */
+    --page:   #E7ECEF;
+    --paper:  #F6F8FA;
+    --ink:    #16232B;
+    --muted:  #56676F;
+    --line:   #C9D4DB;
+    --blue:   #1D5A80;   /* drafting ink */
+    --blue-2: #2E7BA8;
+    --timber: #B57C33;   /* sawn pine = progress/build */
+    --timber-soft: #F0E4D0;
+    --good:   #2F7D53;
+    --bad:    #B23A3A;
+    --shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(20,40,55,.5);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page:   #0A1620;
+      --paper:  #10283A;
+      --ink:    #DCE7EE;
+      --muted:  #8AA0AD;
+      --line:   #22465F;
+      --blue:   #58ADDD;
+      --blue-2: #7AC2EA;
+      --timber: #E0A857;
+      --timber-soft: #2A3B34;
+      --good:   #64C48C;
+      --bad:    #E27B7B;
+      --shadow: 0 1px 0 rgba(0,0,0,.4), 0 18px 40px -22px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --page:   #0A1620;
+    --paper:  #10283A;
+    --ink:    #DCE7EE;
+    --muted:  #8AA0AD;
+    --line:   #22465F;
+    --blue:   #58ADDD;
+    --blue-2: #7AC2EA;
+    --timber: #E0A857;
+    --timber-soft: #2A3B34;
+    --good:   #64C48C;
+    --bad:    #E27B7B;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 18px 40px -22px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font: 16px/1.6 -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
+    /* faint drafting grid */
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    background-position: -1px -1px;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 18px 64px; }
+
+  .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--blue); font-weight: 600;
+  }
+
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand .eyebrow { display: block; }
+  .brand h1 {
+    margin: 2px 0 0; font-size: 26px; line-height: 1.1; letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .toggle {
+    flex: 0 0 auto; background: var(--paper); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px;
+    font-size: 13px; cursor: pointer; box-shadow: var(--shadow);
+  }
+  .toggle:focus-visible, button:focus-visible, .opt:focus-visible {
+    outline: 2px solid var(--blue); outline-offset: 2px;
+  }
+
+  /* hero blueprint */
+  .hero {
+    margin: 18px 0 8px; background: var(--paper); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px; box-shadow: var(--shadow);
+  }
+  .hero svg { width: 100%; height: auto; display: block; }
+  .hero p { margin: 12px 2px 0; color: var(--muted); font-size: 15px; }
+  .hero p b { color: var(--ink); }
+  @media (prefers-reduced-motion: no-preference) {
+    .draw { stroke-dasharray: 1; stroke-dashoffset: 1; pathLength: 1;
+      animation: draw 1.1s ease forwards; }
+    .draw.d2 { animation-delay: .35s; }
+    .draw.d3 { animation-delay: .7s; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+  }
+
+  /* progress rail */
+  .rail { display: flex; gap: 6px; margin: 20px 0 14px; }
+  .node {
+    flex: 1 1 0; border: none; background: var(--paper); cursor: pointer;
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 4px 7px;
+    text-align: center; color: var(--muted); box-shadow: var(--shadow);
+  }
+  .node .n { display: block; font-weight: 700; font-size: 15px; color: var(--ink); }
+  .node .t { display: block; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+  .node[aria-current="true"] { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue), var(--shadow); }
+  .node.done { background: var(--timber-soft); border-color: var(--timber); }
+  .node.done .n::after { content: " ✓"; color: var(--timber); }
+
+  /* day panel */
+  .day { display: none; }
+  .day.active { display: block; }
+  .card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; box-shadow: var(--shadow); margin-top: 6px;
+  }
+  .card h2 { margin: 6px 0 0; font-size: 22px; letter-spacing: -.01em; text-wrap: balance; }
+  .idea { color: var(--ink); }
+  .idea p { margin: 12px 0; }
+  .idea .lead { font-size: 17px; }
+  strong.term { color: var(--blue); font-weight: 600; }
+
+  h3.mini {
+    font-family: ui-monospace, monospace; font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); margin: 22px 0 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h3.mini::before { content: ""; width: 14px; height: 1px; background: var(--line); }
+
+  /* code block */
+  figure.code { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  figure.code figcaption {
+    background: var(--blue); color: #fff; font-family: ui-monospace, monospace;
+    font-size: 12px; padding: 6px 12px; letter-spacing: .03em;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  :root[data-theme="dark"] figure.code figcaption,
+  :root:not([data-theme="light"]) figure.code figcaption { color: #08151E; }
+  figure.code pre {
+    margin: 0; padding: 14px 14px; overflow-x: auto; background: var(--page);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px; line-height: 1.55; color: var(--ink);
+  }
+  figure.code .cm { color: var(--muted); font-style: italic; }
+  .copy { background: rgba(255,255,255,.18); border: none; color: inherit;
+    font: inherit; cursor: pointer; border-radius: 5px; padding: 2px 8px; }
+
+  /* build callout */
+  .build {
+    border-left: 3px solid var(--timber); background: var(--timber-soft);
+    border-radius: 0 10px 10px 0; padding: 12px 14px; margin-top: 8px;
+  }
+  .build .cmd { display: block; margin-top: 8px; }
+  .build code { font-family: ui-monospace, monospace; font-size: 13px;
+    background: var(--page); border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 6px; }
+
+  /* quiz */
+  .q { margin: 14px 0; }
+  .q p.ask { font-weight: 600; margin: 0 0 8px; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt {
+    text-align: left; background: var(--page); border: 1px solid var(--line);
+    border-radius: 9px; padding: 11px 13px; font: inherit; color: var(--ink);
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .opt:hover { border-color: var(--blue); }
+  .opt.correct { border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--page)); }
+  .opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--page)); }
+  .opt[disabled] { cursor: default; opacity: .9; }
+  .explain {
+    display: none; margin-top: 8px; font-size: 14px; color: var(--muted);
+    border-top: 1px dashed var(--line); padding-top: 8px;
+  }
+  .explain.show { display: block; }
+  .explain b { color: var(--ink); }
+
+  /* nav */
+  .nav { display: flex; gap: 10px; margin-top: 22px; align-items: center; }
+  .nav button {
+    font: inherit; border-radius: 9px; padding: 11px 16px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    box-shadow: var(--shadow);
+  }
+  .nav .done-btn { margin-left: auto; background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
+  :root[data-theme="dark"] .nav .done-btn,
+  :root:not([data-theme="light"]) .nav .done-btn { color: #08151E; }
+  .nav button:disabled { opacity: .4; cursor: default; }
+
+  footer { margin-top: 30px; color: var(--muted); font-size: 13px; text-align: center; }
+  footer b { color: var(--ink); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">BITH132 · Week 0</span>
+      <h1>The C On-Ramp</h1>
+    </div>
+    <button class="toggle" id="themeBtn" aria-label="Switch light or dark">◐ Theme</button>
+  </header>
+
+  <section class="hero" aria-label="A king-post roof truss blueprint">
+    <svg viewBox="0 0 620 220" role="img" aria-label="King-post truss diagram">
+      <g fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <!-- bottom chord -->
+        <path class="draw" d="M40 180 L580 180"/>
+        <!-- rafters -->
+        <path class="draw d2" d="M40 180 L310 46"/>
+        <path class="draw d2" d="M580 180 L310 46"/>
+        <!-- king post + webs -->
+        <path class="draw d3" d="M310 46 L310 180"/>
+        <path class="draw d3" d="M175 113 L310 180"/>
+        <path class="draw d3" d="M445 113 L310 180"/>
+      </g>
+      <g fill="var(--timber)">
+        <circle cx="40" cy="180" r="5"/><circle cx="580" cy="180" r="5"/>
+        <circle cx="310" cy="46" r="5"/><circle cx="310" cy="180" r="5"/>
+        <circle cx="175" cy="113" r="4"/><circle cx="445" cy="113" r="4"/>
+      </g>
+      <g class="mono" fill="var(--muted)" font-size="12">
+        <text x="300" y="205" text-anchor="middle" fill="var(--muted)">span</text>
+        <text x="322" y="120">king post</text>
+        <text x="90" y="120" transform="rotate(-26 90 120)">rafter</text>
+      </g>
+    </svg>
+    <p><b>6 days to your first program.</b> Every idea here is a piece of a roof.
+      You'll print a truss, then teach the computer to size one, and pick up just
+      enough C to walk into Unit&nbsp;1 standing up.</p>
+  </section>
+
+  <nav class="rail" id="rail" aria-label="Days"></nav>
+
+  <!-- ============ DAY 1 ============ -->
+  <article class="day active" data-day="1">
+    <div class="card">
+      <span class="eyebrow">Day 1 · Setup &amp; first run</span>
+      <h2>Print a truss, run a program</h2>
+      <div class="idea">
+        <p class="lead">A program is a list of instructions the computer runs top to
+          bottom. Today you write three lines of shapes and watch a roof appear.</p>
+        <p><strong class="term">printf</strong> means "print, formatted": it puts text
+          on the screen. <strong class="term">gcc</strong> is the compiler: it turns the
+          C you typed into a program the machine can actually run.</p>
+      </div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day1_hello_truss.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("   /\\   \n");
+    printf("  /  \\  \n");
+    printf(" /____\\ \n");
+    printf("My first truss!\n");
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">
+        <span class="cm">\n</span> = "new line". Every printf ends one line of the drawing.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">
+        Open the file in VS Code, then in the terminal run:
+        <span class="cmd"><code>gcc day1_hello_truss.c -o day1</code> &nbsp;then&nbsp; <code>./day1</code></span>
+        You should see the little roof, then <b>My first truss!</b>. That's the whole
+        loop you'll repeat every day: write → compile → run.
+      </div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <!-- ============ DAY 2 ============ -->
+  <article class="day" data-day="2">
+    <div class="card">
+      <span class="eyebrow">Day 2 · Variables &amp; types</span>
+      <h2>Boxes that hold your numbers</h2>
+      <div class="idea">
+        <p class="lead">A <strong class="term">variable</strong> is a labelled box that
+          holds one value. The <strong class="term">type</strong> says what kind of value
+          fits in the box.</p>
+        <p>Three types carry almost everything: <b>int</b> for whole numbers (member
+          count), <b>float</b> for decimals (span in metres, pitch angle), and <b>char</b>
+          for a single character (timber grade).</p>
+      </div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day2_variables.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int   members = 7;      <span class="cm">/* whole number */</span>
+    float span    = 6.0;    <span class="cm">/* metres */</span>
+    float pitch   = 30.0;   <span class="cm">/* roof angle */</span>
+    char  grade   = 'B';    <span class="cm">/* one character */</span>
+
+    printf("Members: %d\n", members);
+    printf("Span: %.1f m\n", span);
+    printf("Pitch: %.0f degrees\n", pitch);
+    printf("Grade: %c\n", grade);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">
+        The <span class="cm">%d %f %c</span> are slots: %d fills with an int, %f with a
+        float (%.1f = 1 decimal place), %c with a char.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">
+        Compile and run: <code>gcc day2_variables.c -o day2</code> then <code>./day2</code>.
+        <span class="cmd">Then change the span to <b>8.5</b> and the grade to <b>'A'</b>,
+        run again, and watch the output change.</span>
+      </div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <!-- ============ DAY 3 ============ -->
+  <article class="day" data-day="3">
+    <div class="card">
+      <span class="eyebrow">Day 3 · Input</span>
+      <h2>Let the user type the span</h2>
+      <div class="idea">
+        <p class="lead">So far the numbers were baked in. <strong class="term">scanf</strong>
+          reads what the user types at the keyboard and drops it into a variable.</p>
+        <p>Notice the <b>&amp;</b> before the variable name. It means "the address of":
+          you're telling scanf <i>where</i> the box lives so it can fill it. Keep that
+          &amp; in mind: in Unit&nbsp;4 it becomes <strong class="term">pointers</strong>,
+          and it'll already feel familiar.</p>
+      </div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day3_input.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float span;
+    printf("Enter the span in metres: ");
+    scanf("%f", &amp;span);          <span class="cm">/* &amp; = "put it in span" */</span>
+    printf("You entered %.2f m\n", span);
+    return 0;
+}</pre>
+      </figure>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">
+        Run it: <code>gcc day3_input.c -o day3</code> then <code>./day3</code>.
+        <span class="cmd">Type a number, press Enter. Try a whole number and a decimal,
+        both should come back with two decimal places.</span>
+      </div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <!-- ============ DAY 4 ============ -->
+  <article class="day" data-day="4">
+    <div class="card">
+      <span class="eyebrow">Day 4 · Decisions</span>
+      <h2>Ask a question, branch on the answer</h2>
+      <div class="idea">
+        <p class="lead">A program earns its keep when it <i>decides</i>.
+          <strong class="term">if</strong> runs a block only when a test is true;
+          <strong class="term">else</strong> catches everything else.</p>
+        <p>Real rule of thumb on site: a simple truss handles a moderate span. Too wide
+          needs an engineer; too small, a single beam. Let the program say which.</p>
+      </div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day4_decisions.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float span;
+    printf("Enter the span in metres: ");
+    scanf("%f", &amp;span);
+
+    if (span &gt; 12.0) {
+        printf("Too wide - needs an engineer.\n");
+    } else if (span &lt; 3.0) {
+        printf("Very small - a single beam may do.\n");
+    } else {
+        printf("Standard truss territory. Good.\n");
+    }
+    return 0;
+}</pre>
+      </figure>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">
+        Run it three times: try <b>15</b>, <b>2</b>, and <b>6</b>.
+        <span class="cmd">Each should hit a different message. If one doesn't, re-read the
+        tests; that's how you debug.</span>
+      </div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <!-- ============ DAY 5 ============ -->
+  <article class="day" data-day="5">
+    <div class="card">
+      <span class="eyebrow">Day 5 · Loops</span>
+      <h2>Do the same job many times</h2>
+      <div class="idea">
+        <p class="lead">A roof has many identical rafters. A
+          <strong class="term">loop</strong> repeats a block instead of you copying it.
+          The <strong class="term">for</strong> loop counts: start, keep-going test, step.</p>
+        <p>Peek ahead: <code>lengths[0]</code> is an <b>array</b>, a row of boxes. That's
+          the whole of Unit&nbsp;1, and you're already using it.</p>
+      </div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day5_loops.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int i, rafters = 5;
+    for (i = 1; i &lt;= rafters; i++) {
+        printf("Rafter %d cut and ready\n", i);
+    }
+
+    float lengths[3] = {2.5, 3.0, 2.5};   <span class="cm">/* a row of boxes */</span>
+    float total = 0.0;
+    for (i = 0; i &lt; 3; i++) {
+        total = total + lengths[i];
+    }
+    printf("Total timber: %.1f m\n", total);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">
+        <span class="cm">i++</span> means "add 1 to i". The loop counts 1,2,3,4,5.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">
+        Run it: <code>gcc day5_loops.c -o day5</code> then <code>./day5</code>.
+        <span class="cmd">Change <b>rafters</b> to 8 and add a fourth length to the array
+        (remember to change <code>[3]</code> to <code>[4]</code> and the loop's <code>3</code> to <code>4</code>).</span>
+      </div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <!-- ============ DAY 6 ============ -->
+  <article class="day" data-day="6">
+    <div class="card">
+      <span class="eyebrow">Day 6 · Functions &amp; words</span>
+      <h2>Name a job, reuse it</h2>
+      <div class="idea">
+        <p class="lead">A <strong class="term">function</strong> is a named chunk of work.
+          You give it inputs (arguments), it hands back a result. Write it once, call it
+          anywhere.</p>
+        <p>A word like a member label is a <strong class="term">string</strong>, stored in
+          a <b>char array</b>. That's Unit&nbsp;2, previewed. After today you've touched a
+          little of the next six weeks already.</p>
+      </div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day6_functions.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+<span class="cm">/* rough truss height from span and pitch */</span>
+float truss_height(float span, float pitch_deg) {
+    float factor = pitch_deg / 100.0;   <span class="cm">/* simplified */</span>
+    return (span / 2.0) * factor;
+}
+
+int main(void) {
+    char label[10] = "TC1";             <span class="cm">/* top chord #1 */</span>
+    float h = truss_height(6.0, 30.0);
+    printf("Member %s\n", label);
+    printf("Approx height: %.2f m\n", h);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">
+        <span class="cm">%s</span> prints a string. The height math is deliberately rough;
+        Unit&nbsp;1 onward you'll make it real.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">
+        Run it, then call <code>truss_height</code> a second time with a different span and
+        print that too.
+        <span class="cmd">One function, used twice: that's the whole point of functions.</span>
+      </div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <nav class="nav">
+    <button id="prev">← Prev</button>
+    <button id="next">Next →</button>
+    <button id="doneBtn" class="done-btn">Mark day done ✓</button>
+  </nav>
+
+  <footer>
+    Week 0 of 8 · the <b>C On-Ramp</b>. Works offline once loaded.
+    Full notes &amp; starter files live in your study folder.
+  </footer>
+</div>
+
+<script>
+  const DAYS = [
+    {t:"Setup", quiz:[
+      {q:"What does <b>gcc</b> do?", a:["Runs a website","Turns your C code into a program you can run","Deletes your files"], c:1,
+       e:"gcc is the <b>compiler</b>: it translates C into a runnable program."},
+      {q:"What does <b>printf</b> do?", a:["Prints text to the screen","Prints paper on a printer","Reads the keyboard"], c:0,
+       e:"printf writes text to the screen. The <b>f</b> is for 'formatted'."},
+      {q:"In <code>gcc day1.c -o day1</code>, what is <b>-o day1</b>?", a:["An error","The name of the finished program","The C version"], c:1,
+       e:"<b>-o</b> names the output program. Here it's called <b>day1</b>."}
+    ]},
+    {t:"Types", quiz:[
+      {q:"Which type holds a decimal like 6.0?", a:["int","float","char"], c:1,
+       e:"<b>float</b> holds decimals. <b>int</b> is whole numbers only."},
+      {q:"<code>%d</code> in printf fills with a…", a:["Whole number (int)","Decimal","Single letter"], c:0,
+       e:"<b>%d</b> = int, <b>%f</b> = float, <b>%c</b> = char."},
+      {q:"<code>char grade = 'B';</code>, single quotes hold…", a:["A whole sentence","Exactly one character","A number"], c:1,
+       e:"Single quotes = one <b>char</b>. Words (many chars) use double quotes."}
+    ]},
+    {t:"Input", quiz:[
+      {q:"What does <b>scanf</b> do?", a:["Prints to screen","Reads what the user types","Scans for viruses"], c:1,
+       e:"scanf reads keyboard input into a variable."},
+      {q:"Why the <b>&amp;</b> in <code>scanf(\"%f\", &amp;span)</code>?", a:["It multiplies","It tells scanf WHERE to store the value","It's a typo"], c:1,
+       e:"<b>&amp;</b> = 'address of'. It hands scanf the box's location. This idea grows into <b>pointers</b> in Unit 4."},
+      {q:"<code>%f</code> reads a…", a:["Decimal number","Word","Whole number only"], c:0,
+       e:"%f matches a float (decimal)."}
+    ]},
+    {t:"Decisions", quiz:[
+      {q:"If span is 15, which message prints?", a:["Too wide - needs an engineer","Standard truss territory","Very small"], c:0,
+       e:"15 &gt; 12, so the first <b>if</b> is true and wins."},
+      {q:"<b>else if</b> runs when…", a:["Always","The if above was false AND its own test is true","Never"], c:1,
+       e:"Each branch is only reached if the ones above it were false."},
+      {q:"If span is 6, the output is…", a:["Too wide","Very small","Standard truss territory. Good."], c:2,
+       e:"6 is not &gt;12 and not &lt;3, so the <b>else</b> catches it."}
+    ]},
+    {t:"Loops", quiz:[
+      {q:"<code>for (i=1; i&lt;=5; i++)</code> runs how many times?", a:["4","5","6"], c:1,
+       e:"i goes 1,2,3,4,5: five passes."},
+      {q:"Across the loop, <code>total = total + lengths[i]</code>…", a:["Adds every length together","Prints each length","Deletes lengths"], c:0,
+       e:"It accumulates the running total, the sum of all members."},
+      {q:"<code>lengths[0]</code> is…", a:["The first length (2.5)","The last length","The total"], c:0,
+       e:"Arrays count from <b>0</b>, so [0] is the first box. Remember that for Unit 1."}
+    ]},
+    {t:"Functions", quiz:[
+      {q:"A function lets you…", a:["Name a chunk of work and reuse it","Slow the program down","Only run once"], c:0,
+       e:"Write the logic once, call it as many times as you like."},
+      {q:"In <code>truss_height(6.0, 30.0)</code>, 6.0 and 30.0 are…", a:["Errors","The inputs (arguments)","Line numbers"], c:1,
+       e:"They're the <b>arguments</b>: the values you feed the function."},
+      {q:"<code>char label[10]</code> holds…", a:["One number","A short word / string","A whole book"], c:1,
+       e:"A char array holds a string, up to 9 letters plus a hidden end-marker."}
+    ]}
+  ];
+
+  let cur = 1;
+  const done = new Set();
+  const rail = document.getElementById('rail');
+  const panels = [...document.querySelectorAll('.day')];
+
+  // build rail
+  DAYS.forEach((d, idx) => {
+    const b = document.createElement('button');
+    b.className = 'node'; b.dataset.day = idx + 1;
+    b.innerHTML = `<span class="n">${idx+1}</span><span class="t">${d.t}</span>`;
+    b.addEventListener('click', () => go(idx + 1));
+    rail.appendChild(b);
+  });
+
+  // build quizzes
+  panels.forEach((panel) => {
+    const day = +panel.dataset.day;
+    const host = panel.querySelector('.quiz');
+    DAYS[day - 1].quiz.forEach((item) => {
+      const q = document.createElement('div'); q.className = 'q';
+      q.innerHTML = `<p class="ask">${item.q}</p>`;
+      const opts = document.createElement('div'); opts.className = 'opts';
+      item.a.forEach((txt, i) => {
+        const o = document.createElement('button');
+        o.className = 'opt'; o.type = 'button'; o.innerHTML = txt;
+        o.addEventListener('click', () => {
+          if (o.disabled) return;
+          [...opts.children].forEach(x => x.disabled = true);
+          if (i === item.c) { o.classList.add('correct'); }
+          else { o.classList.add('wrong'); opts.children[item.c].classList.add('correct'); }
+          q.querySelector('.explain').classList.add('show');
+        });
+        opts.appendChild(o);
+      });
+      q.appendChild(opts);
+      const ex = document.createElement('div'); ex.className = 'explain';
+      ex.innerHTML = item.e; q.appendChild(ex);
+      host.appendChild(q);
+    });
+  });
+
+  function go(n) {
+    cur = n;
+    panels.forEach(p => p.classList.toggle('active', +p.dataset.day === n));
+    [...rail.children].forEach(b => b.setAttribute('aria-current', +b.dataset.day === n ? 'true' : 'false'));
+    document.getElementById('prev').disabled = (n === 1);
+    document.getElementById('next').disabled = (n === DAYS.length);
+    const db = document.getElementById('doneBtn');
+    db.textContent = done.has(n) ? 'Day done ✓' : 'Mark day done ✓';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  document.getElementById('prev').addEventListener('click', () => go(Math.max(1, cur-1)));
+  document.getElementById('next').addEventListener('click', () => go(Math.min(DAYS.length, cur+1)));
+  document.getElementById('doneBtn').addEventListener('click', () => {
+    done.add(cur);
+    rail.children[cur-1].classList.add('done');
+    if (cur < DAYS.length) go(cur+1); else go(cur);
+  });
+
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.closest('figure').querySelector('pre').innerText;
+      navigator.clipboard?.writeText(code);
+      const old = btn.textContent; btn.textContent = 'copied ✓';
+      setTimeout(() => btn.textContent = old, 1200);
+    });
+  });
+
+  // theme toggle: light -> dark -> system
+  const root = document.documentElement;
+  const order = ['light','dark',null];
+  let ti = 0;
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    ti = (ti + 1) % order.length;
+    if (order[ti]) root.setAttribute('data-theme', order[ti]);
+    else root.removeAttribute('data-theme');
+    document.getElementById('themeBtn').textContent =
+      order[ti] === 'light' ? '☀ Light' : order[ti] === 'dark' ? '☾ Dark' : '◐ Theme';
+  });
+
+  go(1);
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js"));
+}
+</script>

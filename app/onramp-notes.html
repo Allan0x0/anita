@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The C On-Ramp Notes</title>
+<style>
+  @page { margin: 0; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: #16232B;
+    font-family: Helvetica, Arial, sans-serif; font-size: 11pt; line-height: 1.55;
+  }
+  .page { padding: 16mm 16mm 18mm; page-break-after: always; position: relative; }
+  .page:last-child { page-break-after: auto; }
+
+  .eyebrow {
+    font-family: "Courier New", Courier, monospace; font-size: 9pt;
+    letter-spacing: .12em; text-transform: uppercase; color: #1D5A80; font-weight: bold;
+    margin: 0 0 2mm;
+  }
+  h1 { font-size: 30pt; line-height: 1.05; margin: 0 0 3mm; letter-spacing: -.5pt; }
+  h2 { font-size: 18pt; margin: 1mm 0 3mm; letter-spacing: -.3pt; }
+  h3 {
+    font-family: "Courier New", Courier, monospace; font-size: 8.5pt;
+    letter-spacing: .1em; text-transform: uppercase; color: #56676F;
+    margin: 6mm 0 2mm; border-bottom: 1px solid #CBD5DC; padding-bottom: 1.5mm;
+  }
+  p { margin: 0 0 2.5mm; }
+  .term { color: #1D5A80; font-weight: bold; }
+  .muted { color: #56676F; }
+
+  /* cover */
+  .cover { padding-top: 40mm; }
+  .cover .sub { color: #56676F; font-size: 12pt; margin-top: 4mm; }
+  .cover .truss { margin: 14mm 0; }
+  .rule { height: 3px; background: #1D5A80; width: 46mm; margin: 6mm 0; }
+
+  .box {
+    border: 1px solid #CBD5DC; border-radius: 3mm; padding: 5mm 6mm; margin: 4mm 0;
+    background: #F6F8FA;
+  }
+  .box h4 { margin: 0 0 2mm; font-size: 11pt; }
+
+  /* code */
+  figure { margin: 3mm 0; border: 1px solid #CBD5DC; border-radius: 2.5mm; overflow: hidden; }
+  figcaption {
+    background: #1D5A80; color: #fff; font-family: "Courier New", Courier, monospace;
+    font-size: 9pt; padding: 2mm 4mm;
+  }
+  pre {
+    margin: 0; padding: 4mm; background: #F2F4F6; color: #16232B;
+    font-family: "Courier New", Courier, monospace; font-size: 9.5pt; line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .cm { color: #7A8A93; font-style: italic; }
+  code {
+    font-family: "Courier New", Courier, monospace; font-size: 9.5pt;
+    background: #F2F4F6; border: 1px solid #DDE4E9; border-radius: 1.5mm; padding: 0 1.5mm;
+  }
+
+  .build {
+    border-left: 3px solid #B57C33; background: #F7EFE1;
+    border-radius: 0 2.5mm 2.5mm 0; padding: 4mm 5mm; margin: 3mm 0;
+  }
+  .build b { color: #7A5320; }
+
+  /* quiz */
+  .q { margin: 3mm 0 4mm; page-break-inside: avoid; }
+  .q .ask { font-weight: bold; margin: 0 0 1.5mm; }
+  .q ol { margin: 0 0 2mm 6mm; padding: 0; }
+  .q li { margin: .5mm 0; }
+  .ans {
+    font-size: 10pt; color: #2F5D3F; background: #EDF5EF;
+    border-left: 3px solid #2F7D53; border-radius: 0 2mm 2mm 0; padding: 2.5mm 4mm;
+  }
+  .ans b { color: #16232B; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="page cover">
+  <p class="eyebrow">BITH132 · Data Structures &amp; Algorithms · Week 0</p>
+  <h1>The C On-Ramp</h1>
+  <div class="rule"></div>
+  <p class="sub">Six short days. Just enough C to walk into Unit&nbsp;1 standing up,
+     learned by building a roof truss.</p>
+
+  <div class="truss">
+    <svg width="150mm" height="52mm" viewBox="0 0 620 220">
+      <g fill="none" stroke="#1D5A80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M40 180 L580 180"/>
+        <path d="M40 180 L310 46"/>
+        <path d="M580 180 L310 46"/>
+        <path d="M310 46 L310 180"/>
+        <path d="M175 113 L310 180"/>
+        <path d="M445 113 L310 180"/>
+      </g>
+      <g fill="#B57C33">
+        <circle cx="40" cy="180" r="5"/><circle cx="580" cy="180" r="5"/>
+        <circle cx="310" cy="46" r="5"/><circle cx="310" cy="180" r="5"/>
+        <circle cx="175" cy="113" r="4"/><circle cx="445" cy="113" r="4"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="box">
+    <h4>How this week works</h4>
+    <p class="muted" style="margin:0">One day per day. Read the idea, type the code on
+      your laptop, compile and run it, then answer the quick check. Miss a day? The
+      week has slack; just pick up where you left off. The phone app has the same six
+      days with instant-feedback quizzes; this PDF is for reading offline.</p>
+  </div>
+
+  <p class="muted" style="font-size:9.5pt;margin-top:6mm">
+    Setup once per laptop (see the install guide): <b>VS&nbsp;Code + gcc</b>.
+    Compile &amp; run any file: <code>gcc file.c -o out</code> then <code>./out</code>.</p>
+</section>
+
+<!-- DAY 1 -->
+<section class="page">
+  <p class="eyebrow">Day 1 · Setup &amp; first run</p>
+  <h2>Print a truss, run a program</h2>
+  <p>A program is a list of instructions the computer runs top to bottom. Today you
+     write three lines of shapes and watch a roof appear.</p>
+  <p><span class="term">printf</span> means "print, formatted": it puts text on the
+     screen. <span class="term">gcc</span> is the compiler: it turns the C you typed into
+     a program the machine can run.</p>
+
+  <h3>The code: day1_hello_truss.c</h3>
+  <figure>
+    <figcaption>day1_hello_truss.c</figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("   /\\   \n");
+    printf("  /  \\  \n");
+    printf(" /____\\ \n");
+    printf("My first truss!\n");
+    return 0;
+}</pre>
+  </figure>
+  <p class="muted" style="font-size:10pt"><code>\n</code> = "new line". Each printf ends
+     one line of the drawing.</p>
+
+  <h3>Build it</h3>
+  <div class="build">
+    <p style="margin:0">Compile: <code>gcc day1_hello_truss.c -o day1</code> &nbsp;then&nbsp;
+       run: <code>./day1</code>. You should see the little roof, then
+       <b>My first truss!</b>. That's the loop you repeat every day: write → compile → run.</p>
+  </div>
+
+  <h3>Check yourself</h3>
+  <div class="q">
+    <p class="ask">1. What does <code>gcc</code> do?</p>
+    <ol type="a"><li>Runs a website</li><li>Turns your C code into a program you can run</li><li>Deletes your files</li></ol>
+    <p class="ans"><b>b.</b> gcc is the compiler: it translates C into a runnable program.</p>
+  </div>
+  <div class="q">
+    <p class="ask">2. What does <code>printf</code> do?</p>
+    <ol type="a"><li>Prints text to the screen</li><li>Prints paper on a printer</li><li>Reads the keyboard</li></ol>
+    <p class="ans"><b>a.</b> printf writes text to the screen. The <b>f</b> is for "formatted".</p>
+  </div>
+  <div class="q">
+    <p class="ask">3. In <code>gcc day1.c -o day1</code>, what is <code>-o day1</code>?</p>
+    <ol type="a"><li>An error</li><li>The name of the finished program</li><li>The C version</li></ol>
+    <p class="ans"><b>b.</b> <code>-o</code> names the output program. Here it's called <b>day1</b>.</p>
+  </div>
+</section>
+
+<!-- DAY 2 -->
+<section class="page">
+  <p class="eyebrow">Day 2 · Variables &amp; types</p>
+  <h2>Boxes that hold your numbers</h2>
+  <p>A <span class="term">variable</span> is a labelled box that holds one value. The
+     <span class="term">type</span> says what kind of value fits.</p>
+  <p>Three types carry almost everything: <b>int</b> for whole numbers (member count),
+     <b>float</b> for decimals (span, pitch), and <b>char</b> for a single character
+     (timber grade).</p>
+
+  <h3>The code: day2_variables.c</h3>
+  <figure>
+    <figcaption>day2_variables.c</figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int   members = 7;      <span class="cm">/* whole number */</span>
+    float span    = 6.0;    <span class="cm">/* metres */</span>
+    float pitch   = 30.0;   <span class="cm">/* roof angle */</span>
+    char  grade   = 'B';    <span class="cm">/* one character */</span>
+
+    printf("Members: %d\n", members);
+    printf("Span: %.1f m\n", span);
+    printf("Pitch: %.0f degrees\n", pitch);
+    printf("Grade: %c\n", grade);
+    return 0;
+}</pre>
+  </figure>
+  <p class="muted" style="font-size:10pt">The slots <code>%d %f %c</code> fill from your
+     variables: %d = int, %.1f = float to 1 decimal, %c = char.</p>
+
+  <h3>Build it</h3>
+  <div class="build">
+    <p style="margin:0"><code>gcc day2_variables.c -o day2</code> then <code>./day2</code>.
+       Then change the span to <b>8.5</b> and the grade to <b>'A'</b>, run again, watch
+       the output change.</p>
+  </div>
+
+  <h3>Check yourself</h3>
+  <div class="q">
+    <p class="ask">1. Which type holds a decimal like 6.0?</p>
+    <ol type="a"><li>int</li><li>float</li><li>char</li></ol>
+    <p class="ans"><b>b.</b> float holds decimals; int is whole numbers only.</p>
+  </div>
+  <div class="q">
+    <p class="ask">2. <code>%d</code> in printf fills with a…</p>
+    <ol type="a"><li>Whole number (int)</li><li>Decimal</li><li>Single letter</li></ol>
+    <p class="ans"><b>a.</b> %d = int, %f = float, %c = char.</p>
+  </div>
+  <div class="q">
+    <p class="ask">3. <code>char grade = 'B';</code>, single quotes hold…</p>
+    <ol type="a"><li>A whole sentence</li><li>Exactly one character</li><li>A number</li></ol>
+    <p class="ans"><b>b.</b> Single quotes = one char. Words (many chars) use double quotes.</p>
+  </div>
+</section>
+
+<!-- DAY 3 -->
+<section class="page">
+  <p class="eyebrow">Day 3 · Input</p>
+  <h2>Let the user type the span</h2>
+  <p>So far the numbers were baked in. <span class="term">scanf</span> reads what the user
+     types and drops it into a variable.</p>
+  <p>Notice the <b>&amp;</b> before the variable. It means "the address of": you're telling
+     scanf <i>where</i> the box lives so it can fill it. Keep it in mind: in Unit&nbsp;4 the
+     &amp; becomes <span class="term">pointers</span>, and it'll already feel familiar.</p>
+
+  <h3>The code: day3_input.c</h3>
+  <figure>
+    <figcaption>day3_input.c</figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float span;
+    printf("Enter the span in metres: ");
+    scanf("%f", &amp;span);          <span class="cm">/* &amp; = "put it in span" */</span>
+    printf("You entered %.2f m\n", span);
+    return 0;
+}</pre>
+  </figure>
+
+  <h3>Build it</h3>
+  <div class="build">
+    <p style="margin:0"><code>gcc day3_input.c -o day3</code> then <code>./day3</code>.
+       Type a number, press Enter. Try a whole number and a decimal, both come back with
+       two decimal places.</p>
+  </div>
+
+  <h3>Check yourself</h3>
+  <div class="q">
+    <p class="ask">1. What does <code>scanf</code> do?</p>
+    <ol type="a"><li>Prints to screen</li><li>Reads what the user types</li><li>Scans for viruses</li></ol>
+    <p class="ans"><b>b.</b> scanf reads keyboard input into a variable.</p>
+  </div>
+  <div class="q">
+    <p class="ask">2. Why the <code>&amp;</code> in <code>scanf("%f", &amp;span)</code>?</p>
+    <ol type="a"><li>It multiplies</li><li>It tells scanf WHERE to store the value</li><li>It's a typo</li></ol>
+    <p class="ans"><b>b.</b> <code>&amp;</code> = "address of". It hands scanf the box's
+       location. This idea grows into <b>pointers</b> in Unit 4.</p>
+  </div>
+  <div class="q">
+    <p class="ask">3. <code>%f</code> reads a…</p>
+    <ol type="a"><li>Decimal number</li><li>Word</li><li>Whole number only</li></ol>
+    <p class="ans"><b>a.</b> %f matches a float (decimal).</p>
+  </div>
+</section>
+
+<!-- DAY 4 -->
+<section class="page">
+  <p class="eyebrow">Day 4 · Decisions</p>
+  <h2>Ask a question, branch on the answer</h2>
+  <p>A program earns its keep when it <i>decides</i>. <span class="term">if</span> runs a
+     block only when a test is true; <span class="term">else</span> catches the rest.</p>
+  <p>Rule of thumb on site: a simple truss handles a moderate span. Too wide needs an
+     engineer; too small, a single beam. Let the program say which.</p>
+
+  <h3>The code: day4_decisions.c</h3>
+  <figure>
+    <figcaption>day4_decisions.c</figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    float span;
+    printf("Enter the span in metres: ");
+    scanf("%f", &amp;span);
+
+    if (span &gt; 12.0) {
+        printf("Too wide - needs an engineer.\n");
+    } else if (span &lt; 3.0) {
+        printf("Very small - a single beam may do.\n");
+    } else {
+        printf("Standard truss territory. Good.\n");
+    }
+    return 0;
+}</pre>
+  </figure>
+
+  <h3>Build it</h3>
+  <div class="build">
+    <p style="margin:0">Run it three times: try <b>15</b>, <b>2</b>, then <b>6</b>. Each
+       should hit a different message. If one doesn't, re-read the tests; that's debugging.</p>
+  </div>
+
+  <h3>Check yourself</h3>
+  <div class="q">
+    <p class="ask">1. If span is 15, which message prints?</p>
+    <ol type="a"><li>Too wide - needs an engineer</li><li>Standard truss territory</li><li>Very small</li></ol>
+    <p class="ans"><b>a.</b> 15 &gt; 12, so the first <code>if</code> is true and wins.</p>
+  </div>
+  <div class="q">
+    <p class="ask">2. <code>else if</code> runs when…</p>
+    <ol type="a"><li>Always</li><li>The if above was false AND its own test is true</li><li>Never</li></ol>
+    <p class="ans"><b>b.</b> Each branch is only reached if the ones above were false.</p>
+  </div>
+  <div class="q">
+    <p class="ask">3. If span is 6, the output is…</p>
+    <ol type="a"><li>Too wide</li><li>Very small</li><li>Standard truss territory. Good.</li></ol>
+    <p class="ans"><b>c.</b> 6 is not &gt;12 and not &lt;3, so the <code>else</code> catches it.</p>
+  </div>
+</section>
+
+<!-- DAY 5 -->
+<section class="page">
+  <p class="eyebrow">Day 5 · Loops</p>
+  <h2>Do the same job many times</h2>
+  <p>A roof has many identical rafters. A <span class="term">loop</span> repeats a block
+     instead of you copying it. The <span class="term">for</span> loop counts: start,
+     keep-going test, step.</p>
+  <p>Peek ahead: <code>lengths[0]</code> is an <b>array</b>, a row of boxes. That's the
+     whole of Unit&nbsp;1, and you're already using it.</p>
+
+  <h3>The code: day5_loops.c</h3>
+  <figure>
+    <figcaption>day5_loops.c</figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+int main(void) {
+    int i, rafters = 5;
+    for (i = 1; i &lt;= rafters; i++) {
+        printf("Rafter %d cut and ready\n", i);
+    }
+
+    float lengths[3] = {2.5, 3.0, 2.5};   <span class="cm">/* a row of boxes */</span>
+    float total = 0.0;
+    for (i = 0; i &lt; 3; i++) {
+        total = total + lengths[i];
+    }
+    printf("Total timber: %.1f m\n", total);
+    return 0;
+}</pre>
+  </figure>
+  <p class="muted" style="font-size:10pt"><code>i++</code> means "add 1 to i". The first
+     loop counts 1,2,3,4,5.</p>
+
+  <h3>Build it</h3>
+  <div class="build">
+    <p style="margin:0"><code>gcc day5_loops.c -o day5</code> then <code>./day5</code>.
+       Change <b>rafters</b> to 8, and add a 4th length; remember to change <code>[3]</code>
+       to <code>[4]</code> and the loop's <code>3</code> to <code>4</code>.</p>
+  </div>
+
+  <h3>Check yourself</h3>
+  <div class="q">
+    <p class="ask">1. <code>for (i=1; i&lt;=5; i++)</code> runs how many times?</p>
+    <ol type="a"><li>4</li><li>5</li><li>6</li></ol>
+    <p class="ans"><b>b.</b> i goes 1,2,3,4,5: five passes.</p>
+  </div>
+  <div class="q">
+    <p class="ask">2. Across the loop, <code>total = total + lengths[i]</code>…</p>
+    <ol type="a"><li>Adds every length together</li><li>Prints each length</li><li>Deletes lengths</li></ol>
+    <p class="ans"><b>a.</b> It accumulates the running total, the sum of all members.</p>
+  </div>
+  <div class="q">
+    <p class="ask">3. <code>lengths[0]</code> is…</p>
+    <ol type="a"><li>The first length (2.5)</li><li>The last length</li><li>The total</li></ol>
+    <p class="ans"><b>a.</b> Arrays count from <b>0</b>, so [0] is the first box. Remember
+       that for Unit 1.</p>
+  </div>
+</section>
+
+<!-- DAY 6 -->
+<section class="page">
+  <p class="eyebrow">Day 6 · Functions &amp; words</p>
+  <h2>Name a job, reuse it</h2>
+  <p>A <span class="term">function</span> is a named chunk of work. You give it inputs
+     (arguments), it hands back a result. Write it once, call it anywhere.</p>
+  <p>A word like a member label is a <span class="term">string</span>, stored in a
+     <b>char array</b>. That's Unit&nbsp;2, previewed. After today you've touched a little
+     of the next six weeks already.</p>
+
+  <h3>The code: day6_functions.c</h3>
+  <figure>
+    <figcaption>day6_functions.c</figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+<span class="cm">/* rough truss height from span and pitch */</span>
+float truss_height(float span, float pitch_deg) {
+    float factor = pitch_deg / 100.0;   <span class="cm">/* simplified */</span>
+    return (span / 2.0) * factor;
+}
+
+int main(void) {
+    char label[10] = "TC1";             <span class="cm">/* top chord #1 */</span>
+    float h = truss_height(6.0, 30.0);
+    printf("Member %s\n", label);
+    printf("Approx height: %.2f m\n", h);
+    return 0;
+}</pre>
+  </figure>
+  <p class="muted" style="font-size:10pt"><code>%s</code> prints a string. The height math
+     is deliberately rough; from Unit&nbsp;1 on you'll make it real.</p>
+
+  <h3>Build it</h3>
+  <div class="build">
+    <p style="margin:0">Run it, then call <code>truss_height</code> a second time with a
+       different span and print that too. One function, used twice: that's the whole point.</p>
+  </div>
+
+  <h3>Check yourself</h3>
+  <div class="q">
+    <p class="ask">1. A function lets you…</p>
+    <ol type="a"><li>Name a chunk of work and reuse it</li><li>Slow the program down</li><li>Only run once</li></ol>
+    <p class="ans"><b>a.</b> Write the logic once, call it as many times as you like.</p>
+  </div>
+  <div class="q">
+    <p class="ask">2. In <code>truss_height(6.0, 30.0)</code>, 6.0 and 30.0 are…</p>
+    <ol type="a"><li>Errors</li><li>The inputs (arguments)</li><li>Line numbers</li></ol>
+    <p class="ans"><b>b.</b> They're the <b>arguments</b>: the values you feed the function.</p>
+  </div>
+  <div class="q">
+    <p class="ask">3. <code>char label[10]</code> holds…</p>
+    <ol type="a"><li>One number</li><li>A short word / string</li><li>A whole book</li></ol>
+    <p class="ans"><b>b.</b> A char array holds a string, up to 9 letters plus a hidden
+       end-marker.</p>
+  </div>
+
+  <div class="box" style="margin-top:8mm">
+    <h4>You made it. What's next.</h4>
+    <p class="muted" style="margin:0">You can now write, compile and run C, use variables,
+      read input, make decisions, loop, and write a function. That's the whole toolkit for
+      <b>Unit&nbsp;1: Arrays</b>, where the truss cut-list becomes a real array and the
+      build begins in earnest.</p>
+  </div>
+</section>
+
+</body>
+</html>

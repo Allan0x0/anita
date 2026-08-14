@@ -1,0 +1,668 @@
+<meta charset="utf-8">
+<title>The Blueprint</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    /* light = drafting paper */
+    --page:   #E7ECEF;
+    --paper:  #F6F8FA;
+    --ink:    #16232B;
+    --muted:  #56676F;
+    --line:   #C9D4DB;
+    --blue:   #1D5A80;   /* drafting ink */
+    --blue-2: #2E7BA8;
+    --timber: #B57C33;   /* sawn pine = progress/build */
+    --timber-soft: #F0E4D0;
+    --good:   #2F7D53;
+    --bad:    #B23A3A;
+    --shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(20,40,55,.5);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page:   #0A1620;
+      --paper:  #10283A;
+      --ink:    #DCE7EE;
+      --muted:  #8AA0AD;
+      --line:   #22465F;
+      --blue:   #58ADDD;
+      --blue-2: #7AC2EA;
+      --timber: #E0A857;
+      --timber-soft: #2A3B34;
+      --good:   #64C48C;
+      --bad:    #E27B7B;
+      --shadow: 0 1px 0 rgba(0,0,0,.4), 0 18px 40px -22px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --page:   #0A1620;
+    --paper:  #10283A;
+    --ink:    #DCE7EE;
+    --muted:  #8AA0AD;
+    --line:   #22465F;
+    --blue:   #58ADDD;
+    --blue-2: #7AC2EA;
+    --timber: #E0A857;
+    --timber-soft: #2A3B34;
+    --good:   #64C48C;
+    --bad:    #E27B7B;
+    --shadow: 0 1px 0 rgba(0,0,0,.4), 0 18px 40px -22px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font: 16px/1.6 -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
+    /* faint drafting grid */
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    background-position: -1px -1px;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 18px 64px; }
+
+  .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--blue); font-weight: 600;
+  }
+
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand .eyebrow { display: block; }
+  .brand h1 {
+    margin: 2px 0 0; font-size: 26px; line-height: 1.1; letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .toggle {
+    flex: 0 0 auto; background: var(--paper); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px;
+    font-size: 13px; cursor: pointer; box-shadow: var(--shadow);
+  }
+  .toggle:focus-visible, button:focus-visible, .opt:focus-visible {
+    outline: 2px solid var(--blue); outline-offset: 2px;
+  }
+
+  /* hero blueprint */
+  .hero {
+    margin: 18px 0 8px; background: var(--paper); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px; box-shadow: var(--shadow);
+  }
+  .hero svg { width: 100%; height: auto; display: block; }
+  .hero p { margin: 12px 2px 0; color: var(--muted); font-size: 15px; }
+  .hero p b { color: var(--ink); }
+  @media (prefers-reduced-motion: no-preference) {
+    .draw { stroke-dasharray: 1; stroke-dashoffset: 1; pathLength: 1;
+      animation: draw 1.1s ease forwards; }
+    .draw.d2 { animation-delay: .35s; }
+    .draw.d3 { animation-delay: .7s; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+  }
+
+  /* progress rail */
+  .rail { display: flex; gap: 6px; margin: 20px 0 14px; }
+  .node {
+    flex: 1 1 0; border: none; background: var(--paper); cursor: pointer;
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 4px 7px;
+    text-align: center; color: var(--muted); box-shadow: var(--shadow);
+  }
+  .node .n { display: block; font-weight: 700; font-size: 15px; color: var(--ink); }
+  .node .t { display: block; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+  .node[aria-current="true"] { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue), var(--shadow); }
+  .node.done { background: var(--timber-soft); border-color: var(--timber); }
+  .node.done .n::after { content: " ✓"; color: var(--timber); }
+
+  /* day panel */
+  .day { display: none; }
+  .day.active { display: block; }
+  .card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; box-shadow: var(--shadow); margin-top: 6px;
+  }
+  .card h2 { margin: 6px 0 0; font-size: 22px; letter-spacing: -.01em; text-wrap: balance; }
+  .idea { color: var(--ink); }
+  .idea p { margin: 12px 0; }
+  .idea .lead { font-size: 17px; }
+  strong.term { color: var(--blue); font-weight: 600; }
+
+  h3.mini {
+    font-family: ui-monospace, monospace; font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); margin: 22px 0 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h3.mini::before { content: ""; width: 14px; height: 1px; background: var(--line); }
+
+  /* code block */
+  figure.code { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  figure.code figcaption {
+    background: var(--blue); color: #fff; font-family: ui-monospace, monospace;
+    font-size: 12px; padding: 6px 12px; letter-spacing: .03em;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  :root[data-theme="dark"] figure.code figcaption,
+  :root:not([data-theme="light"]) figure.code figcaption { color: #08151E; }
+  figure.code pre {
+    margin: 0; padding: 14px 14px; overflow-x: auto; background: var(--page);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px; line-height: 1.55; color: var(--ink);
+  }
+  figure.code .cm { color: var(--muted); font-style: italic; }
+  .copy { background: rgba(255,255,255,.18); border: none; color: inherit;
+    font: inherit; cursor: pointer; border-radius: 5px; padding: 2px 8px; }
+
+  /* build callout */
+  .build {
+    border-left: 3px solid var(--timber); background: var(--timber-soft);
+    border-radius: 0 10px 10px 0; padding: 12px 14px; margin-top: 8px;
+  }
+  .build .cmd { display: block; margin-top: 8px; }
+  .build code { font-family: ui-monospace, monospace; font-size: 13px;
+    background: var(--page); border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 6px; }
+
+  /* quiz */
+  .q { margin: 14px 0; }
+  .q p.ask { font-weight: 600; margin: 0 0 8px; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt {
+    text-align: left; background: var(--page); border: 1px solid var(--line);
+    border-radius: 9px; padding: 11px 13px; font: inherit; color: var(--ink);
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .opt:hover { border-color: var(--blue); }
+  .opt.correct { border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--page)); }
+  .opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--page)); }
+  .opt[disabled] { cursor: default; opacity: .9; }
+  .explain {
+    display: none; margin-top: 8px; font-size: 14px; color: var(--muted);
+    border-top: 1px dashed var(--line); padding-top: 8px;
+  }
+  .explain.show { display: block; }
+  .explain b { color: var(--ink); }
+
+  /* nav */
+  .nav { display: flex; gap: 10px; margin-top: 22px; align-items: center; }
+  .nav button {
+    font: inherit; border-radius: 9px; padding: 11px 16px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    box-shadow: var(--shadow);
+  }
+  .nav .done-btn { margin-left: auto; background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
+  :root[data-theme="dark"] .nav .done-btn,
+  :root:not([data-theme="light"]) .nav .done-btn { color: #08151E; }
+  .nav button:disabled { opacity: .4; cursor: default; }
+
+  footer { margin-top: 30px; color: var(--muted); font-size: 13px; text-align: center; }
+  footer b { color: var(--ink); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">BITH132 · Week 2</span>
+      <h1>The Blueprint</h1>
+    </div>
+    <button class="toggle" id="themeBtn" aria-label="Switch light or dark">◐ Theme</button>
+  </header>
+
+  <section class="hero" aria-label="A Member struct and an array of Members">
+    <svg viewBox="0 0 596 150" role="img" aria-label="A Member struct with length, angle and type fields, repeated as a truss array">
+      <g class="mono">
+        <rect x="20" y="14" width="190" height="112" rx="8" fill="var(--paper)" stroke="var(--blue)" stroke-width="2.5"/>
+        <text x="115" y="32" text-anchor="middle" fill="var(--blue)" font-size="12" font-weight="700">struct Member</text>
+        <line x1="20" y1="40" x2="210" y2="40" stroke="var(--line)" stroke-width="1"/>
+        <text x="32" y="60" fill="var(--muted)" font-size="12">length</text>
+        <text x="198" y="60" text-anchor="end" fill="var(--ink)" font-size="12" font-weight="600">2.5</text>
+        <text x="32" y="82" fill="var(--muted)" font-size="12">angle</text>
+        <text x="198" y="82" text-anchor="end" fill="var(--ink)" font-size="12" font-weight="600">45</text>
+        <text x="32" y="104" fill="var(--muted)" font-size="12">type</text>
+        <text x="198" y="104" text-anchor="end" fill="var(--ink)" font-size="12" font-weight="600">T</text>
+
+        <text x="228" y="70" fill="var(--muted)" font-size="20">→</text>
+
+        <text x="271" y="44" text-anchor="middle" fill="var(--muted)" font-size="12">[0]</text>
+        <rect x="252" y="52" width="70" height="58" rx="6" fill="var(--timber-soft)" stroke="var(--timber)" stroke-width="2.5"/>
+        <text x="287" y="76" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">2.5m</text>
+        <text x="287" y="94" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">T</text>
+
+        <text x="343" y="44" text-anchor="middle" fill="var(--muted)" font-size="12">[1]</text>
+        <rect x="324" y="52" width="70" height="58" rx="6" fill="var(--paper)" stroke="var(--blue)" stroke-width="2.5"/>
+        <text x="359" y="76" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">3.0m</text>
+        <text x="359" y="94" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">C</text>
+
+        <text x="415" y="44" text-anchor="middle" fill="var(--muted)" font-size="12">[2]</text>
+        <rect x="396" y="52" width="70" height="58" rx="6" fill="var(--paper)" stroke="var(--blue)" stroke-width="2.5"/>
+        <text x="431" y="76" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">3.0m</text>
+        <text x="431" y="94" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">C</text>
+
+        <text x="487" y="44" text-anchor="middle" fill="var(--muted)" font-size="12">[3]</text>
+        <rect x="468" y="52" width="70" height="58" rx="6" fill="var(--timber-soft)" stroke="var(--timber)" stroke-width="2.5"/>
+        <text x="503" y="76" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">2.5m</text>
+        <text x="503" y="94" text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">T</text>
+
+        <text x="288" y="128" text-anchor="middle" fill="var(--muted)" font-size="12">truss[0] to truss[3] : an array of Member structs</text>
+      </g>
+    </svg>
+    <p><b>Unit 3: Structures. Unit 4: Pointers (start).</b> A struct bundles related
+      fields, length, angle, type, into one <b>Member</b>. A truss is an array of
+      Members. You will build one, walk it, and reach into it through a pointer.</p>
+  </section>
+
+  <nav class="rail" id="rail" aria-label="Days"></nav>
+
+  <article class="day active" data-day="1">
+    <div class="card">
+      <span class="eyebrow">Day 1 · Declare</span>
+      <h2>A struct bundles fields into one box</h2>
+      <div class="idea"><p class="lead">A <strong class="term">struct</strong> groups several fields under one name, even when the fields are different types. A truss <b>Member</b> needs a length, an angle, and a type: three values, one struct.</p><p><code>struct Member { float length; int angle; char type; };</code> defines the shape. <code>struct Member m;</code> makes one blank Member. Reach a field with a dot: <code>m.length</code>.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day1_member.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+struct Member {
+    float length;
+    int angle;
+    char type;   <span class="cm">/* &#x27;T&#x27; tension, &#x27;C&#x27; compression */</span>
+};
+
+int main(void) {
+    struct Member m;
+    m.length = 2.5;
+    m.angle = 45;
+    m.type = &#x27;T&#x27;;
+    printf(&quot;Member: length=%.1f angle=%d type=%c\n&quot;, m.length, m.angle, m.type);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">The <code>struct Member { ... };</code> block only defines the shape. It makes no Member by itself; <code>struct Member m;</code> does that.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Compile and run: <code>gcc -Wall day1_member.c -o day1</code> then <code>./day1</code>. Then add a fourth field, e.g. <code>float force;</code>, set it, and print it too.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="2">
+    <div class="card">
+      <span class="eyebrow">Day 2 · Initialize</span>
+      <h2>Fill a struct in one line, read its fields</h2>
+      <div class="idea"><p class="lead">Like an array, a struct can be filled all at once with a <strong class="term">struct literal</strong>: values in the same order as the fields, in curly braces.</p><p><code>struct Member top_chord = {3.0, 30, 'C'};</code> sets length, angle, type in one go. After that, each field is a normal variable: read it, print it, or change it with the dot.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day2_init.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+struct Member {
+    float length;
+    int angle;
+    char type;
+};
+
+int main(void) {
+    struct Member top_chord = {3.0, 30, &#x27;C&#x27;};
+    printf(&quot;Top chord: %.1f m at %d deg, type %c\n&quot;,
+           top_chord.length, top_chord.angle, top_chord.type);
+
+    top_chord.length = 3.2;   <span class="cm">/* fields can be changed after the fact */</span>
+    printf(&quot;Adjusted length: %.1f m\n&quot;, top_chord.length);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">The literal order must match the field order: length, then angle, then type.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then make a second Member with your own values and print it too.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="3">
+    <div class="card">
+      <span class="eyebrow">Day 3 · The truss</span>
+      <h2>An array of structs, walked in one loop</h2>
+      <div class="idea"><p class="lead">A truss is not one Member, it is many. The fix is the same one from Week 1: an array, except now each box holds a whole struct instead of one number.</p><p><code>struct Member truss[4];</code> makes four Members in a row. <code>truss[i].length</code> reaches member <code>i</code>'s length. Walking all four is still one loop, still <b>O(n)</b>.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day3_truss.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+#define N 4
+
+struct Member {
+    float length;
+    int angle;
+    char type;
+};
+
+int main(void) {
+    struct Member truss[N] = {
+        {2.5, 0,  &#x27;T&#x27;},
+        {3.0, 45, &#x27;C&#x27;},
+        {3.0, 45, &#x27;C&#x27;},
+        {2.5, 0,  &#x27;T&#x27;}
+    };
+    int i;
+    float total = 0.0;
+
+    for (i = 0; i &lt; N; i++) {                 <span class="cm">/* one walk, O(n) */</span>
+        printf(&quot;Member %d: %.1f m at %d deg (%c)\n&quot;,
+               i, truss[i].length, truss[i].angle, truss[i].type);
+        total = total + truss[i].length;
+    }
+    printf(&quot;Total timber: %.1f m\n&quot;, total);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">Same walk as Week 1's cut-list, one field deeper: <code>truss[i].length</code> instead of <code>cut[i]</code>.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then add a 5th Member to the array and update <code>N</code>; the loop just follows.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="4">
+    <div class="card">
+      <span class="eyebrow">Day 4 · By value vs by pointer</span>
+      <h2>A copy is safe but wasteful; a pointer shares</h2>
+      <div class="idea"><p class="lead">Passing a struct to a function <strong class="term">by value</strong> copies every field in. The function can look at it, but changes inside stay inside; the caller's Member is untouched.</p><p>Passing <strong class="term">by pointer</strong> shares the same Member: no copy, and changes through the pointer really change the caller's data. <code>&amp;web</code> is the address of <code>web</code>, the same <code>&amp;</code> from the on-ramp.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day4_byvalue.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+struct Member {
+    float length;
+    int angle;
+    char type;
+};
+
+<span class="cm">/* by value: gets a COPY, cannot change the caller's Member */</span>
+void print_member(struct Member m) {
+    printf(&quot;Member: %.1f m at %d deg (%c)\n&quot;, m.length, m.angle, m.type);
+}
+
+<span class="cm">/* by pointer: reaches the ORIGINAL Member, no copy made */</span>
+void grow_member(struct Member *m, float extra) {
+    m-&gt;length = m-&gt;length + extra;
+}
+
+int main(void) {
+    struct Member web = {1.8, 60, &#x27;T&#x27;};
+    print_member(web);          <span class="cm">/* copy goes in, original untouched */</span>
+    grow_member(&amp;web, 0.2);     <span class="cm">/* &amp;web: address of web, a pointer */</span>
+    print_member(web);          <span class="cm">/* original really changed */</span>
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px">A big struct passed by value copies every field, every call. A pointer is one address: cheap, and it lets the function mutate the real data.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then write a second by-value function that tries to grow the length and prove the caller's copy is unchanged.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="5">
+    <div class="card">
+      <span class="eyebrow">Day 5 · Pointers</span>
+      <h2>&amp;x, *p, p-&gt;field</h2>
+      <div class="idea"><p class="lead">A <strong class="term">pointer</strong> is a variable that holds an address, not a value. <code>int *p = &amp;angle;</code> makes <code>p</code> point at <code>angle</code>. <code>*p</code> reaches the value stored there, in either direction: read it or write it.</p><p>For a struct pointer, <code>mp-&gt;length</code> is shorthand for <code>(*mp).length</code>: follow the pointer, then reach the field. It is the same idea as Day 4's <code>m-&gt;length</code>, spelled out.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day5_pointers.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+
+struct Member {
+    float length;
+    int angle;
+    char type;
+};
+
+int main(void) {
+    int angle = 45;
+    int *p = &amp;angle;    <span class="cm">/* p holds the ADDRESS of angle */</span>
+
+    printf(&quot;angle = %d\n&quot;, angle);
+    printf(&quot;&amp;angle (address) = %p\n&quot;, (void *) &amp;angle);
+    printf(&quot;*p (value at that address) = %d\n&quot;, *p);
+
+    *p = 60;             <span class="cm">/* writing through the pointer changes angle */</span>
+    printf(&quot;angle after *p = 60 : %d\n&quot;, angle);
+
+    struct Member m = {2.5, 45, &#x27;T&#x27;};
+    struct Member *mp = &amp;m;
+    printf(&quot;mp-&gt;length = %.1f (same as m.length = %.1f)\n&quot;, mp-&gt;length, m.length);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px"><code>&amp;</code> takes an address, <code>*</code> follows one back to a value. They undo each other: <code>*&amp;angle</code> is just <code>angle</code>.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then declare a second int, point <code>p</code> at it instead, and print through <code>p</code>.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <article class="day" data-day="6">
+    <div class="card">
+      <span class="eyebrow">Day 6 · Tie it together</span>
+      <h2>Mutate a truss through pointers</h2>
+      <div class="idea"><p class="lead">Put the week together: a function that takes <code>struct Member *</code> changes one Member for real; a function that takes <code>struct Member truss[]</code> walks and can change many, since an array argument already behaves like a pointer to its first box.</p><p>Nothing here is new efficiency-wise: walking the array is still one pass, still <b>O(n)</b>. What changed is that the walk now reaches through to the real data, not a copy.</p></div>
+
+      <h3 class="mini">The code</h3>
+      <figure class="code">
+        <figcaption><span>day6_mutate.c</span><button class="copy">copy</button></figcaption>
+<pre>#include &lt;stdio.h&gt;
+#define N 3
+
+struct Member {
+    float length;
+    int angle;
+    char type;
+};
+
+<span class="cm">/* one Member, changed through a pointer */</span>
+void bump_angle(struct Member *m, int extra) {
+    m-&gt;angle = m-&gt;angle + extra;
+}
+
+<span class="cm">/* many Members: array of structs, walked O(n), changed in place */</span>
+void print_truss(struct Member truss[], int n) {
+    int i;
+    for (i = 0; i &lt; n; i++) {
+        printf(&quot;Member %d: %.1f m at %d deg (%c)\n&quot;,
+               i, truss[i].length, truss[i].angle, truss[i].type);
+    }
+}
+
+int main(void) {
+    struct Member truss[N] = {
+        {2.5, 0,  &#x27;T&#x27;},
+        {3.0, 45, &#x27;C&#x27;},
+        {2.5, 0,  &#x27;T&#x27;}
+    };
+
+    print_truss(truss, N);
+    bump_angle(&amp;truss[1], 5);   <span class="cm">/* mutate one Member through its address */</span>
+    printf(&quot;After bump:\n&quot;);
+    print_truss(truss, N);
+    return 0;
+}</pre>
+      </figure>
+      <p class="mono" style="font-size:13px;color:var(--muted);margin-top:8px"><code>&amp;truss[1]</code> is the address of one Member inside the array: same trick as Day 4, aimed at a single box.</p>
+
+      <h3 class="mini">Build it</h3>
+      <div class="build">Run it. Then write <code>void scale_truss(struct Member truss[], int n, float factor)</code> that multiplies every length by factor, and call it from main.</div>
+
+      <h3 class="mini">Check yourself</h3>
+      <div class="quiz"></div>
+    </div>
+  </article>
+
+  <nav class="nav">
+    <button id="prev">← Prev</button>
+    <button id="next">Next →</button>
+    <button id="doneBtn" class="done-btn">Mark day done ✓</button>
+  </nav>
+
+  <footer>
+    Week 2 of 8 · <b>Structures</b> (Unit 3) &amp; a first look at Pointers (Unit 4). Works offline once loaded.
+  </footer>
+</div>
+
+<script>
+  const DAYS = [
+    {t:"Declare", quiz:[
+      {q:"What does <code>struct Member { float length; int angle; char type; };</code> do by itself?", a:["Makes one Member", "Defines the shape, makes nothing yet", "Prints a Member"], c:1,
+       e:"It is a blueprint. <code>struct Member m;</code> is what actually makes a Member."},
+      {q:"How do you reach a field on a plain struct variable?", a:["m-&gt;length", "m.length", "m[length]"], c:1,
+       e:"A dot reaches a field on a variable you hold directly, not through a pointer."},
+      {q:"Why put length, angle, and type in one struct instead of three separate variables?", a:["It runs faster", "They belong together: one Member, three facts", "C requires it"], c:1,
+       e:"A struct groups related data under one name, matching the real thing it models."}
+    ]},
+    {t:"Initialize", quiz:[
+      {q:"<code>struct Member top_chord = {3.0, 30, 'C'};</code> sets fields in what order?", a:["Alphabetical", "Same order the fields were declared", "Type first, always"], c:1,
+       e:"A struct literal matches the declaration order: length, angle, type."},
+      {q:"After the literal runs, what is <code>top_chord.angle</code>?", a:["3.0", "30", "'C'"], c:1,
+       e:"angle is the second field, so it gets the second value, 30."},
+      {q:"Can you change a field after the struct is made?", a:["No, structs are fixed once set", "Yes, with the dot: top_chord.length = 3.2;", "Only with a new struct"], c:1,
+       e:"A struct's fields are ordinary variables once made; assign to them like any other."}
+    ]},
+    {t:"The truss", quiz:[
+      {q:"<code>struct Member truss[4];</code> makes how many Members?", a:["1", "4", "It depends on the fields"], c:1,
+       e:"Four boxes, truss[0] through truss[3], each a full Member."},
+      {q:"How do you reach member 2's length?", a:["truss[2].length", "truss.length[2]", "truss-&gt;2.length"], c:0,
+       e:"Index the array first, then dot into the field: truss[2].length."},
+      {q:"Walking all N members once to sum their lengths is…", a:["O(1)", "O(n)", "O(n squared)"], c:1,
+       e:"Same rule as Week 1: one pass over n items is O(n)."}
+    ]},
+    {t:"By value / pointer", quiz:[
+      {q:"<code>void print_member(struct Member m)</code> receives…", a:["The original Member", "A copy of the Member", "A pointer to nothing"], c:1,
+       e:"By value copies every field in; the caller's Member is untouched."},
+      {q:"What does <code>&amp;web</code> give <code>grow_member</code>?", a:["A copy of web", "The address of web", "The value 0"], c:1,
+       e:"&amp; takes an address. grow_member gets where web lives, not a copy of it."},
+      {q:"Why does grow_member change the caller's web but print_member cannot change it?", a:["grow_member is faster", "grow_member got a pointer to the real Member", "print_member has a bug"], c:1,
+       e:"A pointer reaches the original; a copy by value cannot reach back to the caller."}
+    ]},
+    {t:"Pointers", quiz:[
+      {q:"<code>int *p = &amp;angle;</code> makes p hold…", a:["The value of angle", "The address of angle", "A copy of angle"], c:1,
+       e:"p is a pointer: it stores where angle lives, not what angle equals."},
+      {q:"After <code>*p = 60;</code>, what happens to angle?", a:["Nothing, p is separate", "angle becomes 60 too", "p becomes 60"], c:1,
+       e:"*p writes through the pointer to the real angle variable."},
+      {q:"<code>mp-&gt;length</code> is shorthand for…", a:["mp.length", "(*mp).length", "&amp;mp.length"], c:1,
+       e:"-&gt; follows the pointer then reaches the field, same as (*mp).length."}
+    ]},
+    {t:"Tie it together", quiz:[
+      {q:"<code>bump_angle(&amp;truss[1], 5);</code> changes…", a:["A copy of truss[1]", "The real truss[1] in the array", "truss[0]"], c:1,
+       e:"&amp;truss[1] is the address of that one box; the pointer reaches the real data."},
+      {q:"Why can print_truss change the array even though it takes <code>truss[]</code>, not <code>*truss</code>?", a:["It cannot change it", "An array argument already behaves like a pointer to its first box", "Arrays are always copied"], c:1,
+       e:"Passing an array passes its address, same sharing as a pointer parameter."},
+      {q:"After this week, walking a truss to total its lengths is still…", a:["O(1)", "O(n)", "A new, faster rule"], c:1,
+       e:"Nothing changed about the cost, only what each box now holds and how you reach it."}
+    ]}
+  ];
+
+  let cur = 1;
+  const done = new Set();
+  const rail = document.getElementById('rail');
+  const panels = [...document.querySelectorAll('.day')];
+
+  // build rail
+  DAYS.forEach((d, idx) => {
+    const b = document.createElement('button');
+    b.className = 'node'; b.dataset.day = idx + 1;
+    b.innerHTML = `<span class="n">${idx+1}</span><span class="t">${d.t}</span>`;
+    b.addEventListener('click', () => go(idx + 1));
+    rail.appendChild(b);
+  });
+
+  // build quizzes
+  panels.forEach((panel) => {
+    const day = +panel.dataset.day;
+    const host = panel.querySelector('.quiz');
+    DAYS[day - 1].quiz.forEach((item) => {
+      const q = document.createElement('div'); q.className = 'q';
+      q.innerHTML = `<p class="ask">${item.q}</p>`;
+      const opts = document.createElement('div'); opts.className = 'opts';
+      item.a.forEach((txt, i) => {
+        const o = document.createElement('button');
+        o.className = 'opt'; o.type = 'button'; o.innerHTML = txt;
+        o.addEventListener('click', () => {
+          if (o.disabled) return;
+          [...opts.children].forEach(x => x.disabled = true);
+          if (i === item.c) { o.classList.add('correct'); }
+          else { o.classList.add('wrong'); opts.children[item.c].classList.add('correct'); }
+          q.querySelector('.explain').classList.add('show');
+        });
+        opts.appendChild(o);
+      });
+      q.appendChild(opts);
+      const ex = document.createElement('div'); ex.className = 'explain';
+      ex.innerHTML = item.e; q.appendChild(ex);
+      host.appendChild(q);
+    });
+  });
+
+  function go(n) {
+    cur = n;
+    panels.forEach(p => p.classList.toggle('active', +p.dataset.day === n));
+    [...rail.children].forEach(b => b.setAttribute('aria-current', +b.dataset.day === n ? 'true' : 'false'));
+    document.getElementById('prev').disabled = (n === 1);
+    document.getElementById('next').disabled = (n === DAYS.length);
+    const db = document.getElementById('doneBtn');
+    db.textContent = done.has(n) ? 'Day done ✓' : 'Mark day done ✓';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  document.getElementById('prev').addEventListener('click', () => go(Math.max(1, cur-1)));
+  document.getElementById('next').addEventListener('click', () => go(Math.min(DAYS.length, cur+1)));
+  document.getElementById('doneBtn').addEventListener('click', () => {
+    done.add(cur);
+    rail.children[cur-1].classList.add('done');
+    if (cur < DAYS.length) go(cur+1); else go(cur);
+  });
+
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.closest('figure').querySelector('pre').innerText;
+      navigator.clipboard?.writeText(code);
+      const old = btn.textContent; btn.textContent = 'copied ✓';
+      setTimeout(() => btn.textContent = old, 1200);
+    });
+  });
+
+  // theme toggle: light -> dark -> system
+  const root = document.documentElement;
+  const order = ['light','dark',null];
+  let ti = 0;
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    ti = (ti + 1) % order.length;
+    if (order[ti]) root.setAttribute('data-theme', order[ti]);
+    else root.removeAttribute('data-theme');
+    document.getElementById('themeBtn').textContent =
+      order[ti] === 'light' ? '☀ Light' : order[ti] === 'dark' ? '☾ Dark' : '◐ Theme';
+  });
+
+  go(1);
+</script>

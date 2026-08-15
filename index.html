@@ -1,5 +1,105 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>BITH132 study</title>
-<meta http-equiv="refresh" content="0; url=onramp/">
-<p>Redirecting to <a href="onramp/">The C On-Ramp</a>...</p>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BITH132 — Data Structures study</title>
+<style>
+  :root{
+    --bg:#f4f1ea; --paper:#fffdf8; --ink:#23201b; --muted:#6b6459;
+    --line:#d8d1c4; --accent:#8a5a2b; --accent2:#2b5d8a; --done:#3a7d44;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#161a20; --paper:#1e2430; --ink:#e9e6df; --muted:#9aa2ad;
+      --line:#333c49; --accent:#d59b63; --accent2:#7db0e0; --done:#7bc58a; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:32px 20px 64px}
+  header .eyebrow{letter-spacing:.14em;text-transform:uppercase;font-size:12px;
+    color:var(--muted)}
+  h1{margin:.15em 0 .1em;font-size:30px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0 0 24px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:18px 20px;margin:0 0 18px}
+  .card h2{margin:0 0 10px;font-size:16px}
+  ol{margin:0;padding-left:20px} ol li{margin:.3em 0}
+  .weeks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .weeks a{display:flex;gap:12px;align-items:baseline;text-decoration:none;
+    color:var(--ink);background:var(--paper);border:1px solid var(--line);
+    border-radius:10px;padding:12px 15px}
+  .weeks a:hover{border-color:var(--accent)}
+  .wk{font-weight:700;color:var(--accent);min-width:64px}
+  .nm{font-weight:600}
+  .dsc{color:var(--muted);font-size:14px}
+  .zero .wk{color:var(--accent2)}
+  code{background:rgba(127,127,127,.14);padding:1px 5px;border-radius:5px;
+    font-size:.92em}
+  .note{color:var(--muted);font-size:14px}
+  footer{color:var(--muted);font-size:13px;margin-top:26px;text-align:center}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">BITH132 · Data Structures in C</div>
+    <h1>Your 8-week study pack</h1>
+    <p class="sub">Everything runs in your browser. No internet, no install.</p>
+  </header>
+
+  <div class="card">
+    <h2>How to use this</h2>
+    <ol>
+      <li>Click a week below. It opens as one page in your browser.</li>
+      <li>Each week has <strong>6 days</strong>. Do one day a sitting: read the
+        idea, look at the diagram and code, do the "Build it" step, then answer
+        the quiz. The quiz tells you right or wrong instantly and explains why.</li>
+      <li>Use the buttons at the bottom: <strong>Prev / Next</strong> to move
+        between days, <strong>Mark day done ✓</strong> when you finish one.</li>
+      <li><strong>Theme</strong> button (top-right) switches light/dark if your
+        eyes want it.</li>
+      <li>Go in order, Week 0 → Week 7. Week 7 ends with a timed mock exam.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Choose a week</h2>
+    <ul class="weeks">
+      <li class="zero"><a href="The-C-On-Ramp.html"><span class="wk">Week 0</span>
+        <span><span class="nm">The C On-Ramp</span><br>
+        <span class="dsc">First steps: variables, input, decisions, loops, functions</span></span></a></li>
+      <li><a href="Week 1 - The Cut-List.html"><span class="wk">Week 1</span>
+        <span><span class="nm">The Cut-List</span><br><span class="dsc">Arrays</span></span></a></li>
+      <li><a href="Week 2 - The Blueprint.html"><span class="wk">Week 2</span>
+        <span><span class="nm">The Blueprint</span><br><span class="dsc">Structs &amp; pointers (start)</span></span></a></li>
+      <li><a href="Week 3 - The Chain.html"><span class="wk">Week 3</span>
+        <span><span class="nm">The Chain</span><br><span class="dsc">Pointers (finish) &amp; linked lists</span></span></a></li>
+      <li><a href="Week 4 - The Saw-Queue.html"><span class="wk">Week 4</span>
+        <span><span class="nm">The Saw-Queue</span><br><span class="dsc">Stacks &amp; queues</span></span></a></li>
+      <li><a href="Week 5 - The Sorted List.html"><span class="wk">Week 5</span>
+        <span><span class="nm">The Sorted List</span><br><span class="dsc">Sorting &amp; searching</span></span></a></li>
+      <li><a href="Week 6 - The Truss Tree.html"><span class="wk">Week 6</span>
+        <span><span class="nm">The Truss Tree</span><br><span class="dsc">Trees (binary trees, BST, traversals)</span></span></a></li>
+      <li><a href="Week 7 - The Mock.html"><span class="wk">Week 7</span>
+        <span><span class="nm">The Mock</span><br><span class="dsc">Revision + timed mock exam with answer key</span></span></a></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Want to run the C code yourself? (optional)</h2>
+    <p class="note">Each lesson already shows the code and what it prints, so you
+      can learn without running anything. To actually run it, the code files live
+      in the <code>onramp</code> and <code>week1</code>…<code>week7</code> folders
+      (files ending <code>.c</code>). Two ways:</p>
+    <ol>
+      <li><strong>No install (needs internet):</strong> open
+        <code>onlinegdb.com/online_c_compiler</code>, paste a <code>.c</code>
+        file's contents, press Run.</li>
+      <li><strong>On your PC:</strong> install a C compiler once
+        (Windows: search "install gcc mingw"; Mac: run <code>xcode-select --install</code>),
+        then <code>gcc filename.c -o out</code> and run <code>out</code>.</li>
+    </ol>
+    <p class="note">The mock-exam notes are also in
+      <code>The-C-On-Ramp-Notes.pdf</code>.</p>
+  </div>
+
+  <footer>BITH132 self-study pack · works fully offline · open <code>index.html</code> to start</footer>
+</div>

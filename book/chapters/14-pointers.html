@@ -5,11 +5,10 @@
   <div class="hook">
     <p>Picture a roof truss. Each joint is a box holding a value. A pointer is
     the nail driven from one joint into the next: it does not hold the value
-    itself, it holds where the next value lives. Learn to read that nail and
-    you can walk a whole frame, change a joint from across the room, and hand
-    one big timber to a helper without carrying a copy of it. That is what
-    pointers buy you, and every list, tree, and graph later in this book is
-    built from them.</p>
+    itself, it holds where the next value lives. Read that nail and you can walk
+    a whole frame, change a joint from across the room, and hand one big timber
+    to a helper without carrying a copy. That is what pointers buy you, and
+    every list, tree, and graph later in this book is built from them.</p>
   </div>
 
   <div class="idea">
@@ -187,6 +186,35 @@ int main() {
     for the rest of the run (a <strong>memory leak</strong>). Use
     <code>new[]</code> with <code>delete[]</code> for arrays.</p>
   </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 172" width="520" height="172">
+      <g font-family="Helvetica">
+        <text x="76" y="22" font-size="11" fill="#1D5A80" text-anchor="middle">your function</text>
+        <rect x="20" y="58" width="112" height="44" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2" stroke-linejoin="round"/>
+        <text x="76" y="78" font-size="12" fill="#22201B" text-anchor="middle">Recipe* r</text>
+        <text x="76" y="94" font-size="10" fill="#1D5A80" text-anchor="middle">0x9f2a</text>
+
+        <rect x="288" y="30" width="216" height="120" fill="none" stroke="#B57C33" stroke-width="1.6" stroke-dasharray="6 4"/>
+        <text x="396" y="48" font-size="11" fill="#B57C33" text-anchor="middle">the heap</text>
+        <rect x="312" y="62" width="168" height="60" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2" stroke-linejoin="round"/>
+        <line x1="312" y1="92" x2="480" y2="92" stroke="#22201B" stroke-width="1"/>
+        <text x="322" y="82" font-size="11" fill="#22201B">dish  "jollof rice"</text>
+        <text x="322" y="112" font-size="11" fill="#22201B">servings 8</text>
+
+        <line x1="132" y1="80" x2="308" y2="80" stroke="#1D5A80" stroke-width="2.2"/>
+        <polygon points="310,80 300,75 300,85" fill="#1D5A80"/>
+        <text x="220" y="72" font-size="11" fill="#1D5A80" text-anchor="middle">new</text>
+
+        <line x1="308" y1="138" x2="134" y2="138" stroke="#B57C33" stroke-width="2.2" stroke-dasharray="6 4"/>
+        <polygon points="132,138 142,133 142,143" fill="#B57C33"/>
+        <text x="220" y="132" font-size="11" fill="#B57C33" text-anchor="middle">delete: give the box back</text>
+      </g>
+    </svg>
+    <figcaption><code>new</code> hands back a pointer to a fresh box on the heap;
+    <code>delete</code> returns that box. One <code>delete</code> for every
+    <code>new</code>, or the box leaks.</figcaption>
+  </figure>
 
   <pre class="code"><code>#include &lt;iostream&gt;
 #include &lt;string&gt;

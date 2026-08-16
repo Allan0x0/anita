@@ -1,0 +1,166 @@
+/* BITH132 Field Guide - print stylesheet.
+   Target: wkhtmltopdf 0.12.6 (patched Qt4 WebKit).
+   That engine is ancient (~2012): NO CSS custom properties, NO flex gap,
+   NO grid. Everything here is literal hex + block/table layout on purpose.
+   Palette mirrors the Weeks/*.html drafting look, light theme only. */
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  color: #16232B;              /* ink */
+  background: #FFFFFF;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.5;
+}
+
+/* ---- headings ---------------------------------------------------------- */
+h1, h2, h3, h4 {
+  color: #16232B;
+  line-height: 1.15;
+  margin: 0 0 .4em;
+  font-weight: 700;
+}
+h1 { font-size: 22pt; letter-spacing: -.01em; }
+h2 { font-size: 16pt; color: #1D5A80; }   /* drafting blue */
+h3 { font-size: 13pt; color: #1D5A80; }
+h4 { font-size: 11.5pt; }
+
+p { margin: 0 0 .7em; }
+a { color: #1D5A80; text-decoration: none; }
+
+.eyebrow {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 8.5pt; letter-spacing: .14em; text-transform: uppercase;
+  color: #1D5A80; font-weight: 700; margin: 0 0 .3em;
+}
+
+/* ---- page-break helpers ------------------------------------------------ */
+.page-break { page-break-after: always; }
+figure.diagram,
+.exam-a,
+.buildit,
+.challenge,
+pre.code { page-break-inside: avoid; }
+
+/* ---- chapter shell ----------------------------------------------------- */
+section.chapter {
+  page-break-before: always;
+  padding: 0;
+}
+/* front-matter pages opt out of the forced break where needed */
+section.front { padding: 0; }
+
+/* ---- hook: the "why care" opener --------------------------------------- */
+.hook {
+  border-left: 4px solid #B57C33;   /* sawn pine / timber */
+  background: #F0E4D0;              /* timber-soft */
+  padding: 10px 14px;
+  margin: 0 0 1em;
+  font-size: 11.5pt;
+}
+.hook p:last-child { margin-bottom: 0; }
+
+/* ---- idea: plain explanation ------------------------------------------- */
+.idea { margin: 0 0 1em; }
+
+/* ---- figure.diagram: inline SVG ---------------------------------------- */
+figure.diagram {
+  margin: 1em 0;
+  padding: 12px;
+  border: 1px solid #C9D4DB;
+  background: #F6F8FA;
+  text-align: center;
+}
+figure.diagram svg { max-width: 100%; height: auto; }
+figure.diagram figcaption {
+  margin-top: 8px;
+  font-size: 9pt;
+  color: #56676F;
+  font-style: italic;
+}
+
+/* ---- pre.code: C++ listings -------------------------------------------- */
+pre.code {
+  margin: 1em 0;
+  padding: 12px 14px;
+  background: #10283A;      /* dark drafting slab */
+  color: #DCE7EE;
+  border: 1px solid #22465F;
+  border-radius: 4px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 9.5pt;
+  line-height: 1.45;
+  white-space: pre-wrap;    /* wrap long lines instead of clipping in PDF */
+  word-wrap: break-word;
+}
+/* inline code inside prose */
+code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 9.5pt;
+  background: #EEF2F4;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #16232B;
+}
+pre.code code { background: transparent; padding: 0; color: inherit; }
+
+/* ---- buildit: build-step callout --------------------------------------- */
+.buildit {
+  margin: 1em 0;
+  padding: 10px 14px;
+  border: 1px solid #B57C33;
+  border-left: 4px solid #B57C33;
+  background: #FBF4E7;
+}
+.buildit .eyebrow { color: #B57C33; }
+
+/* ---- challenge: predict-output / spot-the-bug -------------------------- */
+.challenge {
+  margin: 1em 0;
+  padding: 10px 14px;
+  border: 1px dashed #1D5A80;
+  background: #EEF5F9;
+}
+.challenge .eyebrow { color: #1D5A80; }
+
+/* ---- exam question + worked answer ------------------------------------- */
+.exam-q {
+  margin: 1em 0 .4em;
+  padding: 10px 14px;
+  border: 1px solid #C9D4DB;
+  background: #F6F8FA;
+  font-weight: 600;
+}
+.exam-a {
+  margin: 0 0 1em;
+  padding: 10px 14px;
+  border: 1px solid #C9D4DB;
+  border-top: none;
+  background: #FFFFFF;
+}
+.exam-a .eyebrow { color: #2F7D53; }   /* good/green */
+
+/* ---- tables (block-safe) ----------------------------------------------- */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 10pt;
+}
+th, td {
+  border: 1px solid #C9D4DB;
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #F0E4D0; }
+
+/* ---- cover ------------------------------------------------------------- */
+.cover { text-align: center; padding-top: 30%; }
+.cover h1 { font-size: 34pt; }
+.cover .subtitle { font-size: 14pt; color: #56676F; margin-top: .5em; }
+.cover .rule { width: 40%; margin: 24px auto; border-top: 2px solid #B57C33; }

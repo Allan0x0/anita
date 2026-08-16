@@ -1,0 +1,261 @@
+<section class="front">
+  <p class="eyebrow">Front matter</p>
+  <h1>A from-zero C++ primer</h1>
+
+  <div class="hook">
+    <p>You cannot plan a roof with a language you cannot speak. This chapter is
+    the whole of C++ you need to start: enough to read every listing in the
+    book and write your own. It assumes nothing. If you have never compiled a
+    program, start here.</p>
+  </div>
+
+  <h2>Compile and run</h2>
+  <div class="idea">
+    <p>A C++ program is plain text in a file, usually ending <code>.cpp</code>.
+    The computer cannot run that text directly. A <strong>compiler</strong>
+    (the program <code>g++</code>) translates it into a runnable file first.
+    That two-step, compile then run, is the whole loop.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    std::cout &lt;&lt; "Hello, site." &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save that as <code>hello.cpp</code>, then run these two commands:</p>
+    <p><code>g++ -std=c++17 hello.cpp -o hello</code><br>
+    <code>./hello</code></p>
+    <p>The first makes a file called <code>hello</code>; the second runs it.
+    You should see <code>Hello, site.</code></p>
+  </div>
+
+  <div class="idea">
+    <p>Read the program line by line. <code>#include &lt;iostream&gt;</code>
+    pulls in the input/output tools. <code>int main()</code> is where every
+    program starts. The two braces <code>{ }</code> hold the body. Every
+    statement ends in a semicolon. <code>return 0;</code> tells the system the
+    program finished cleanly.</p>
+  </div>
+
+  <h2>Printing with cout</h2>
+  <div class="idea">
+    <p><code>std::cout</code> is the standard output, your screen. The
+    <code>&lt;&lt;</code> arrow feeds things into it, left to right. Chain as
+    many as you like. <code>std::endl</code> ends the line.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    std::cout &lt;&lt; "Boards needed: " &lt;&lt; 12 &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <h2>Variables and types</h2>
+  <div class="idea">
+    <p>A <strong>variable</strong> is a named box holding a value. In C++ you
+    say the box's <strong>type</strong> when you make it, so the compiler knows
+    how big it is and what fits.</p>
+  </div>
+
+  <table>
+    <tr><th>Type</th><th>Holds</th><th>Example</th></tr>
+    <tr><td><code>int</code></td><td>whole number</td><td><code>12</code></td></tr>
+    <tr><td><code>double</code></td><td>number with a decimal</td><td><code>2.4</code></td></tr>
+    <tr><td><code>bool</code></td><td>true or false</td><td><code>true</code></td></tr>
+    <tr><td><code>char</code></td><td>one character</td><td><code>'A'</code></td></tr>
+    <tr><td><code>std::string</code></td><td>text</td><td><code>"pine"</code></td></tr>
+  </table>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int trusses = 3;
+    double span = 4.8;          // metres
+    std::cout &lt;&lt; trusses &lt;&lt; " trusses over " &lt;&lt; span &lt;&lt; "m" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <h2>Reading input with cin</h2>
+  <div class="idea">
+    <p><code>std::cin</code> is the standard input, the keyboard. The
+    <code>&gt;&gt;</code> arrow points the other way: it pulls a typed value
+    <em>into</em> a variable.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int trusses;
+    std::cout &lt;&lt; "How many trusses? ";
+    std::cin &gt;&gt; trusses;
+    std::cout &lt;&lt; "Cutting " &lt;&lt; trusses &lt;&lt; " frames." &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <h2>bool and if</h2>
+  <div class="idea">
+    <p>A <code>bool</code> is a yes/no value: <code>true</code> or
+    <code>false</code>. An <code>if</code> runs a block only when its condition
+    is true; the optional <code>else</code> runs when it is false. Compare with
+    <code>==</code> (equal), <code>!=</code> (not equal), <code>&lt;</code>,
+    <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int span = 5;
+    bool needsSupport = span &gt; 4;   // true when span over 4m
+    if (needsSupport) {
+        std::cout &lt;&lt; "Add a centre post." &lt;&lt; std::endl;
+    } else {
+        std::cout &lt;&lt; "A plain triangle will hold." &lt;&lt; std::endl;
+    }
+    return 0;
+}</code></pre>
+
+  <h2>Loops</h2>
+  <div class="idea">
+    <p>A loop repeats a block. A <code>for</code> loop counts: start, keep-going
+    condition, step. A <code>while</code> loop repeats as long as its condition
+    stays true. The loop below cuts one truss at a time until the roof is full.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int total = 4;
+    for (int i = 1; i &lt;= total; i = i + 1) {
+        std::cout &lt;&lt; "Truss " &lt;&lt; i &lt;&lt; " raised." &lt;&lt; std::endl;
+    }
+    return 0;
+}</code></pre>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge</p>
+    <p>How many lines does the loop above print, and what is the last one?
+    (Answer: four lines; the last is <code>Truss 4 raised.</code>)</p>
+  </div>
+
+  <h2>Functions</h2>
+  <div class="idea">
+    <p>A <strong>function</strong> is a named block you can call by name. It can
+    take <strong>parameters</strong> (inputs) and <strong>return</strong> a
+    value. Writing the calculation once and calling it keeps the site numbers in
+    one place.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+// boards needed for one truss, given its span in metres
+int boardsFor(double span) {
+    if (span &gt; 4) {
+        return 5;   // triangle plus centre post plus braces
+    }
+    return 3;       // plain triangle
+}
+
+int main() {
+    std::cout &lt;&lt; "Wide truss: " &lt;&lt; boardsFor(5.0) &lt;&lt; " boards" &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Narrow truss: " &lt;&lt; boardsFor(3.0) &lt;&lt; " boards" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <h2>std::string</h2>
+  <div class="idea">
+    <p><code>std::string</code> holds text. Include <code>&lt;string&gt;</code>
+    to use it. Join strings with <code>+</code>, and ask a string its length
+    with <code>.size()</code>.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    std::string timber = "pine";
+    std::string label = "Cut from " + timber;
+    std::cout &lt;&lt; label &lt;&lt; " (" &lt;&lt; label.size() &lt;&lt; " chars)" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <h2>struct: group related values</h2>
+  <div class="idea">
+    <p>A <code>struct</code> bundles several values into one named type. One
+    truss has a span and a count of boards; a <code>struct</code> lets you carry
+    both together as a single thing. Reach inside with a dot.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Truss {
+    std::string name;
+    double span;
+    int boards;
+};
+
+int main() {
+    Truss t;
+    t.name = "gable";
+    t.span = 4.8;
+    t.boards = 5;
+    std::cout &lt;&lt; t.name &lt;&lt; ": " &lt;&lt; t.boards &lt;&lt; " boards" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <h2>new and delete: memory by hand</h2>
+  <div class="idea">
+    <p>Sometimes you do not know how many trusses you need until the program
+    runs. <code>new</code> asks the system for memory while running and hands
+    back its address (a <strong>pointer</strong>, written <code>*</code>).
+    Reach through a pointer with <code>-&gt;</code>. When you are done you must
+    give the memory back with <code>delete</code>, or it leaks. The data
+    structures later in this book are built on exactly this.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Truss {
+    std::string name;
+    int boards;
+};
+
+int main() {
+    Truss* t = new Truss;      // ask for memory at run time
+    t-&gt;name = "hip";           // reach through the pointer
+    t-&gt;boards = 6;
+    std::cout &lt;&lt; t-&gt;name &lt;&lt; ": " &lt;&lt; t-&gt;boards &lt;&lt; " boards" &lt;&lt; std::endl;
+    delete t;                  // give the memory back
+    return 0;
+}</code></pre>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: spot the bug</p>
+    <p>A colleague writes <code>new Truss</code> in a loop that runs a thousand
+    times but never calls <code>delete</code>. The program slowly eats all the
+    memory on the machine. What is the fix? (Answer: every <code>new</code>
+    needs a matching <code>delete</code>. Free each truss when you are done
+    with it.)</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q. Explain the difference between <code>std::cout</code> and
+    <code>std::cin</code>, and name the operator used with each.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><code>std::cout</code> is the standard output stream; it writes to the
+    screen and uses the insertion operator <code>&lt;&lt;</code>, which feeds
+    values out to it. <code>std::cin</code> is the standard input stream; it
+    reads what the user types and uses the extraction operator
+    <code>&gt;&gt;</code>, which pulls a value into a variable. The arrows point
+    in the direction the data flows: out of the program with
+    <code>&lt;&lt;</code>, into a variable with <code>&gt;&gt;</code>.</p>
+  </div>
+</section>

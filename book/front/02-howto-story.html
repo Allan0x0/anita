@@ -1,0 +1,86 @@
+<section class="front">
+  <p class="eyebrow">Front matter</p>
+  <h1>How to use this book</h1>
+
+  <div class="idea">
+    <p>This is a field guide, not a textbook. Every chapter is built the same
+    way, so once you know the parts you can walk straight to what you need.</p>
+  </div>
+
+  <h3>The parts of a chapter</h3>
+  <table>
+    <tr><th>Part</th><th>What it is</th></tr>
+    <tr><td>Hook</td><td>Why you should care. One paragraph, on the timber
+      strip, before any theory.</td></tr>
+    <tr><td>Idea</td><td>The plain explanation. No jargon that has not been
+      defined first.</td></tr>
+    <tr><td>Diagram</td><td>A drawing of the thing. Read it before the code.</td></tr>
+    <tr><td>Code</td><td>A real C++ listing you can compile with
+      <code>g++ -std=c++17</code>. Type it, do not skim it.</td></tr>
+    <tr><td>Build it</td><td>The exact command to compile and run, plus the
+      step it adds to the project.</td></tr>
+    <tr><td>Challenge</td><td>Predict the output, or spot the bug, before you
+      run it. This is where the learning happens.</td></tr>
+    <tr><td>Exam</td><td>A question in the style of the paper, with a worked
+      model answer.</td></tr>
+  </table>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>You need one thing installed: a C++ compiler. On the lab machines that is
+    <code>g++</code>. Test it now:
+    <code>g++ --version</code>. If you see a version number, you are ready.</p>
+  </div>
+
+  <h1>The running project: raise a roof</h1>
+
+  <div class="hook">
+    <p>Every idea in this book earns its place by helping raise one roof. You
+    are the site programmer for a small building firm. The carpenters cut and
+    nail; your job is to keep the numbers straight so the roof goes up square,
+    on time, and without wasted timber.</p>
+  </div>
+
+  <div class="idea">
+    <p>A roof is a row of <strong>trusses</strong>: triangular timber frames,
+    spaced evenly, that carry the load from the walls to the ridge. Building the
+    software to plan that roof turns out to need every data structure on the
+    syllabus:</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 150" width="460" height="150">
+      <line x1="20" y1="120" x2="440" y2="120" stroke="#56676F" stroke-width="1"/>
+      <!-- three trusses along the wall -->
+      <g stroke="#1D5A80" stroke-width="2" fill="none">
+        <path d="M40 120 L100 60 L160 120 Z"/>
+        <path d="M180 120 L240 60 L300 120 Z"/>
+        <path d="M320 120 L380 60 L440 120 Z"/>
+      </g>
+      <g stroke="#B57C33" stroke-width="2">
+        <line x1="100" y1="60" x2="100" y2="120"/>
+        <line x1="240" y1="60" x2="240" y2="120"/>
+        <line x1="380" y1="60" x2="380" y2="120"/>
+      </g>
+      <text x="230" y="145" text-anchor="middle" font-size="11" fill="#56676F">
+        a roof = a sequence of trusses on top of a wall</text>
+    </svg>
+    <figcaption>The whole book, in one picture. Each chapter adds a part.</figcaption>
+  </figure>
+
+  <table>
+    <tr><th>You need to...</th><th>...which is a</th></tr>
+    <tr><td>Keep the ordered cut-list of timber lengths</td><td>array / list</td></tr>
+    <tr><td>Feed boards to a single saw, first in first out</td><td>queue</td></tr>
+    <tr><td>Undo the last cut when a measurement is wrong</td><td>stack</td></tr>
+    <tr><td>Chain the trusses so each points to the next</td><td>linked list</td></tr>
+    <tr><td>Find a length fast in a sorted list</td><td>binary search</td></tr>
+    <tr><td>Store the load path from ridge down to wall</td><td>tree</td></tr>
+  </table>
+
+  <div class="idea">
+    <p>You do not need to know any of those words yet. Each gets its own
+    chapter, introduced the moment the roof needs it. First, the language.</p>
+  </div>
+</section>
+<div class="page-break"></div>

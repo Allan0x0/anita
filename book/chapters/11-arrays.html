@@ -1,0 +1,393 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 11</p>
+  <h1>Arrays: a whole cut-list in one box</h1>
+
+  <div class="hook">
+    <p>A roof truss is a lot of straight pieces of timber, one after another:
+    top chord, bottom chord, king post, web after web. Write a separate variable
+    for each and you drown in names before the frame is even up. An
+    <strong>array</strong> is one box with many numbered slots, so the whole
+    cut-list lives under a single name. Store the lengths once, then loop over
+    them to total the timber, find the longest member, or print the order sheet.</p>
+  </div>
+
+  <h2>What an array is</h2>
+  <div class="idea">
+    <p>An <strong>array</strong> is a fixed run of slots of the same type, laid
+    end to end in memory. You give the whole run one name and a size. Each slot
+    has an <strong>index</strong>, its position, and the count starts at
+    <strong>zero</strong>: the first slot is index 0, the last is index
+    <em>size minus one</em>. Reach a slot with square brackets, so
+    <code>cut[0]</code> is the first member and <code>cut[4]</code> is the fifth.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120">
+      <rect x="10" y="35" width="500" height="50" fill="#F6F8FA" stroke="#16232B" stroke-width="1"/>
+      <line x1="110" y1="35" x2="110" y2="85" stroke="#16232B" stroke-width="1"/>
+      <line x1="210" y1="35" x2="210" y2="85" stroke="#16232B" stroke-width="1"/>
+      <line x1="310" y1="35" x2="310" y2="85" stroke="#16232B" stroke-width="1"/>
+      <line x1="410" y1="35" x2="410" y2="85" stroke="#16232B" stroke-width="1"/>
+      <text x="60" y="66" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#16232B">4800</text>
+      <text x="160" y="66" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#16232B">4800</text>
+      <text x="260" y="66" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#16232B">1200</text>
+      <text x="360" y="66" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#16232B">2600</text>
+      <text x="460" y="66" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#16232B">2600</text>
+      <text x="60" y="105" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#1D5A80">cut[0]</text>
+      <text x="160" y="105" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#1D5A80">cut[1]</text>
+      <text x="260" y="105" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#1D5A80">cut[2]</text>
+      <text x="360" y="105" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#1D5A80">cut[3]</text>
+      <text x="460" y="105" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#1D5A80">cut[4]</text>
+      <text x="60" y="25" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#B57C33">top</text>
+      <text x="160" y="25" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#B57C33">top</text>
+      <text x="260" y="25" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#B57C33">king</text>
+      <text x="360" y="25" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#B57C33">web</text>
+      <text x="460" y="25" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#B57C33">web</text>
+    </svg>
+    <figcaption>One array, five member lengths in millimetres. The index runs
+    0 to 4, not 1 to 5.</figcaption>
+  </figure>
+
+  <h2>Declare, initialise, traverse</h2>
+  <div class="idea">
+    <p>Three moves cover most array work. <strong>Declare</strong>: name the
+    type, the array name, and the size in brackets. <strong>Initialise</strong>:
+    fill the slots, often with a brace list <code>{ ... }</code> at declaration.
+    <strong>Traverse</strong>: walk the slots with a <code>for</code> loop whose
+    counter runs from 0 up to <em>size minus one</em>. The cut-list below is
+    declared, initialised, and traversed to total the timber.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    // declare + initialise: five member lengths in mm
+    int cut[5] = {4800, 4800, 1200, 2600, 2600};
+
+    int total = 0;
+    // traverse: index 0 through 4
+    for (int i = 0; i &lt; 5; i = i + 1) {
+        std::cout &lt;&lt; "Member " &lt;&lt; i &lt;&lt; ": " &lt;&lt; cut[i] &lt;&lt; " mm" &lt;&lt; std::endl;
+        total = total + cut[i];
+    }
+
+    std::cout &lt;&lt; "Total timber: " &lt;&lt; total &lt;&lt; " mm" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save as <code>cutlist.cpp</code>, then:</p>
+    <p><code>g++ -std=c++17 cutlist.cpp -o cutlist &amp;&amp; ./cutlist</code></p>
+    <p>Truss build step: this is your order sheet. The loop prints one line per
+    member and the last line, <code>Total timber: 16000 mm</code>, is the length
+    of pine to buy for one truss. Multiply by the number of trusses and you have
+    the whole roof's timber in one run.</p>
+  </div>
+
+  <h2>Largest and smallest in one pass</h2>
+  <div class="idea">
+    <p>To find the longest or shortest member you do not need to sort anything.
+    Take the first slot as your current best, then walk the rest; whenever a slot
+    beats the current best, keep it. One pass, one comparison per slot.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int cut[5] = {4800, 4800, 1200, 2600, 2600};
+
+    int longest = cut[0];
+    int shortest = cut[0];
+    for (int i = 1; i &lt; 5; i = i + 1) {
+        if (cut[i] &gt; longest)  longest = cut[i];
+        if (cut[i] &lt; shortest) shortest = cut[i];
+    }
+
+    std::cout &lt;&lt; "Longest member: " &lt;&lt; longest &lt;&lt; " mm" &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Shortest member: " &lt;&lt; shortest &lt;&lt; " mm" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: spot the bug</p>
+    <p>A student writes the traversal as
+    <code>for (int i = 0; i &lt;= 5; i = i + 1)</code> over an array of size 5 and
+    the program prints one garbage length, sometimes crashing. What is wrong?
+    (Answer: the valid indices are 0 to 4. The condition <code>i &lt;= 5</code>
+    lets <code>i</code> reach 5, one past the end, and reads memory the array
+    does not own. Use <code>i &lt; 5</code>. C++ does not check bounds for you,
+    which is exactly why this bug is so easy to write.)</p>
+  </div>
+
+  <h2>Two dimensions: the truss grid</h2>
+  <div class="idea">
+    <p>A single array is a line. A <strong>2-D array</strong> is a grid: rows and
+    columns, like a table. Declare it with two sizes in brackets,
+    <code>[rows][cols]</code>, and reach a cell with two indices,
+    <code>grid[r][c]</code>. A roof is not one truss but a row of them across the
+    building; think of a grid where each row is one truss and each column is the
+    same member across every truss. Read a whole row to build one truss; read
+    down a column to see how one member repeats.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" width="420" height="200">
+      <text x="115" y="25" font-family="Helvetica" font-size="13" fill="#B57C33">col 0</text>
+      <text x="205" y="25" font-family="Helvetica" font-size="13" fill="#B57C33">col 1</text>
+      <text x="295" y="25" font-family="Helvetica" font-size="13" fill="#B57C33">col 2</text>
+      <text x="10" y="65" font-family="Helvetica" font-size="13" fill="#1D5A80">row 0</text>
+      <text x="10" y="115" font-family="Helvetica" font-size="13" fill="#1D5A80">row 1</text>
+      <text x="10" y="165" font-family="Helvetica" font-size="13" fill="#1D5A80">row 2</text>
+      <rect x="80" y="40" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="170" y="40" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="260" y="40" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="80" y="90" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="170" y="90" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="260" y="90" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="80" y="140" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="170" y="140" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="260" y="140" width="90" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <text x="125" y="65" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">4800</text>
+      <text x="215" y="65" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">1200</text>
+      <text x="305" y="65" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">2600</text>
+      <text x="125" y="115" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">4800</text>
+      <text x="215" y="115" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">1200</text>
+      <text x="305" y="115" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">2600</text>
+      <text x="125" y="165" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">4800</text>
+      <text x="215" y="165" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">1200</text>
+      <text x="305" y="165" text-anchor="middle" font-family="Helvetica" font-size="13" fill="#16232B">2600</text>
+    </svg>
+    <figcaption>A 3 by 3 grid: three trusses (rows), three member lengths each
+    (columns). Cell <code>grid[1][2]</code> is 2600.</figcaption>
+  </figure>
+
+  <h2>Row-major order</h2>
+  <div class="idea">
+    <p>Memory is a straight line, but a grid is two-dimensional, so C++ has to
+    flatten it. It stores <strong>row by row</strong>: the whole of row 0, then
+    the whole of row 1, then row 2. This is <strong>row-major order</strong>. It
+    is why a 2-D loop puts the row on the outside and the column on the inside;
+    that order walks memory in the same line it is laid out, which is the fast
+    way to read it.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 90" width="520" height="90">
+      <rect x="10" y="30" width="500" height="35" fill="#F6F8FA" stroke="#16232B"/>
+      <line x1="177" y1="30" x2="177" y2="65" stroke="#B57C33" stroke-width="2"/>
+      <line x1="343" y1="30" x2="343" y2="65" stroke="#B57C33" stroke-width="2"/>
+      <text x="93" y="53" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#16232B">4800 1200 2600</text>
+      <text x="260" y="53" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#16232B">4800 1200 2600</text>
+      <text x="426" y="53" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#16232B">4800 1200 2600</text>
+      <text x="93" y="20" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#1D5A80">row 0</text>
+      <text x="260" y="20" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#1D5A80">row 1</text>
+      <text x="426" y="20" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#1D5A80">row 2</text>
+      <text x="260" y="82" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#B57C33">one straight run of memory, row after row</text>
+    </svg>
+    <figcaption>The same grid as the computer stores it: one flat line, row 0
+    then row 1 then row 2.</figcaption>
+  </figure>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    // 3 trusses, 3 members each
+    int grid[3][3] = {
+        {4800, 1200, 2600},
+        {4800, 1200, 2600},
+        {4800, 1200, 2600}
+    };
+
+    // row-major traversal: row outside, column inside
+    for (int r = 0; r &lt; 3; r = r + 1) {
+        std::cout &lt;&lt; "Truss " &lt;&lt; r &lt;&lt; ":";
+        for (int c = 0; c &lt; 3; c = c + 1) {
+            std::cout &lt;&lt; " " &lt;&lt; grid[r][c];
+        }
+        std::cout &lt;&lt; std::endl;
+    }
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p>To total the whole grid, keep the same nested loop but add every cell into
+    one running sum. The roof's entire timber order falls out of one pass.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int grid[3][3] = {
+        {4800, 1200, 2600},
+        {4800, 1200, 2600},
+        {4800, 1200, 2600}
+    };
+
+    int total = 0;
+    for (int r = 0; r &lt; 3; r = r + 1) {
+        for (int c = 0; c &lt; 3; c = c + 1) {
+            total = total + grid[r][c];
+        }
+    }
+
+    std::cout &lt;&lt; "Whole roof: " &lt;&lt; total &lt;&lt; " mm of timber" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <h2>The demerits of arrays</h2>
+  <div class="idea">
+    <p>Arrays are fast and simple, but they buy that with hard limits. Know them
+    before you lean on an array.</p>
+    <ul>
+      <li><strong>Fixed size.</strong> You set the length when you write the
+      code. A five-slot cut-list cannot grow to six at run time; you would
+      declare a new, bigger array and copy across.</li>
+      <li><strong>No bounds checking.</strong> C++ does not stop you reading
+      <code>cut[7]</code> in a size-5 array. It reads whatever memory sits there:
+      garbage, or a crash. The mistake is silent.</li>
+      <li><strong>Costly insert and delete.</strong> To insert in the middle you
+      must shuffle every later element along by one. For a big array that is a
+      lot of moving.</li>
+      <li><strong>One type only.</strong> Every slot holds the same type. You
+      cannot mix a length and a name in the same array.</li>
+      <li><strong>Wasted space.</strong> Size for the worst case and the unused
+      slots still cost memory whether you fill them or not.</li>
+    </ul>
+    <p>Later chapters reach for the linked list and the vector precisely to beat
+    the first and third of these: structures that grow and shrink at run time.</p>
+  </div>
+
+  <h2>The same tool, other jobs</h2>
+  <div class="idea">
+    <p>Nothing about arrays is special to timber. Swap the meaning of the slots
+    and the same loops solve other problems. A recipe is an array of ingredient
+    weights; a tour is an array of distances between stops. Below, one pass finds
+    the heaviest ingredient in a bread recipe.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    std::string name[4] = {"flour", "water", "salt", "yeast"};
+    int grams[4] = {500, 320, 10, 7};
+
+    int heaviest = 0;   // index of the biggest so far
+    for (int i = 1; i &lt; 4; i = i + 1) {
+        if (grams[i] &gt; grams[heaviest]) heaviest = i;
+    }
+
+    std::cout &lt;&lt; "Most of: " &lt;&lt; name[heaviest]
+              &lt;&lt; " (" &lt;&lt; grams[heaviest] &lt;&lt; " g)" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="page-break"></div>
+
+  <h2>Exam questions</h2>
+
+  <div class="exam-q">
+    <p>Q1. Declare and initialise a 2-D array called <code>tour</code> holding
+    the distances (in km) between three towns and three viewpoints, then print it
+    in row-major order. Explain what row-major order means.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Declare with two sizes, initialise with nested brace lists, and traverse
+    with the row loop on the outside and the column loop on the inside. That
+    outer-row, inner-column order is row-major: it visits the cells in the exact
+    order C++ stores them in memory, the whole of row 0, then row 1, then row 2.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int tour[3][3] = {
+        {12, 40, 8},
+        {5, 33, 21},
+        {18, 9, 27}
+    };
+
+    for (int r = 0; r &lt; 3; r = r + 1) {
+        for (int c = 0; c &lt; 3; c = c + 1) {
+            std::cout &lt;&lt; tour[r][c] &lt;&lt; " ";
+        }
+        std::cout &lt;&lt; std::endl;
+    }
+    return 0;
+}</code></pre>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Write a program that finds the largest and smallest value in an array
+    of six member lengths, using a single pass.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Seed both the largest and smallest from element 0, then walk from element
+    1 to the end. Replace largest whenever a value is bigger, replace smallest
+    whenever a value is smaller. One loop does both.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int len[6] = {2600, 4800, 1200, 3600, 900, 4800};
+
+    int largest = len[0];
+    int smallest = len[0];
+    for (int i = 1; i &lt; 6; i = i + 1) {
+        if (len[i] &gt; largest)  largest = len[i];
+        if (len[i] &lt; smallest) smallest = len[i];
+    }
+
+    std::cout &lt;&lt; "Largest: " &lt;&lt; largest &lt;&lt; " mm" &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Smallest: " &lt;&lt; smallest &lt;&lt; " mm" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Write a program that sums every element of a 2-D array of size 2 by 4
+    (two shelves, four jars each) and prints the total.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A nested loop, row outside and column inside, adds each cell into a running
+    total. After both loops finish, the total holds the sum of all eight cells.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int jars[2][4] = {
+        {3, 5, 2, 8},
+        {6, 1, 4, 7}
+    };
+
+    int total = 0;
+    for (int r = 0; r &lt; 2; r = r + 1) {
+        for (int c = 0; c &lt; 4; c = c + 1) {
+            total = total + jars[r][c];
+        }
+    }
+
+    std::cout &lt;&lt; "Total jars: " &lt;&lt; total &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. State four demerits (drawbacks) of arrays as a data structure.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Any four of the following, each with a one-line reason:</p>
+    <ul>
+      <li><strong>Fixed size</strong>: the length is set at compile time and
+      cannot grow at run time.</li>
+      <li><strong>No bounds checking</strong>: reading past the end reads invalid
+      memory silently instead of raising an error.</li>
+      <li><strong>Costly insert and delete</strong>: making room in the middle
+      means shifting every later element along.</li>
+      <li><strong>Single type</strong>: every slot must hold the same type.</li>
+      <li><strong>Wasted space</strong>: sizing for the worst case leaves unused
+      slots that still take memory.</li>
+    </ul>
+  </div>
+</section>

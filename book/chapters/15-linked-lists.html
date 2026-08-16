@@ -1,0 +1,602 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 15</p>
+  <h1>Lists and linked lists</h1>
+
+  <div class="hook">
+    <p>Before you cut a single board you write a bill of materials: rafters,
+    then a ridge beam, then gusset plates, then bolts. It is a list, and it
+    grows as the design changes. Halfway through you realise you forgot the
+    centre post, and it has to slot in between the rafters and the ridge beam.
+    On paper you just draw an arrow and squeeze it in. A linked list is that
+    trick in code: a chain of items where each one points to the next, so you
+    can splice a new part into the middle without shuffling everything after
+    it.</p>
+  </div>
+
+  <div class="idea">
+    <p>A <strong>linked list</strong> is a chain of small boxes called
+    <strong>nodes</strong>. Each node holds two things: the <strong>data</strong>
+    (one part of the bill) and a <strong>pointer</strong> to the next node. The
+    last node points to nothing, written <code>nullptr</code> (the older word
+    for it is <code>NULL</code>). You keep one pointer, the <strong>head</strong>,
+    aimed at the first node; from there you can walk the whole chain by
+    following each <code>next</code>. Nothing says the nodes sit side by side in
+    memory. They can be scattered anywhere; the pointers are what hold the order.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="560" height="120">
+      <text x="20" y="20" font-size="11" fill="#16232B">head</text>
+      <line x1="35" y1="26" x2="35" y2="55" stroke="#1D5A80" stroke-width="1.5"/>
+      <polygon points="35,60 31,52 39,52" fill="#1D5A80"/>
+
+      <!-- node 1 -->
+      <rect x="20" y="60" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
+      <line x1="100" y1="60" x2="100" y2="104" stroke="#1D5A80" stroke-width="1.5"/>
+      <text x="60" y="87" text-anchor="middle" font-size="11" fill="#16232B">Rafter x2</text>
+      <circle cx="120" cy="82" r="3" fill="#B57C33"/>
+
+      <!-- arrow 1 to 2 -->
+      <line x1="120" y1="82" x2="200" y2="82" stroke="#B57C33" stroke-width="1.5"/>
+      <polygon points="200,82 192,78 192,86" fill="#B57C33"/>
+
+      <!-- node 2 -->
+      <rect x="200" y="60" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
+      <line x1="280" y1="60" x2="280" y2="104" stroke="#1D5A80" stroke-width="1.5"/>
+      <text x="240" y="87" text-anchor="middle" font-size="11" fill="#16232B">Ridge x1</text>
+      <circle cx="300" cy="82" r="3" fill="#B57C33"/>
+
+      <!-- arrow 2 to 3 -->
+      <line x1="300" y1="82" x2="380" y2="82" stroke="#B57C33" stroke-width="1.5"/>
+      <polygon points="380,82 372,78 372,86" fill="#B57C33"/>
+
+      <!-- node 3 -->
+      <rect x="380" y="60" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
+      <line x1="460" y1="60" x2="460" y2="104" stroke="#1D5A80" stroke-width="1.5"/>
+      <text x="420" y="87" text-anchor="middle" font-size="11" fill="#16232B">Bolts x8</text>
+      <circle cx="480" cy="82" r="3" fill="#B57C33"/>
+
+      <!-- arrow 3 to NULL -->
+      <line x1="480" y1="82" x2="530" y2="82" stroke="#B57C33" stroke-width="1.5"/>
+      <text x="536" y="86" font-size="11" fill="#56676F">NULL</text>
+    </svg>
+    <figcaption>A three-node list. Each node is a box split into a data cell and
+    a next cell; the last node points to NULL.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p>In C++ a node is a <code>struct</code> that contains a pointer to its own
+    type. That self-reference is the whole idea: a <code>Part</code> that knows
+    where the next <code>Part</code> lives.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Part {
+    std::string name;   // the data: one line of the bill
+    int qty;            // how many of it
+    Part* next;         // pointer to the next node, or nullptr at the end
+};
+
+int main() {
+    Part* head = nullptr;   // an empty list is just a null head
+    std::cout &lt;&lt; "List starts empty: " &lt;&lt; (head == nullptr) &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <h2>Build a list and walk it</h2>
+  <div class="idea">
+    <p>To build a list by hand you ask for each node with <code>new</code>, fill
+    its data, and link it to the one before. To read the list back you
+    <strong>traverse</strong> it: start at the head and keep following
+    <code>next</code> until you fall off the end at <code>nullptr</code>.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Part {
+    std::string name;
+    int qty;
+    Part* next;
+};
+
+int main() {
+    // build three nodes: rafters -&gt; ridge -&gt; bolts
+    Part* rafter = new Part{"Rafter", 2, nullptr};
+    Part* ridge  = new Part{"Ridge beam", 1, nullptr};
+    Part* bolts  = new Part{"Bolts", 8, nullptr};
+    rafter-&gt;next = ridge;
+    ridge-&gt;next  = bolts;
+
+    Part* head = rafter;
+
+    // traverse: follow next until we hit nullptr
+    for (Part* p = head; p != nullptr; p = p-&gt;next) {
+        std::cout &lt;&lt; p-&gt;qty &lt;&lt; " x " &lt;&lt; p-&gt;name &lt;&lt; std::endl;
+    }
+
+    // give the memory back
+    delete rafter;
+    delete ridge;
+    delete bolts;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it: the truss bill of materials</p>
+    <p>Step 4 of the truss build is pricing. Save the program above as
+    <code>bom.cpp</code> and run it:</p>
+    <p><code>g++ -std=c++17 bom.cpp -o bom &amp;&amp; ./bom</code></p>
+    <p>You should see the three parts printed in order. This printed chain is
+    your bill of materials; the next sections add and remove parts as the design
+    changes on site.</p>
+  </div>
+
+  <h2>Insert at the beginning</h2>
+  <div class="idea">
+    <p>Adding to the front is the cheapest move a linked list makes. You point
+    the new node's <code>next</code> at the current head, then move the head to
+    the new node. No existing node moves. This is the same reason a builder
+    staples the newest change note to the top of the clipboard: it is one action,
+    no matter how thick the stack.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Part {
+    std::string name;
+    int qty;
+    Part* next;
+};
+
+// add a node at the front; returns the new head
+Part* insertFront(Part* head, std::string name, int qty) {
+    Part* node = new Part{name, qty, head};   // point next at old head
+    return node;                              // node is the new head
+}
+
+void printList(Part* head) {
+    for (Part* p = head; p != nullptr; p = p-&gt;next) {
+        std::cout &lt;&lt; p-&gt;qty &lt;&lt; " x " &lt;&lt; p-&gt;name &lt;&lt; std::endl;
+    }
+}
+
+int main() {
+    Part* head = nullptr;
+    head = insertFront(head, "Bolts", 8);
+    head = insertFront(head, "Ridge beam", 1);
+    head = insertFront(head, "Rafter", 2);   // newest ends up first
+    printList(head);
+    return 0;
+}</code></pre>
+
+  <h2>Insert at the end</h2>
+  <div class="idea">
+    <p>Adding to the end is more work: with only a head pointer you must first
+    walk to the last node (the one whose <code>next</code> is
+    <code>nullptr</code>), then hang the new node off it. If the list is empty,
+    the new node simply becomes the head.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Part {
+    std::string name;
+    int qty;
+    Part* next;
+};
+
+// add a node at the end; returns the head
+Part* insertEnd(Part* head, std::string name, int qty) {
+    Part* node = new Part{name, qty, nullptr};
+    if (head == nullptr) {
+        return node;              // empty list: new node is the head
+    }
+    Part* p = head;
+    while (p-&gt;next != nullptr) {  // walk to the last node
+        p = p-&gt;next;
+    }
+    p-&gt;next = node;               // hang the new node off the end
+    return head;
+}
+
+void printList(Part* head) {
+    for (Part* p = head; p != nullptr; p = p-&gt;next) {
+        std::cout &lt;&lt; p-&gt;qty &lt;&lt; " x " &lt;&lt; p-&gt;name &lt;&lt; std::endl;
+    }
+}
+
+int main() {
+    Part* head = nullptr;
+    head = insertEnd(head, "Rafter", 2);
+    head = insertEnd(head, "Ridge beam", 1);
+    head = insertEnd(head, "Bolts", 8);   // stays in the order added
+    printList(head);
+    return 0;
+}</code></pre>
+
+  <h2>Search the list</h2>
+  <div class="idea">
+    <p>To answer "is this part on the bill?" you traverse and compare each
+    node's data. Return <code>true</code> the moment you find it; if you reach
+    <code>nullptr</code> you never found it, so return <code>false</code>. A menu
+    works the same way: to check whether the kitchen still lists jollof rice you
+    read down the card until you find it or run out.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Dish {
+    std::string name;
+    Dish* next;
+};
+
+// true if a dish with this name is on the menu
+bool contains(Dish* head, std::string target) {
+    for (Dish* p = head; p != nullptr; p = p-&gt;next) {
+        if (p-&gt;name == target) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main() {
+    Dish* jollof = new Dish{"Jollof rice", nullptr};
+    Dish* fufu   = new Dish{"Fufu", nullptr};
+    jollof-&gt;next = fufu;
+    Dish* menu = jollof;
+
+    std::cout &lt;&lt; "Jollof rice? " &lt;&lt; contains(menu, "Jollof rice") &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Pizza? "       &lt;&lt; contains(menu, "Pizza")       &lt;&lt; std::endl;
+
+    delete jollof;
+    delete fufu;
+    return 0;
+}</code></pre>
+
+  <h2>Delete a node</h2>
+  <div class="idea">
+    <p>To remove a part you re-route the pointer that leads to it: make the node
+    before it point to the node after it, then <code>delete</code> the removed
+    node so its memory goes back. The special case is deleting the head, since no
+    node points to it; then you just move the head forward.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Part {
+    std::string name;
+    int qty;
+    Part* next;
+};
+
+// remove the first node whose name matches; returns the head
+Part* removePart(Part* head, std::string name) {
+    if (head == nullptr) {
+        return nullptr;
+    }
+    if (head-&gt;name == name) {        // deleting the head
+        Part* rest = head-&gt;next;
+        delete head;
+        return rest;
+    }
+    Part* p = head;
+    while (p-&gt;next != nullptr &amp;&amp; p-&gt;next-&gt;name != name) {
+        p = p-&gt;next;                 // stop with p just before the target
+    }
+    if (p-&gt;next != nullptr) {        // found it
+        Part* gone = p-&gt;next;
+        p-&gt;next = gone-&gt;next;        // route around the removed node
+        delete gone;
+    }
+    return head;
+}
+
+void printList(Part* head) {
+    for (Part* p = head; p != nullptr; p = p-&gt;next) {
+        std::cout &lt;&lt; p-&gt;qty &lt;&lt; " x " &lt;&lt; p-&gt;name &lt;&lt; std::endl;
+    }
+}
+
+int main() {
+    Part* head = new Part{"Rafter", 2, nullptr};
+    head-&gt;next = new Part{"Ridge beam", 1, nullptr};
+    head-&gt;next-&gt;next = new Part{"Bolts", 8, nullptr};
+
+    head = removePart(head, "Ridge beam");   // scrap the ridge beam line
+    printList(head);
+    return 0;
+}</code></pre>
+
+  <h2>Reverse the list</h2>
+  <div class="idea">
+    <p>Reversing flips every arrow. You walk the chain with three pointers:
+    <code>prev</code> (the part already flipped), <code>curr</code> (the one you
+    are on), and <code>next</code> (saved before you overwrite the link, or you
+    lose the rest of the chain). At each step you point <code>curr-&gt;next</code>
+    back at <code>prev</code>, then slide all three forward. When
+    <code>curr</code> falls off the end, <code>prev</code> is the new head.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+      <text x="20" y="30" font-size="11" fill="#56676F">before:</text>
+      <text x="110" y="30" font-size="11" fill="#16232B">A</text>
+      <line x1="122" y1="26" x2="160" y2="26" stroke="#B57C33" stroke-width="1.5"/>
+      <polygon points="160,26 152,22 152,30" fill="#B57C33"/>
+      <text x="168" y="30" font-size="11" fill="#16232B">B</text>
+      <line x1="180" y1="26" x2="218" y2="26" stroke="#B57C33" stroke-width="1.5"/>
+      <polygon points="218,26 210,22 210,30" fill="#B57C33"/>
+      <text x="226" y="30" font-size="11" fill="#16232B">C</text>
+
+      <text x="20" y="80" font-size="11" fill="#56676F">after:</text>
+      <text x="110" y="80" font-size="11" fill="#16232B">A</text>
+      <line x1="160" y1="76" x2="122" y2="76" stroke="#1D5A80" stroke-width="1.5"/>
+      <polygon points="122,76 130,72 130,80" fill="#1D5A80"/>
+      <text x="168" y="80" font-size="11" fill="#16232B">B</text>
+      <line x1="218" y1="76" x2="180" y2="76" stroke="#1D5A80" stroke-width="1.5"/>
+      <polygon points="180,76 188,72 188,80" fill="#1D5A80"/>
+      <text x="226" y="80" font-size="11" fill="#16232B">C</text>
+    </svg>
+    <figcaption>Reversing keeps the nodes where they are and flips every next
+    pointer, so C becomes the head.</figcaption>
+  </figure>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Stop {
+    std::string name;
+    Stop* next;
+};
+
+// flip every pointer; returns the new head
+Stop* reverse(Stop* head) {
+    Stop* prev = nullptr;
+    Stop* curr = head;
+    while (curr != nullptr) {
+        Stop* next = curr-&gt;next;   // save the rest before overwriting
+        curr-&gt;next = prev;         // flip this arrow
+        prev = curr;               // slide prev forward
+        curr = next;               // slide curr forward
+    }
+    return prev;                   // prev is the last node we saw
+}
+
+void printTour(Stop* head) {
+    for (Stop* p = head; p != nullptr; p = p-&gt;next) {
+        std::cout &lt;&lt; p-&gt;name;
+        if (p-&gt;next != nullptr) std::cout &lt;&lt; " -&gt; ";
+    }
+    std::cout &lt;&lt; std::endl;
+}
+
+int main() {
+    // a tourist route: Victoria Falls -&gt; Hwange -&gt; Great Zimbabwe
+    Stop* a = new Stop{"Victoria Falls", nullptr};
+    Stop* b = new Stop{"Hwange", nullptr};
+    Stop* c = new Stop{"Great Zimbabwe", nullptr};
+    a-&gt;next = b;
+    b-&gt;next = c;
+    Stop* head = a;
+
+    printTour(head);
+    head = reverse(head);
+    printTour(head);   // the tour now runs the other way
+
+    delete a;
+    delete b;
+    delete c;
+    return 0;
+}</code></pre>
+
+  <h2>List versus array</h2>
+  <div class="idea">
+    <p>An <strong>array</strong> is a single unbroken block of slots, numbered
+    from zero. That layout is its strength and its weakness. Because the slots
+    sit next to each other, jumping to slot 500 is instant. But inserting or
+    deleting in the middle means shifting every slot after it to close or open
+    the gap. A linked list is the opposite: reaching the middle means walking
+    from the head one node at a time, but once you are there, splicing a node in
+    or out is a couple of pointer changes and nothing else moves.</p>
+  </div>
+
+  <table>
+    <tr><th>Job</th><th>Array</th><th>Linked list</th></tr>
+    <tr><td>Reach the Nth item</td><td>Instant (jump to the slot)</td><td>Walk N nodes from the head</td></tr>
+    <tr><td>Insert or delete at the front</td><td>Shift every other item</td><td>A couple of pointer changes</td></tr>
+    <tr><td>Insert or delete in the middle</td><td>Shift the items after it</td><td>A couple of pointer changes</td></tr>
+    <tr><td>Grow the size</td><td>May need a whole new block</td><td>Just <code>new</code> one more node</td></tr>
+    <tr><td>Memory per item</td><td>Just the data</td><td>Data plus one pointer per node</td></tr>
+    <tr><td>Layout in memory</td><td>One contiguous block</td><td>Scattered, joined by pointers</td></tr>
+  </table>
+
+  <div class="idea">
+    <p>The rule of thumb: pick an array when you mostly read by position and the
+    size is steady; pick a linked list when you add and remove a lot, especially
+    at the ends, and you rarely need to jump straight to the middle. A bill of
+    materials that changes all through the build is a natural linked list.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: spot the bug</p>
+    <p>A student writes this reverse loop. It compiles and runs, but the list
+    comes back with only one node. What went wrong?</p>
+    <pre class="code"><code>Stop* prev = nullptr;
+Stop* curr = head;
+while (curr != nullptr) {
+    curr-&gt;next = prev;     // flips the arrow first...
+    prev = curr;
+    curr = curr-&gt;next;     // ...but next now points at prev
+}
+return prev;</code></pre>
+    <p>Answer: the line <code>curr-&gt;next = prev;</code> overwrites the link to
+    the rest of the chain before it is saved. The next line then reads the
+    already-flipped <code>curr-&gt;next</code>, so <code>curr</code> jumps
+    backward instead of forward and the walk ends early. The fix is to save the
+    next node in a temporary first: <code>Stop* next = curr-&gt;next;</code> at the
+    top of the loop, and advance with <code>curr = next;</code>.</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>Exam questions</h2>
+
+  <div class="exam-q">
+    <p>Q1. Explain what a singly linked list is, and state two advantages it has
+    over an array.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A singly linked list is a chain of nodes. Each node holds a piece of data
+    and a single pointer to the next node; the last node's pointer is
+    <code>nullptr</code>. A separate head pointer marks the first node, and the
+    list is read by traversing from the head, following each <code>next</code>
+    until <code>nullptr</code>. The nodes need not sit together in memory; the
+    pointers alone hold the order.</p>
+    <p>Two advantages over an array: (1) inserting or deleting, especially at the
+    front, costs only a few pointer changes, whereas an array must shift the
+    other elements to open or close the gap; (2) the list grows one node at a
+    time with <code>new</code> and needs no fixed size up front, whereas an array
+    may have to be re-allocated into a larger block when it fills.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Write a C++ function that searches a singly linked list of integers
+    for a target value and returns <code>true</code> if it is present, otherwise
+    <code>false</code>.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>struct Node {
+    int value;
+    Node* next;
+};
+
+bool contains(Node* head, int target) {
+    for (Node* p = head; p != nullptr; p = p-&gt;next) {
+        if (p-&gt;value == target) {
+            return true;      // found it, stop early
+        }
+    }
+    return false;             // reached the end without a match
+}</code></pre>
+    <p>The loop starts at the head and follows <code>next</code> to the end. It
+    returns <code>true</code> as soon as a node matches; if it falls off the end
+    at <code>nullptr</code> the value was never there, so it returns
+    <code>false</code>.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Write functions to insert a new node at the beginning of a singly
+    linked list, and to insert a new node at the end. Each returns the head.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>struct Node {
+    int value;
+    Node* next;
+};
+
+// insert at the beginning: cheapest case, no walking
+Node* insertFront(Node* head, int value) {
+    Node* node = new Node{value, head};   // point next at old head
+    return node;                          // new node becomes the head
+}
+
+// insert at the end: walk to the last node first
+Node* insertEnd(Node* head, int value) {
+    Node* node = new Node{value, nullptr};
+    if (head == nullptr) {
+        return node;                      // empty list
+    }
+    Node* p = head;
+    while (p-&gt;next != nullptr) {
+        p = p-&gt;next;                      // stop on the last node
+    }
+    p-&gt;next = node;
+    return head;
+}</code></pre>
+    <p>Inserting at the front is one step: the new node points at the old head
+    and becomes the head. Inserting at the end must first traverse to the node
+    whose <code>next</code> is <code>nullptr</code>, then attach there; the empty
+    list is handled as a special case where the new node is the head.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Write a C++ function to reverse a singly linked list, returning the
+    new head. Explain why a temporary pointer is needed inside the loop.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>struct Node {
+    int value;
+    Node* next;
+};
+
+Node* reverse(Node* head) {
+    Node* prev = nullptr;
+    Node* curr = head;
+    while (curr != nullptr) {
+        Node* next = curr-&gt;next;   // save the rest of the chain
+        curr-&gt;next = prev;         // flip this node's pointer
+        prev = curr;               // advance prev
+        curr = next;               // advance curr
+    }
+    return prev;                   // prev is the new head
+}</code></pre>
+    <p>The temporary <code>next</code> is needed because the line
+    <code>curr-&gt;next = prev;</code> overwrites the pointer to the remaining
+    nodes. Without saving it first, there would be no way to reach the rest of
+    the list, and the walk would stop after one node. When the loop ends,
+    <code>curr</code> is <code>nullptr</code> and <code>prev</code> holds the
+    last node visited, which is now the front.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q5. Write a complete C++ program that builds a three-node linked list of
+    strings and prints each node on its own line.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Node {
+    std::string value;
+    Node* next;
+};
+
+int main() {
+    // build three nodes and link them
+    Node* n1 = new Node{"Rafter", nullptr};
+    Node* n2 = new Node{"Ridge beam", nullptr};
+    Node* n3 = new Node{"Bolts", nullptr};
+    n1-&gt;next = n2;
+    n2-&gt;next = n3;
+    Node* head = n1;
+
+    // traverse and print
+    for (Node* p = head; p != nullptr; p = p-&gt;next) {
+        std::cout &lt;&lt; p-&gt;value &lt;&lt; std::endl;
+    }
+
+    delete n1;
+    delete n2;
+    delete n3;
+    return 0;
+}</code></pre>
+    <p>The three nodes are created with <code>new</code>, joined by setting each
+    <code>next</code>, and <code>head</code> is aimed at the first. The
+    <code>for</code> loop traverses from the head to <code>nullptr</code>,
+    printing one node per line, then each node's memory is returned with
+    <code>delete</code>.</p>
+  </div>
+</section>

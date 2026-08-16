@@ -1,0 +1,301 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 19</p>
+  <h1>Searching: finding the right member</h1>
+
+  <div class="hook">
+    <p>The truss bin holds a hundred steel members, each stamped with a length.
+    The plan calls for a 300 cm chord. You could tip the whole bin out and paw
+    through it, or you could be smart about it. Every program has the same
+    problem: a pile of data, and one item you need out of it. How you look
+    decides whether the search takes a blink or a coffee break. This chapter is
+    the two ways to look, and when to use each.</p>
+  </div>
+
+  <h2>Linear search: check every one</h2>
+  <div class="idea">
+    <p>The plain way is to start at the first item and check each one in turn
+    until you hit the target or run off the end. This is <strong>linear
+    search</strong>. It makes no demand on the data: the members can be in any
+    order, any jumble. That freedom is its strength. Its weakness is speed. If
+    the member you want is last, you touched every one to find it.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    // member lengths in cm, in any order (a real bin is a jumble)
+    int lengths[6] = {240, 180, 300, 150, 420, 360};
+    int target = 300;
+
+    int found = -1;                      // -1 means "not seen yet"
+    for (int i = 0; i &lt; 6; i++) {
+        if (lengths[i] == target) {
+            found = i;
+            break;                       // stop at the first match
+        }
+    }
+
+    if (found != -1) {
+        std::cout &lt;&lt; "Member of " &lt;&lt; target
+                  &lt;&lt; " cm is at position " &lt;&lt; found &lt;&lt; std::endl;
+    } else {
+        std::cout &lt;&lt; "No " &lt;&lt; target &lt;&lt; " cm member in the bin" &lt;&lt; std::endl;
+    }
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p><code>g++ -std=c++17 search.cpp -o search &amp;&amp; ./search</code></p>
+    <p>Prints <code>Member of 300 cm is at position 2</code>. Change
+    <code>target</code> to <code>500</code> and it prints the "not in the bin"
+    line instead. On a truss job this is your cut list check: walk the bin once,
+    confirm the member exists before you promise it to the frame.</p>
+  </div>
+
+  <h2>Binary search: cut the pile in half</h2>
+  <div class="idea">
+    <p>If the members are <strong>sorted</strong> by length, short to long, you
+    can do far better. Look at the middle one first. If it is too long, the one
+    you want must be to its left, so throw away the whole right half. If it is
+    too short, throw away the left half. Each look halves what is left. This is
+    <strong>binary search</strong>. The catch, and it is the whole catch: the
+    data must already be sorted. Run it on a jumbled bin and it will lie to you,
+    reporting "not found" for a member sitting right there.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 150" width="340" height="150">
+      <rect x="0" y="0" width="340" height="150" fill="#F6F8FA"/>
+      <!-- seven sorted cells -->
+      <g font-family="Helvetica" font-size="13" text-anchor="middle">
+        <rect x="20"  y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
+        <rect x="60"  y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
+        <rect x="100" y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
+        <rect x="140" y="40" width="40" height="40" fill="#B57C33" stroke="#16232B"/>
+        <rect x="180" y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
+        <rect x="220" y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
+        <rect x="260" y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
+        <text x="40"  y="65" fill="#16232B">150</text>
+        <text x="80"  y="65" fill="#16232B">180</text>
+        <text x="120" y="65" fill="#16232B">240</text>
+        <text x="160" y="65" fill="#FFFFFF">300</text>
+        <text x="200" y="65" fill="#16232B">360</text>
+        <text x="240" y="65" fill="#16232B">420</text>
+        <text x="280" y="65" fill="#16232B">480</text>
+        <!-- index row -->
+        <text x="40"  y="95" fill="#1D5A80" font-size="11">0</text>
+        <text x="80"  y="95" fill="#1D5A80" font-size="11">1</text>
+        <text x="120" y="95" fill="#1D5A80" font-size="11">2</text>
+        <text x="160" y="95" fill="#1D5A80" font-size="11">3</text>
+        <text x="200" y="95" fill="#1D5A80" font-size="11">4</text>
+        <text x="240" y="95" fill="#1D5A80" font-size="11">5</text>
+        <text x="280" y="95" fill="#1D5A80" font-size="11">6</text>
+        <!-- low / mid / high markers -->
+        <text x="40"  y="120" fill="#16232B" font-size="12">low</text>
+        <text x="160" y="120" fill="#B57C33" font-size="12">mid</text>
+        <text x="280" y="120" fill="#16232B" font-size="12">high</text>
+        <text x="170" y="30" text-anchor="start" fill="#16232B" font-size="11">looking for 360</text>
+      </g>
+    </svg>
+    <figcaption>Binary search, first step. low, mid, and high span the sorted
+    row. mid holds 300; 360 is bigger, so the search keeps the right half:
+    low jumps to index 4 and the left half is gone.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p>Three markers run the search. <code>low</code> and <code>high</code> are
+    the ends of the part still in play; <code>mid</code> is the middle of that
+    part. Compare the member at <code>mid</code> to the target. Equal means
+    found. Too small means slide <code>low</code> to <code>mid + 1</code>. Too
+    big means pull <code>high</code> to <code>mid - 1</code>. The window shrinks
+    every pass until it either lands on the target or closes to nothing.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    // members sorted short to long, lengths in cm
+    int lengths[7] = {150, 180, 240, 300, 360, 420, 480};
+    int target = 360;
+
+    int low = 0;
+    int high = 6;                        // last index
+    int found = -1;
+
+    while (low &lt;= high) {
+        int mid = (low + high) / 2;
+        if (lengths[mid] == target) {
+            found = mid;
+            break;
+        } else if (lengths[mid] &lt; target) {
+            low = mid + 1;               // target is in the right half
+        } else {
+            high = mid - 1;              // target is in the left half
+        }
+    }
+
+    if (found != -1) {
+        std::cout &lt;&lt; "Found " &lt;&lt; target
+                  &lt;&lt; " cm at position " &lt;&lt; found &lt;&lt; std::endl;
+    } else {
+        std::cout &lt;&lt; target &lt;&lt; " cm is not stocked" &lt;&lt; std::endl;
+    }
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it on the truss line</p>
+    <p><code>g++ -std=c++17 binsearch.cpp -o binsearch &amp;&amp; ./binsearch</code></p>
+    <p>Before you can search a truss member rack this way, you must build it
+    sorted: rack the members short to long as they come off the saw. That one
+    discipline at the rack is what earns you the fast search later. Sort once at
+    build time, search cheaply every time after.</p>
+  </div>
+
+  <h2>How fast is each?</h2>
+  <div class="idea">
+    <p>Count the worst case, the number of members you must inspect when luck is
+    against you. Linear search may touch all of them, so for <code>n</code>
+    members it is <strong>O(n)</strong>: double the bin, double the work. Binary
+    search halves the pile each look, so it needs about
+    <strong>log&#8322; n</strong> looks, written <strong>O(log n)</strong>. The
+    gap is not small. A bin of 1000 members: linear search may check 1000;
+    binary search checks at most 10. A bin of a million: linear checks a
+    million, binary checks 20. That is the payoff for keeping the rack sorted.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: spot the bug</p>
+    <p>A cook keeps a list of dishes by prep time and runs binary search to
+    check whether a 25 minute dish is on it. It reports "not found", but 25 is
+    right there. What is wrong?</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int prep[6] = {40, 10, 25, 55, 15, 30};   // minutes
+    int target = 25;
+
+    int low = 0, high = 5, found = -1;
+    while (low &lt;= high) {
+        int mid = (low + high) / 2;
+        if (prep[mid] == target) { found = mid; break; }
+        else if (prep[mid] &lt; target) low = mid + 1;
+        else high = mid - 1;
+    }
+    std::cout &lt;&lt; (found != -1 ? "on the menu" : "not found") &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+    <p><strong>Answer:</strong> the array is not sorted. Binary search assumes
+    ascending order; on the jumbled list it discards the half that actually
+    holds 25 and never sees it. The code compiles and runs, which makes the bug
+    sneaky: the algorithm is fine, the prerequisite is broken. Fix it by sorting
+    <code>prep</code> first (<code>{10, 15, 25, 30, 40, 55}</code>), or use
+    linear search, which needs no order.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: predict the output</p>
+    <p>A guide lists tourist-spot entry fees, sorted low to high:
+    <code>{20, 35, 50, 75, 90}</code>. Trace the binary search for
+    <code>target = 50</code>. Which positions does <code>mid</code> take, and
+    what prints?</p>
+    <p><strong>Answer:</strong> low=0, high=4, so mid=2, and
+    <code>fees[2]</code> is 50. Match on the first look. It prints
+    <code>Found 50 at position 2</code> after inspecting exactly one item. The
+    middle element being the target is binary search's best case.</p>
+  </div>
+
+  <h2>Exam practice</h2>
+
+  <div class="exam-q">
+    <p>Q1. Compare linear search and binary search. State one situation where
+    each is the better choice. (4 marks)</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Linear search</strong> checks each element in turn from the
+    start. It works on data in any order and is simple to write. Its worst case
+    is O(n).</p>
+    <p><strong>Binary search</strong> repeatedly halves a <em>sorted</em> range,
+    so its worst case is O(log n), far faster on large data. It cannot run on
+    unsorted data.</p>
+    <p><strong>Prefer linear search</strong> when the data is unsorted, or the
+    list is small, or you search it only once (sorting first would cost more
+    than it saves). <strong>Prefer binary search</strong> when the data is
+    already sorted and large, or you search the same sorted list many times, so
+    the one-off sort pays for itself.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. State the prerequisite that binary search requires but linear search
+    does not, and explain what goes wrong if it is not met. (3 marks)</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Binary search requires the data to be <strong>sorted</strong> (in a known
+    order, normally ascending). It relies on that order to decide which half to
+    discard: if the middle value is smaller than the target, it assumes every
+    value to the left is also smaller and throws that half away.</p>
+    <p>On unsorted data that assumption is false, so binary search can discard
+    the half that actually holds the target and wrongly report "not found". It
+    still runs and gives no error, which makes the fault easy to miss. Linear
+    search has no such requirement because it inspects every element.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Write a complete C++ program that stores the sorted array
+    <code>{5, 12, 18, 23, 40, 61}</code> (recipe cook times in minutes) and uses
+    binary search to report whether 23 minutes is present, and if so at which
+    index. (6 marks)</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int times[6] = {5, 12, 18, 23, 40, 61};   // sorted, minutes
+    int target = 23;
+
+    int low = 0, high = 5, found = -1;
+    while (low &lt;= high) {
+        int mid = (low + high) / 2;
+        if (times[mid] == target) {
+            found = mid;
+            break;
+        } else if (times[mid] &lt; target) {
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+
+    if (found != -1) {
+        std::cout &lt;&lt; target &lt;&lt; " min found at index " &lt;&lt; found &lt;&lt; std::endl;
+    } else {
+        std::cout &lt;&lt; target &lt;&lt; " min not in the list" &lt;&lt; std::endl;
+    }
+    return 0;
+}</code></pre>
+    <p>It prints <code>23 min found at index 3</code>. The marks are for a
+    working loop with <code>low</code>/<code>high</code>/<code>mid</code>, the
+    two-way narrowing, and handling both the found and not-found cases.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. State the worst-case time complexity of binary search and explain,
+    in terms of what happens each pass, why it has that value. (4 marks)</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The worst-case complexity of binary search is <strong>O(log n)</strong>
+    (base 2), where <code>n</code> is the number of elements.</p>
+    <p>Each pass compares the target with the middle element and discards half
+    of the remaining range. So the size still in play goes n, n/2, n/4, n/8, and
+    so on. The worst case is when the target is missing or at the very last step:
+    the search continues until the range shrinks to a single element (or to
+    nothing). The number of halvings needed to reduce n to 1 is log&#8322; n, so
+    that many comparisons is the worst case. For n = 1,000,000 that is about 20
+    comparisons, against up to 1,000,000 for linear search.</p>
+  </div>
+</section>

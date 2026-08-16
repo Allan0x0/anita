@@ -6,7 +6,7 @@
     <p>Stand under a finished roof truss and look up. One peak, the king-post,
     sits at the top. From it, two rafters fall away to the left and right, and
     each rafter can carry smaller struts under it. Nothing loops back on itself:
-    you never climb a rafter and end up back at the peak. That shape, one thing
+    no rafter leads you back to the peak. That shape, one thing
     at the top and everything branching downward without loops, is a tree. Learn
     to see it in a truss and you already understand the data structure that
     databases, file systems, and menu screens are built from.</p>
@@ -186,6 +186,45 @@ int main() {
     </ul>
     <p>Same tree, three orders, one tiny change in where the print line sits.</p>
   </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 250" width="460" height="250">
+      <g font-family="Helvetica" stroke-linejoin="round" stroke-linecap="round">
+        <text x="10" y="20" font-size="11" fill="#22201B">In-order walk: left, then node, then right (numbers = visit order)</text>
+        <!-- edges -->
+        <g stroke="#56676F" stroke-width="2">
+          <line x1="230" y1="55" x2="140" y2="120"/><line x1="230" y1="55" x2="320" y2="120"/>
+          <line x1="140" y1="120" x2="90" y2="185"/><line x1="140" y1="120" x2="190" y2="185"/>
+          <line x1="320" y1="120" x2="270" y2="185"/><line x1="320" y1="120" x2="370" y2="185"/>
+        </g>
+        <!-- nodes -->
+        <g stroke-width="2.2" fill="#FAF6EE">
+          <circle cx="230" cy="55" r="17" stroke="#1D5A80"/>
+          <circle cx="140" cy="120" r="17" stroke="#1D5A80"/>
+          <circle cx="320" cy="120" r="17" stroke="#1D5A80"/>
+          <circle cx="90" cy="185" r="17" stroke="#B57C33"/>
+          <circle cx="190" cy="185" r="17" stroke="#B57C33"/>
+          <circle cx="270" cy="185" r="17" stroke="#B57C33"/>
+          <circle cx="370" cy="185" r="17" stroke="#B57C33"/>
+        </g>
+        <g font-size="12" fill="#22201B" text-anchor="middle">
+          <text x="230" y="60">50</text><text x="140" y="125">30</text><text x="320" y="125">70</text>
+          <text x="90" y="190">20</text><text x="190" y="190">40</text><text x="270" y="190">60</text><text x="370" y="190">80</text>
+        </g>
+        <!-- visit order badges -->
+        <g font-size="10" fill="#1D5A80" text-anchor="middle" font-weight="700">
+          <text x="252" y="44">4</text><text x="118" y="112">2</text><text x="342" y="112">6</text>
+          <text x="68" y="177">1</text><text x="212" y="177">3</text><text x="248" y="177">5</text><text x="392" y="177">7</text>
+        </g>
+        <!-- output row -->
+        <text x="230" y="228" text-anchor="middle" font-size="12" fill="#22201B">20  30  40  50  60  70  80</text>
+        <text x="230" y="243" text-anchor="middle" font-size="10" fill="#56676F">the in-order sequence comes out sorted</text>
+      </g>
+    </svg>
+    <figcaption>The same BST read in-order. Visiting left subtree before each node
+    and right subtree after it lands the values in ascending order: 20, 30, 40,
+    50, 60, 70, 80.</figcaption>
+  </figure>
 
   <pre class="code"><code>#include &lt;iostream&gt;
 

@@ -1,0 +1,358 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 36</p>
+  <h1>Heaps</h1>
+
+  <div class="hook">
+    <p>A busy kitchen has one rule at the pass: the most urgent order goes out
+    next, never mind when it was written. A ticket for a table that has waited
+    an hour jumps ahead of one that just came in. You do not sort every ticket
+    on the rail each time; you just keep the top one always the most urgent, and
+    you can add a new ticket or pull the top one fast. That is exactly what a
+    <strong>heap</strong> does: it keeps the biggest (or smallest) item ready to
+    grab, without paying to fully sort the rest.</p>
+  </div>
+
+  <div class="idea">
+    <p>A <strong>binary heap</strong> is a binary tree with two rules, and only
+    two:</p>
+    <ul>
+      <li><strong>Shape (complete tree):</strong> every level is full except
+      possibly the last, and the last level fills from the left with no gaps. So
+      the tree is always short and bushy, never a lopsided string.</li>
+      <li><strong>Heap order:</strong> in a <strong>max-heap</strong>, every
+      parent is greater than or equal to its children, so the largest value sits
+      at the root. In a <strong>min-heap</strong>, every parent is less than or
+      equal to its children, so the smallest sits at the root.</li>
+    </ul>
+    <p>Note what a heap does <em>not</em> promise: left is not smaller than
+    right, and an in-order walk is not sorted. The only guarantee is
+    parent-versus-child. That weaker promise is the whole point; it is cheap to
+    keep, and it is all you need to always know the top value.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 240" width="500" height="240">
+      <rect x="1" y="1" width="498" height="238" fill="none" stroke="#C9D4DB"/>
+      <!-- edges -->
+      <line x1="250" y1="45" x2="150" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="250" y1="45" x2="350" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="150" y1="120" x2="100" y2="195" stroke="#56676F" stroke-width="2"/>
+      <line x1="150" y1="120" x2="200" y2="195" stroke="#56676F" stroke-width="2"/>
+      <line x1="350" y1="120" x2="300" y2="195" stroke="#56676F" stroke-width="2"/>
+      <!-- nodes -->
+      <circle cx="250" cy="45" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="250" y="50" text-anchor="middle" font-size="12" fill="#16232B">40</text>
+      <circle cx="150" cy="120" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="150" y="125" text-anchor="middle" font-size="12" fill="#16232B">30</text>
+      <circle cx="350" cy="120" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="350" y="125" text-anchor="middle" font-size="12" fill="#16232B">20</text>
+      <circle cx="100" cy="195" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="100" y="200" text-anchor="middle" font-size="12" fill="#16232B">10</text>
+      <circle cx="200" cy="195" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="200" y="200" text-anchor="middle" font-size="12" fill="#16232B">25</text>
+      <circle cx="300" cy="195" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="300" y="200" text-anchor="middle" font-size="12" fill="#16232B">15</text>
+      <text x="278" y="35" font-size="10" fill="#1D5A80">root (the max)</text>
+    </svg>
+    <figcaption>A max-heap. Every parent is at least as big as its children, so
+    40 sits on top. It is a complete tree: the last level (10, 25, 15) fills from
+    the left. Left is not always smaller than right (25 &gt; 10), and that is
+    fine; only parent-versus-child matters.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>The trick that makes heaps cheap: store the tree in an array.</strong>
+    Because a heap is always a complete tree, you can lay its nodes out level by
+    level, left to right, in a plain array and skip pointers entirely. Read the
+    same heap top to bottom, left to right, and you get the array below.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 130" width="480" height="130">
+      <rect x="1" y="1" width="478" height="128" fill="none" stroke="#C9D4DB"/>
+      <!-- index labels -->
+      <text x="70"  y="40" text-anchor="middle" font-size="11" fill="#56676F">0</text>
+      <text x="140" y="40" text-anchor="middle" font-size="11" fill="#56676F">1</text>
+      <text x="210" y="40" text-anchor="middle" font-size="11" fill="#56676F">2</text>
+      <text x="280" y="40" text-anchor="middle" font-size="11" fill="#56676F">3</text>
+      <text x="350" y="40" text-anchor="middle" font-size="11" fill="#56676F">4</text>
+      <text x="420" y="40" text-anchor="middle" font-size="11" fill="#56676F">5</text>
+      <!-- cells -->
+      <rect x="40"  y="50" width="60" height="42" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="70"  y="76" text-anchor="middle" font-size="13" fill="#16232B">40</text>
+      <rect x="110" y="50" width="60" height="42" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="140" y="76" text-anchor="middle" font-size="13" fill="#16232B">30</text>
+      <rect x="180" y="50" width="60" height="42" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="210" y="76" text-anchor="middle" font-size="13" fill="#16232B">20</text>
+      <rect x="250" y="50" width="60" height="42" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="280" y="76" text-anchor="middle" font-size="13" fill="#16232B">10</text>
+      <rect x="320" y="50" width="60" height="42" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="350" y="76" text-anchor="middle" font-size="13" fill="#16232B">25</text>
+      <rect x="390" y="50" width="60" height="42" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="420" y="76" text-anchor="middle" font-size="13" fill="#16232B">15</text>
+      <text x="240" y="115" text-anchor="middle" font-size="10" fill="#56676F">parent(i) = (i - 1) / 2      left(i) = 2i + 1      right(i) = 2i + 2</text>
+    </svg>
+    <figcaption>The same max-heap as one array. Node index 4 (value 25) has
+    parent (4 - 1) / 2 = 1, which holds 30; correct, 30 is its parent. No
+    pointers, no wasted memory, and moving between parent and child is just
+    arithmetic.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>Insert (sift up).</strong> Adding a value must keep both rules.
+    Keep the shape first: drop the new value into the next free array slot, which
+    is the first empty spot on the last level. That may break heap order, so fix
+    it by <strong>sifting up</strong>: compare the new value with its parent, and
+    if it is bigger (in a max-heap), swap them; repeat until the parent is bigger
+    or you reach the root. The value climbs only along one path from a leaf to the
+    root, so at most the height of the tree, about log n swaps.</p>
+    <p><strong>Delete the top (sift down).</strong> You almost always remove the
+    root, since that is the max (or min) you came for. Save the root to return it,
+    move the <em>last</em> array element into the root slot (that keeps the tree
+    complete), then <strong>sift down</strong>: compare the new root with its two
+    children, swap it with the larger child if that child is bigger, and repeat
+    down the tree until both children are smaller or you hit the bottom. Again one
+    path, about log n swaps.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// A max-heap stored in a vector.
+// parent(i) = (i-1)/2, left(i) = 2i+1, right(i) = 2i+2.
+class MaxHeap {
+    std::vector&lt;int&gt; a;
+
+    // Float a[i] up until its parent is not smaller.
+    void siftUp(int i) {
+        while (i &gt; 0) {
+            int parent = (i - 1) / 2;
+            if (a[i] &lt;= a[parent]) break;   // heap order already holds
+            std::swap(a[i], a[parent]);
+            i = parent;
+        }
+    }
+
+    // Push a[i] down until both children are not larger.
+    void siftDown(int i) {
+        int n = static_cast&lt;int&gt;(a.size());
+        while (true) {
+            int left = 2 * i + 1;
+            int right = 2 * i + 2;
+            int largest = i;
+            if (left &lt; n  &amp;&amp; a[left]  &gt; a[largest]) largest = left;
+            if (right &lt; n &amp;&amp; a[right] &gt; a[largest]) largest = right;
+            if (largest == i) break;        // no child is larger, done
+            std::swap(a[i], a[largest]);
+            i = largest;
+        }
+    }
+
+public:
+    void insert(int value) {
+        a.push_back(value);                 // fill the next free slot
+        siftUp(static_cast&lt;int&gt;(a.size()) - 1);
+    }
+
+    int extractMax() {
+        int top = a[0];                     // the value we came for
+        a[0] = a.back();                    // last element moves to the root
+        a.pop_back();
+        if (!a.empty()) siftDown(0);
+        return top;
+    }
+
+    bool empty() const { return a.empty(); }
+};
+
+int main() {
+    MaxHeap h;
+    int nums[] = {20, 15, 30, 40, 10, 25};
+    for (int n : nums) h.insert(n);
+
+    std::cout &lt;&lt; "largest first: ";
+    while (!h.empty()) std::cout &lt;&lt; h.extractMax() &lt;&lt; ' ';
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save it as <code>heap.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 heap.cpp -o heap &amp;&amp; ./heap</code></p>
+    <p>It prints <code>largest first: 40 30 25 20 15 10</code>. Pulling the max
+    over and over drains the heap in sorted order; that is heapsort hiding inside
+    a to-do list that always hands you the biggest job next.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>You rarely write this by hand.</strong> The standard library ships
+    a heap as <code>std::priority_queue</code>, a max-heap by default. Same
+    result, three lines of logic:</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;queue&gt;
+
+int main() {
+    std::priority_queue&lt;int&gt; pq;             // a max-heap, built in
+    for (int n : {20, 15, 30, 40, 10, 25}) pq.push(n);
+
+    std::cout &lt;&lt; "largest first: ";
+    while (!pq.empty()) {
+        std::cout &lt;&lt; pq.top() &lt;&lt; ' ';         // top() is always the max
+        pq.pop();
+    }
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p><strong>Heap versus BST.</strong> Both are binary trees, but they answer
+    different questions. A binary search tree (Chapter 20) keeps a full left-right
+    order, so it is fast at "is 42 in here?" and can print everything sorted with
+    an in-order walk. A heap keeps only parent-versus-child order, so it is bad at
+    searching for a middle value (you may have to look almost everywhere) but
+    unbeatable at "what is the biggest right now?", which is O(1) at the root. Use
+    a BST when you search and range-scan; use a heap when you repeatedly want the
+    extreme item, like the kitchen pass always sending out the most urgent
+    ticket.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge (spot the bug)</p>
+    <p>A student rewrites <code>siftDown</code> like this. It is deliberately
+    broken; do not compile it. What goes wrong, and on which node?</p>
+    <pre class="code"><code>void siftDown(int i) {
+    int n = a.size();
+    while (true) {
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+        int largest = i;
+        if (a[left]  &gt; a[largest]) largest = left;    // no left &lt; n check
+        if (a[right] &gt; a[largest]) largest = right;    // no right &lt; n check
+        if (largest == i) break;
+        std::swap(a[i], a[largest]);
+        i = largest;
+    }
+}</code></pre>
+    <p>(Answer: the two <code>if</code> lines read <code>a[left]</code> and
+    <code>a[right]</code> without first checking those indices exist. As soon as
+    <code>i</code> reaches a node whose children fall past the end of the array (a
+    leaf, or the last parent with only one child), it reads past the vector: out
+    of bounds, undefined behavior, often a crash. The fix is the guard from the
+    working version: <code>left &lt; n &amp;&amp; ...</code> and
+    <code>right &lt; n &amp;&amp; ...</code>.)</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Define a binary heap and state the properties it must satisfy.
+    Distinguish a min-heap from a max-heap.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A binary heap is a binary tree that satisfies two properties:</p>
+    <ul>
+      <li><strong>Shape property:</strong> it is a complete binary tree. Every
+      level is completely filled except possibly the last, and the last level is
+      filled from left to right with no gaps. This keeps the height at about
+      log n.</li>
+      <li><strong>Heap-order property:</strong> a fixed relationship holds between
+      every parent and its children.</li>
+    </ul>
+    <p>The heap-order property is what a min-heap and a max-heap differ on. In a
+    <strong>max-heap</strong>, every parent is greater than or equal to each of
+    its children, so the largest value is at the root. In a <strong>min-heap</strong>,
+    every parent is less than or equal to each of its children, so the smallest
+    value is at the root. In both cases there is no ordering between siblings, and
+    an in-order traversal is not sorted; the only guarantee is between a node and
+    its own children.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Describe the steps to insert a new value into a binary max-heap. Using
+    the max-heap [40, 30, 20, 10, 25, 15] (array form), show the steps to insert
+    the value 35.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The steps, keeping both heap properties:</p>
+    <ol>
+      <li>Place the new value in the next free slot, that is, the first empty
+      position on the last level (append it to the end of the array). This keeps
+      the tree complete.</li>
+      <li>Sift up: compare the new value with its parent. If the new value is
+      larger, swap it with the parent.</li>
+      <li>Repeat step 2 with the value in its new position, until its parent is
+      greater than or equal to it, or it becomes the root.</li>
+    </ol>
+    <p>Inserting 35 into [40, 30, 20, 10, 25, 15]:</p>
+    <ul>
+      <li>Append 35 at index 6: [40, 30, 20, 10, 25, 15, 35]. Its parent is at
+      index (6 - 1) / 2 = 2, which holds 20.</li>
+      <li>35 &gt; 20, so swap: [40, 30, 35, 10, 25, 15, 20]. 35 is now at index 2,
+      parent (2 - 1) / 2 = 0, which holds 40.</li>
+      <li>35 &lt; 40, so stop. Final heap: [40, 30, 35, 10, 25, 15, 20].</li>
+    </ul>
+    <p>Two comparisons, one swap; the value climbed one level.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Describe the steps to delete (extract) the maximum from a binary
+    max-heap. Using the max-heap [40, 30, 20, 10, 25, 15], show the steps to
+    remove the maximum.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The steps:</p>
+    <ol>
+      <li>Save the root value; it is the maximum and is what you return.</li>
+      <li>Move the last element of the array into the root position, then remove
+      that last slot. This keeps the tree complete.</li>
+      <li>Sift down: compare the value now at the root with its two children. If
+      the larger child is greater than it, swap it with that larger child.</li>
+      <li>Repeat step 3 at the value's new position, until both its children are
+      smaller than it, or it has no children.</li>
+    </ol>
+    <p>Removing the max from [40, 30, 20, 10, 25, 15]:</p>
+    <ul>
+      <li>Save 40 to return. Move the last element (15) to the root and drop the
+      last slot: [15, 30, 20, 10, 25].</li>
+      <li>Children of index 0 are index 1 (30) and index 2 (20). The larger is 30,
+      and 30 &gt; 15, so swap: [30, 15, 20, 10, 25]. 15 is now at index 1.</li>
+      <li>Children of index 1 are index 3 (10) and index 4 (25). The larger is 25,
+      and 25 &gt; 15, so swap: [30, 25, 20, 10, 15]. 15 is now at index 4, a leaf,
+      so stop.</li>
+      <li>Result: max returned is 40, remaining heap is [30, 25, 20, 10, 15].</li>
+    </ul>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Compare a binary heap with a binary search tree (BST). Give one task
+    each is better suited to.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Both are binary trees, but they enforce different orderings:</p>
+    <ul>
+      <li><strong>BST:</strong> for every node, all values in the left subtree are
+      smaller and all in the right subtree are larger. This full ordering makes
+      searching for any given value fast (follow one path down, about O(log n) in
+      a balanced tree) and lets an in-order traversal produce sorted output. A BST
+      is not necessarily a complete tree, so it needs child pointers and can become
+      unbalanced.</li>
+      <li><strong>Heap:</strong> only a parent-versus-child rule holds (parent
+      greater than or equal to children in a max-heap), with no order between
+      siblings. It is always a complete tree, so it packs into an array with no
+      pointers. Finding the maximum (or minimum) is O(1) at the root, and
+      insert and extract are O(log n), but searching for an arbitrary value is
+      slow because there is no left-right ordering to guide the search.</li>
+    </ul>
+    <p>Use a BST when you need to search for values or read them in sorted order.
+    Use a heap when you repeatedly need the largest or smallest item, such as a
+    priority queue at a kitchen pass that always sends out the most urgent ticket
+    next.</p>
+  </div>
+</section>

@@ -1,0 +1,255 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 13</p>
+  <h1>Structures: one box, many labels</h1>
+
+  <div class="hook">
+    <p>A roof truss is not one number. Each timber has a length, an angle, and
+    a type (top chord, bottom chord, web). Keep those in three separate arrays
+    and you spend all day praying the indexes line up. A <strong>struct</strong>
+    lets you put all three in one labelled box called <code>Member</code>, so a
+    single variable carries the whole timber. Lose the box, lose the timber.</p>
+  </div>
+
+  <div class="idea">
+    <p>A struct is a type you invent. It bundles a few named values, its
+    <strong>members</strong>, under one name. An <code>int</code> holds one
+    whole number; a <code>Member</code> you design holds a length, an angle, and
+    a type together. You define the shape once, then declare as many variables
+    of that shape as you like. Reach inside with the dot: <code>m.length</code>
+    is the length member of the variable <code>m</code>.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 150" width="360" height="150">
+      <rect x="1" y="1" width="358" height="148" fill="none" stroke="#C9D4DB"/>
+      <text x="20" y="28" font-size="12" fill="#16232B" font-weight="bold">struct Member</text>
+      <rect x="20" y="40" width="150" height="30" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="30" y="60" font-size="11" fill="#16232B">double length</text>
+      <rect x="20" y="70" width="150" height="30" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="30" y="90" font-size="11" fill="#16232B">double angle</text>
+      <rect x="20" y="100" width="150" height="30" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="30" y="120" font-size="11" fill="#16232B">string type</text>
+      <text x="250" y="60" font-size="11" fill="#56676F">m.length</text>
+      <line x1="172" y1="55" x2="245" y2="55" stroke="#B57C33" stroke-width="1.5"/>
+      <text x="250" y="90" font-size="11" fill="#56676F">m.angle</text>
+      <line x1="172" y1="85" x2="245" y2="85" stroke="#B57C33" stroke-width="1.5"/>
+      <text x="250" y="120" font-size="11" fill="#56676F">m.type</text>
+      <line x1="172" y1="115" x2="245" y2="115" stroke="#B57C33" stroke-width="1.5"/>
+    </svg>
+    <figcaption>One box, three labelled slots. The dot picks a slot.</figcaption>
+  </figure>
+
+  <p>Here is the whole thing: define <code>Member</code>, declare one variable,
+  fill its members, print them.</p>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Member {
+    double length;
+    double angle;
+    string type;
+};
+
+int main() {
+    Member m;
+    m.length = 2.4;
+    m.angle = 30.0;
+    m.type = "top chord";
+
+    cout &lt;&lt; m.type &lt;&lt; ": " &lt;&lt; m.length &lt;&lt; "m at "
+         &lt;&lt; m.angle &lt;&lt; " degrees" &lt;&lt; endl;
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p>You can also fill every member at birth with a brace list, in the order
+    they are declared. This is <strong>initialization</strong>: the values go in
+    as the variable is created, so nothing is ever left as garbage.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Member {
+    double length;
+    double angle;
+    string type;
+};
+
+int main() {
+    Member m = {2.4, 30.0, "top chord"};   // order matches the struct
+    cout &lt;&lt; m.type &lt;&lt; " is " &lt;&lt; m.length &lt;&lt; "m" &lt;&lt; endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it: one timber of the truss</p>
+    <p>Save the listing above as <code>member.cpp</code>, then compile and run:
+    <code>g++ -std=c++17 member.cpp -o member &amp;&amp; ./member</code>.
+    That single <code>Member</code> is the first timber. Next we cut a whole
+    truss out of them.</p>
+  </div>
+
+  <div class="idea">
+    <p>A truss is not one timber, it is many. When you want a row of the same
+    struct, use an <strong>array of structs</strong>: <code>Member truss[3]</code>
+    is three <code>Member</code> boxes in a line. Pick a box by index, then a
+    member by dot: <code>truss[0].length</code>. A <code>for</code> loop walks
+    every timber the same way it walks any array.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Member {
+    double length;
+    double angle;
+    string type;
+};
+
+int main() {
+    Member truss[3] = {
+        {2.4, 30.0, "top chord"},
+        {2.4, 30.0, "top chord"},
+        {4.0,  0.0, "bottom chord"}
+    };
+
+    double total = 0.0;
+    for (int i = 0; i &lt; 3; i++) {
+        cout &lt;&lt; truss[i].type &lt;&lt; ": " &lt;&lt; truss[i].length &lt;&lt; "m" &lt;&lt; endl;
+        total += truss[i].length;
+    }
+    cout &lt;&lt; "Timber to order: " &lt;&lt; total &lt;&lt; "m" &lt;&lt; endl;
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p>The same shape fits anything with a few named facts. A library catalogues
+    books, so the past paper uses <code>Book</code> with a title, an author, and
+    a year. Different theme, identical machinery.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Book {
+    string title;
+    string author;
+    int year;
+};
+
+int main() {
+    Book b = {"Things Fall Apart", "Chinua Achebe", 1958};
+    cout &lt;&lt; b.title &lt;&lt; " by " &lt;&lt; b.author
+         &lt;&lt; " (" &lt;&lt; b.year &lt;&lt; ")" &lt;&lt; endl;
+    return 0;
+}</code></pre>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: spot the bug</p>
+    <p>A student wants the second dish in the menu. The struct is
+    <code>struct Dish { string name; double price; };</code> and the array is
+    <code>Dish menu[3]</code>. They write <code>cout &lt;&lt; menu.name;</code>
+    and the compiler refuses. What is wrong, and what is the fix?</p>
+    <p><strong>Answer:</strong> <code>menu</code> is the whole array, not one
+    dish, so it has no <code>.name</code>. Pick a box first, then a member:
+    <code>menu[1].name</code> (index 1 is the second dish, since counting starts
+    at 0).</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Define a structure named <code>Spot</code> to hold a tourist spot's
+    name (text), region (text), and entry fee (a whole number of shillings).
+    Then declare and initialize one variable of it for "Victoria Falls" in the
+    "Livingstone" region with a fee of 30.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Define the shape, then declare a variable and initialize it with a brace
+    list in member order.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Spot {
+    string name;
+    string region;
+    int fee;
+};
+
+int main() {
+    Spot s = {"Victoria Falls", "Livingstone", 30};
+    cout &lt;&lt; s.name &lt;&lt; " (" &lt;&lt; s.region &lt;&lt; "): "
+         &lt;&lt; s.fee &lt;&lt; " shillings" &lt;&lt; endl;
+    return 0;
+}</code></pre>
+    <p>The members are named in the struct, filled in the same order by the
+    brace list, and read back with the dot.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Using a <code>Book</code> structure (title, author, year), build an
+    array of 3 books, then write a loop that prints only the books published
+    before the year 2000.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Declare the array with an initializer list, then loop with an
+    <code>if</code> that tests the <code>year</code> member of each element.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Book {
+    string title;
+    string author;
+    int year;
+};
+
+int main() {
+    Book shelf[3] = {
+        {"Things Fall Apart", "Chinua Achebe", 1958},
+        {"Half of a Yellow Sun", "Chimamanda Adichie", 2006},
+        {"Petals of Blood", "Ngugi wa Thiong'o", 1977}
+    };
+
+    for (int i = 0; i &lt; 3; i++) {
+        if (shelf[i].year &lt; 2000) {
+            cout &lt;&lt; shelf[i].title &lt;&lt; " (" &lt;&lt; shelf[i].year &lt;&lt; ")" &lt;&lt; endl;
+        }
+    }
+    return 0;
+}</code></pre>
+    <p>Index picks the book (<code>shelf[i]</code>), the dot picks the member
+    (<code>shelf[i].year</code>). The loop applies the same test to every box.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Explain the difference between an array and a structure, and say when
+    you would combine them. Use a recipe example.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The two group data in opposite ways:</p>
+    <p><strong>Array, many of one type.</strong> All elements are the same type,
+    reached by a number index. <code>double amount[5]</code> holds five
+    quantities and nothing else; <code>amount[2]</code> is the third.</p>
+    <p><strong>Structure, one of several types.</strong> Members can be
+    different types, reached by name. <code>struct Ingredient { string name;
+    double amount; string unit; };</code> holds a text name, a number, and a
+    text unit together, reached as <code>ing.name</code> and
+    <code>ing.amount</code>.</p>
+    <p><strong>Combine them</strong> when you have many records that each carry
+    several named facts: a recipe is an <em>array of structs</em>,
+    <code>Ingredient recipe[10]</code>, so each slot is one full ingredient and
+    the loop walks the whole list. That is the exact pattern behind the roof
+    truss: <code>Member truss[3]</code>.</p>
+  </div>
+</section>

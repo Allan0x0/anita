@@ -3,22 +3,21 @@
   <h1>Characters and Strings</h1>
 
   <div class="hook">
-    <p>Look around a build site and text is everywhere. Every truss member
-    carries a label ("top chord", "king post"). Every spec string names a
-    grade ("C24 timber"). Every recipe in the site canteen has a name ("Jollof
-    Rice"). A program that cannot hold and handle text cannot handle any of
-    this. That is what characters and strings are for.</p>
+    <p>Text is everywhere on a build site. Every truss member carries a label
+    ("top chord", "king post"). Every spec names a grade ("C24 timber"). Every
+    canteen recipe has a name ("Jollof Rice"). A program that cannot hold text
+    cannot handle any of it. That is the job of characters and strings.</p>
   </div>
 
   <div class="idea">
-    <p>Two tools, one job. A <code>char</code> holds exactly one character: a
-    single letter, digit, or symbol. You write its value in <b>single</b>
-    quotes, like <code>'A'</code>. A <code>std::string</code> holds a run of
-    characters of any length, from empty to a whole sentence. You write its
-    value in <b>double</b> quotes, like <code>"top chord"</code>. Rule of
-    thumb: one character means <code>char</code>; a word, a name, or a label
-    means <code>std::string</code>. To use <code>std::string</code> you add
-    <code>#include &lt;string&gt;</code> at the top.</p>
+    <p>Two tools, one job. A <code>char</code> holds exactly one character: one
+    letter, digit, or symbol. Write its value in <b>single</b> quotes, like
+    <code>'A'</code>. A <code>std::string</code> holds a run of characters of any
+    length, from empty to a whole sentence. Write its value in <b>double</b>
+    quotes, like <code>"top chord"</code>. Rule of thumb: one character means
+    <code>char</code>; a word, name, or label means <code>std::string</code>. To
+    use <code>std::string</code> add <code>#include &lt;string&gt;</code> at the
+    top.</p>
   </div>
 
   <figure class="diagram">
@@ -68,12 +67,11 @@ int main() {
 }</code></pre>
 
   <div class="idea">
-    <p><b>Reading and printing.</b> Printing is easy: send the string to
-    <code>std::cout</code>. Reading a whole line (spaces and all) uses
+    <p><b>Reading and printing.</b> To print, send the string to
+    <code>std::cout</code>. To read a whole line (spaces and all), use
     <code>std::getline(std::cin, name)</code>. Plain <code>std::cin &gt;&gt;
-    name</code> would stop at the first space, so "Cape Coast" would come in
-    as just "Cape". For labels and place names, reach for
-    <code>getline</code>.</p>
+    name</code> stops at the first space, so "Cape Coast" comes in as just
+    "Cape". For labels and place names, reach for <code>getline</code>.</p>
   </div>
 
   <pre class="code"><code>#include &lt;iostream&gt;
@@ -115,15 +113,64 @@ int main() {
     return 0;
 }</code></pre>
 
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 96" width="520" height="96">
+      <g font-family="Helvetica" text-anchor="middle">
+        <rect x="12" y="30" width="122" height="40" rx="4" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2" stroke-linejoin="round"/>
+        <text x="73" y="55" font-size="13" fill="#22201B">"king post"</text>
+        <text x="151" y="57" font-size="22" fill="#1D5A80">+</text>
+        <rect x="170" y="30" width="86" height="40" rx="4" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2" stroke-linejoin="round"/>
+        <text x="213" y="55" font-size="13" fill="#22201B">" (C24)"</text>
+        <text x="274" y="57" font-size="22" fill="#1D5A80">=</text>
+        <rect x="296" y="30" width="212" height="40" rx="4" fill="#FAF6EE" stroke="#B57C33" stroke-width="2.2" stroke-linejoin="round"/>
+        <text x="402" y="55" font-size="13" fill="#22201B">"king post (C24)"</text>
+      </g>
+      <g font-family="Helvetica" font-size="10.5" fill="#1D5A80" text-anchor="middle">
+        <text x="73" y="22">the member</text>
+        <text x="213" y="22">the grade</text>
+      </g>
+      <text x="402" y="88" font-family="Helvetica" font-size="10.5" fill="#B57C33" text-anchor="middle">one joined label to paint on the timber</text>
+    </svg>
+    <figcaption>The <code>+</code> operator concatenates: two strings run
+    end to end into one longer string.</figcaption>
+  </figure>
+
   <div class="idea">
     <p><b>Char arrays: the older way.</b> Before <code>std::string</code>, C++
     (inherited from C) stored text in a <code>char</code> array ending in a
-    hidden null terminator <code>'\0'</code> that marks the end. You still meet
-    them, so know the shape: <code>char spot[] = "Cape Coast";</code> makes an
-    array sized to fit the text plus that terminator. Index it like any array.
-    Prefer <code>std::string</code> in your own code (it grows, compares, and
-    concatenates for you), but recognise the array form when you see it.</p>
+    hidden null terminator <code>'\0'</code> that marks where the text stops.
+    You still meet them, so know the shape: <code>char spot[] = "Cape
+    Coast";</code> makes an array sized to fit the text plus that terminator.
+    Index it like any array. Prefer <code>std::string</code> in your own code
+    (it grows, compares, and joins for you), but recognise the array form when
+    you see it.</p>
   </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 138" width="340" height="138">
+      <text x="30" y="22" font-family="Helvetica" font-size="12" fill="#22201B">char name[] = "KING";</text>
+      <g stroke="#22201B" stroke-width="2.2" stroke-linejoin="round">
+        <rect x="30" y="38" width="50" height="46" fill="#FAF6EE"/>
+        <rect x="80" y="38" width="50" height="46" fill="#FAF6EE"/>
+        <rect x="130" y="38" width="50" height="46" fill="#FAF6EE"/>
+        <rect x="180" y="38" width="50" height="46" fill="#FAF6EE"/>
+        <rect x="230" y="38" width="50" height="46" fill="#FAF6EE" stroke="#B57C33"/>
+      </g>
+      <g font-family="Helvetica" font-size="18" fill="#22201B" text-anchor="middle">
+        <text x="55" y="68">K</text><text x="105" y="68">I</text>
+        <text x="155" y="68">N</text><text x="205" y="68">G</text>
+        <text x="255" y="68" fill="#B57C33">\0</text>
+      </g>
+      <g font-family="Helvetica" font-size="11" fill="#1D5A80" text-anchor="middle">
+        <text x="55" y="100">[0]</text><text x="105" y="100">[1]</text>
+        <text x="155" y="100">[2]</text><text x="205" y="100">[3]</text>
+        <text x="255" y="100">[4]</text>
+      </g>
+      <text x="255" y="124" font-family="Helvetica" font-size="10.5" fill="#B57C33" text-anchor="middle">hidden end marker</text>
+    </svg>
+    <figcaption>A char array stores the letters plus a hidden
+    <code>'\0'</code> at the end. Four letters need five slots.</figcaption>
+  </figure>
 
   <pre class="code"><code>#include &lt;iostream&gt;
 

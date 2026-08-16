@@ -273,6 +273,37 @@ int main() {
     exactly once by watching for the head.</p>
   </div>
 
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" width="520" height="180">
+      <g font-family="Helvetica" stroke-linejoin="round" stroke-linecap="round">
+        <text x="75" y="38" text-anchor="middle" font-size="10" fill="#1D5A80">head</text>
+        <!-- four nodes in a row -->
+        <rect x="40" y="50" width="70" height="40" fill="#FAF6EE" stroke="#1D5A80" stroke-width="2.2"/>
+        <rect x="150" y="50" width="70" height="40" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="260" y="50" width="70" height="40" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="370" y="50" width="70" height="40" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <text x="75" y="75" text-anchor="middle" font-size="13" fill="#22201B">1</text>
+        <text x="185" y="75" text-anchor="middle" font-size="13" fill="#22201B">2</text>
+        <text x="295" y="75" text-anchor="middle" font-size="13" fill="#22201B">3</text>
+        <text x="405" y="75" text-anchor="middle" font-size="13" fill="#22201B">4</text>
+        <!-- forward next arrows -->
+        <line x1="110" y1="70" x2="150" y2="70" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M150 70 L142 65 L142 75 Z" fill="#B57C33"/>
+        <line x1="220" y1="70" x2="260" y2="70" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M260 70 L252 65 L252 75 Z" fill="#B57C33"/>
+        <line x1="330" y1="70" x2="370" y2="70" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M370 70 L362 65 L362 75 Z" fill="#B57C33"/>
+        <!-- closing arrow: node 4 next loops back to head -->
+        <path d="M405 90 L405 140 L75 140 L75 94" fill="none" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M75 90 L70 100 L80 100 Z" fill="#B57C33"/>
+        <text x="240" y="134" text-anchor="middle" font-size="10" fill="#B57C33">last node's next points back to the head: the ring closes</text>
+      </g>
+    </svg>
+    <figcaption>A circular linked list. Each <code>next</code> arrow steps
+    forward, and the last node's <code>next</code> loops back to the head instead
+    of to <code>nullptr</code>, so the chain has no end.</figcaption>
+  </figure>
+
   <pre class="code"><code>#include &lt;iostream&gt;
 
 struct Node {

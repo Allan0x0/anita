@@ -26,14 +26,14 @@
 
   <figure class="diagram">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 120" width="560" height="120">
-      <text x="20" y="20" font-size="11" fill="#16232B">head</text>
+      <text x="20" y="20" font-size="11" fill="#22201B">head</text>
       <line x1="35" y1="26" x2="35" y2="55" stroke="#1D5A80" stroke-width="1.5"/>
       <polygon points="35,60 31,52 39,52" fill="#1D5A80"/>
 
       <!-- node 1 -->
       <rect x="20" y="60" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
       <line x1="100" y1="60" x2="100" y2="104" stroke="#1D5A80" stroke-width="1.5"/>
-      <text x="60" y="87" text-anchor="middle" font-size="11" fill="#16232B">Rafter x2</text>
+      <text x="60" y="87" text-anchor="middle" font-size="11" fill="#22201B">Rafter x2</text>
       <circle cx="120" cy="82" r="3" fill="#B57C33"/>
 
       <!-- arrow 1 to 2 -->
@@ -43,7 +43,7 @@
       <!-- node 2 -->
       <rect x="200" y="60" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
       <line x1="280" y1="60" x2="280" y2="104" stroke="#1D5A80" stroke-width="1.5"/>
-      <text x="240" y="87" text-anchor="middle" font-size="11" fill="#16232B">Ridge x1</text>
+      <text x="240" y="87" text-anchor="middle" font-size="11" fill="#22201B">Ridge x1</text>
       <circle cx="300" cy="82" r="3" fill="#B57C33"/>
 
       <!-- arrow 2 to 3 -->
@@ -53,12 +53,12 @@
       <!-- node 3 -->
       <rect x="380" y="60" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
       <line x1="460" y1="60" x2="460" y2="104" stroke="#1D5A80" stroke-width="1.5"/>
-      <text x="420" y="87" text-anchor="middle" font-size="11" fill="#16232B">Bolts x8</text>
+      <text x="420" y="87" text-anchor="middle" font-size="11" fill="#22201B">Bolts x8</text>
       <circle cx="480" cy="82" r="3" fill="#B57C33"/>
 
       <!-- arrow 3 to NULL -->
       <line x1="480" y1="82" x2="530" y2="82" stroke="#B57C33" stroke-width="1.5"/>
-      <text x="536" y="86" font-size="11" fill="#56676F">NULL</text>
+      <text x="536" y="86" font-size="11" fill="#6A5F4C">NULL</text>
     </svg>
     <figcaption>A three-node list. Each node is a box split into a data cell and
     a next cell; the last node points to NULL.</figcaption>
@@ -174,7 +174,7 @@ int main() {
         <line x1="274" y1="109" x2="378" y2="109" stroke="#22201B" stroke-width="2.2"/>
         <polygon points="380,109 370,104 370,114" fill="#22201B"/>
         <line x1="454" y1="109" x2="492" y2="109" stroke="#22201B" stroke-width="2.2"/>
-        <text x="504" y="113" font-size="11" fill="#56676F" text-anchor="middle">null</text>
+        <text x="504" y="113" font-size="11" fill="#6A5F4C" text-anchor="middle">null</text>
       </g>
     </svg>
     <figcaption>Insert at the front: the new node points at the old head, then
@@ -329,7 +329,7 @@ int main() {
         <text x="235" y="42" font-size="10.5" fill="#1D5A80" text-anchor="middle">re-route past the removed node</text>
         <circle cx="454" cy="99" r="3" fill="#22201B"/>
         <line x1="454" y1="99" x2="492" y2="99" stroke="#22201B" stroke-width="2.2"/>
-        <text x="504" y="103" font-size="11" fill="#56676F" text-anchor="middle">null</text>
+        <text x="504" y="103" font-size="11" fill="#6A5F4C" text-anchor="middle">null</text>
       </g>
     </svg>
     <figcaption>Delete a node by re-routing: the node before it points past it
@@ -395,23 +395,23 @@ int main() {
 
   <figure class="diagram">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
-      <text x="20" y="30" font-size="11" fill="#56676F">before:</text>
-      <text x="110" y="30" font-size="11" fill="#16232B">A</text>
+      <text x="20" y="30" font-size="11" fill="#6A5F4C">before:</text>
+      <text x="110" y="30" font-size="11" fill="#22201B">A</text>
       <line x1="122" y1="26" x2="160" y2="26" stroke="#B57C33" stroke-width="1.5"/>
       <polygon points="160,26 152,22 152,30" fill="#B57C33"/>
-      <text x="168" y="30" font-size="11" fill="#16232B">B</text>
+      <text x="168" y="30" font-size="11" fill="#22201B">B</text>
       <line x1="180" y1="26" x2="218" y2="26" stroke="#B57C33" stroke-width="1.5"/>
       <polygon points="218,26 210,22 210,30" fill="#B57C33"/>
-      <text x="226" y="30" font-size="11" fill="#16232B">C</text>
+      <text x="226" y="30" font-size="11" fill="#22201B">C</text>
 
-      <text x="20" y="80" font-size="11" fill="#56676F">after:</text>
-      <text x="110" y="80" font-size="11" fill="#16232B">A</text>
+      <text x="20" y="80" font-size="11" fill="#6A5F4C">after:</text>
+      <text x="110" y="80" font-size="11" fill="#22201B">A</text>
       <line x1="160" y1="76" x2="122" y2="76" stroke="#1D5A80" stroke-width="1.5"/>
       <polygon points="122,76 130,72 130,80" fill="#1D5A80"/>
-      <text x="168" y="80" font-size="11" fill="#16232B">B</text>
+      <text x="168" y="80" font-size="11" fill="#22201B">B</text>
       <line x1="218" y1="76" x2="180" y2="76" stroke="#1D5A80" stroke-width="1.5"/>
       <polygon points="180,76 188,72 188,80" fill="#1D5A80"/>
-      <text x="226" y="80" font-size="11" fill="#16232B">C</text>
+      <text x="226" y="80" font-size="11" fill="#22201B">C</text>
     </svg>
     <figcaption>Reversing keeps the nodes where they are and flips every next
     pointer, so C becomes the head.</figcaption>

@@ -42,7 +42,7 @@
           <line x1="50" y1="118" x2="164" y2="118"/><polygon points="166,118 156,113 156,123"/>
         </g>
         <g font-size="10" text-anchor="middle">
-          <text x="50" y="132" fill="#56676F">no</text><text x="110" y="132" fill="#56676F">no</text>
+          <text x="50" y="132" fill="#6A5F4C">no</text><text x="110" y="132" fill="#6A5F4C">no</text>
           <text x="170" y="132" fill="#1D5A80">match, stop</text>
         </g>
       </g>
@@ -98,23 +98,23 @@ int main() {
 
   <figure class="diagram">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 150" width="340" height="150">
-      <rect x="0" y="0" width="340" height="150" fill="#F6F8FA"/>
+      <rect x="0" y="0" width="340" height="150" fill="#FAF6EE"/>
       <!-- seven sorted cells -->
       <g font-family="Helvetica" font-size="13" text-anchor="middle">
-        <rect x="20"  y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
-        <rect x="60"  y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
-        <rect x="100" y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
-        <rect x="140" y="40" width="40" height="40" fill="#B57C33" stroke="#16232B"/>
-        <rect x="180" y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
-        <rect x="220" y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
-        <rect x="260" y="40" width="40" height="40" fill="#FFFFFF" stroke="#16232B"/>
-        <text x="40"  y="65" fill="#16232B">150</text>
-        <text x="80"  y="65" fill="#16232B">180</text>
-        <text x="120" y="65" fill="#16232B">240</text>
+        <rect x="20"  y="40" width="40" height="40" fill="#FFFFFF" stroke="#22201B"/>
+        <rect x="60"  y="40" width="40" height="40" fill="#FFFFFF" stroke="#22201B"/>
+        <rect x="100" y="40" width="40" height="40" fill="#FFFFFF" stroke="#22201B"/>
+        <rect x="140" y="40" width="40" height="40" fill="#B57C33" stroke="#22201B"/>
+        <rect x="180" y="40" width="40" height="40" fill="#FFFFFF" stroke="#22201B"/>
+        <rect x="220" y="40" width="40" height="40" fill="#FFFFFF" stroke="#22201B"/>
+        <rect x="260" y="40" width="40" height="40" fill="#FFFFFF" stroke="#22201B"/>
+        <text x="40"  y="65" fill="#22201B">150</text>
+        <text x="80"  y="65" fill="#22201B">180</text>
+        <text x="120" y="65" fill="#22201B">240</text>
         <text x="160" y="65" fill="#FFFFFF">300</text>
-        <text x="200" y="65" fill="#16232B">360</text>
-        <text x="240" y="65" fill="#16232B">420</text>
-        <text x="280" y="65" fill="#16232B">480</text>
+        <text x="200" y="65" fill="#22201B">360</text>
+        <text x="240" y="65" fill="#22201B">420</text>
+        <text x="280" y="65" fill="#22201B">480</text>
         <!-- index row -->
         <text x="40"  y="95" fill="#1D5A80" font-size="11">0</text>
         <text x="80"  y="95" fill="#1D5A80" font-size="11">1</text>
@@ -124,10 +124,10 @@ int main() {
         <text x="240" y="95" fill="#1D5A80" font-size="11">5</text>
         <text x="280" y="95" fill="#1D5A80" font-size="11">6</text>
         <!-- low / mid / high markers -->
-        <text x="40"  y="120" fill="#16232B" font-size="12">low</text>
+        <text x="40"  y="120" fill="#22201B" font-size="12">low</text>
         <text x="160" y="120" fill="#B57C33" font-size="12">mid</text>
-        <text x="280" y="120" fill="#16232B" font-size="12">high</text>
-        <text x="170" y="30" text-anchor="start" fill="#16232B" font-size="11">looking for 360</text>
+        <text x="280" y="120" fill="#22201B" font-size="12">high</text>
+        <text x="170" y="30" text-anchor="start" fill="#22201B" font-size="11">looking for 360</text>
       </g>
     </svg>
     <figcaption>Binary search, first step. low, mid, and high span the sorted
@@ -161,7 +161,7 @@ int main() {
           <text x="156" y="47">300</text><text x="196" y="47">360</text><text x="236" y="47">420</text><text x="276" y="47">480</text>
         </g>
         <text x="156" y="24" text-anchor="middle" fill="#B57C33" font-size="9">mid</text>
-        <text x="312" y="47" fill="#56676F" font-size="10">300 &lt; 360, go right</text>
+        <text x="312" y="47" fill="#6A5F4C" font-size="10">300 &lt; 360, go right</text>
         <!-- row 2: left half discarded, mid=420 -->
         <g stroke="#C9BBA3" stroke-width="1.6" fill="#F3ECE0" stroke-dasharray="4 3">
           <rect x="16" y="90" width="40" height="24"/><rect x="56" y="90" width="40" height="24"/>
@@ -178,7 +178,7 @@ int main() {
           <text x="196" y="107" fill="#22201B">360</text><text x="236" y="107" fill="#22201B">420</text><text x="276" y="107" fill="#22201B">480</text>
         </g>
         <text x="236" y="84" text-anchor="middle" fill="#B57C33" font-size="9">mid</text>
-        <text x="312" y="107" fill="#56676F" font-size="10">420 &gt; 360, go left</text>
+        <text x="312" y="107" fill="#6A5F4C" font-size="10">420 &gt; 360, go left</text>
         <!-- row 3: only index 4 live, found -->
         <g stroke="#C9BBA3" stroke-width="1.6" fill="#F3ECE0" stroke-dasharray="4 3">
           <rect x="16" y="150" width="40" height="24"/><rect x="56" y="150" width="40" height="24"/>
@@ -193,7 +193,7 @@ int main() {
         </g>
         <text x="196" y="144" text-anchor="middle" fill="#1D5A80" font-size="9">mid</text>
         <text x="312" y="167" fill="#1D5A80" font-size="10">360 found, index 4</text>
-        <text x="16" y="197" fill="#56676F" font-size="10">Three looks find it in a rack a linear scan would walk five deep.</text>
+        <text x="16" y="197" fill="#6A5F4C" font-size="10">Three looks find it in a rack a linear scan would walk five deep.</text>
       </g>
     </svg>
     <figcaption>The range shrinks by half each step: 7 cells, then 3, then 1.

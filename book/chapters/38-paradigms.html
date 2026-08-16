@@ -75,6 +75,53 @@
     ordinary coin sets it lands on the fewest coins.</p>
   </div>
 
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" width="520" height="150">
+      <g font-family="Helvetica" stroke-linejoin="round" stroke-linecap="round">
+        <text x="260" y="26" text-anchor="middle" font-size="10" fill="#1D5A80">at each step, grab the biggest coin that still fits</text>
+        <!-- remaining-amount boxes -->
+        <rect x="16" y="66" width="48" height="36" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="82" y="66" width="48" height="36" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="148" y="66" width="48" height="36" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="214" y="66" width="48" height="36" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="280" y="66" width="48" height="36" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="346" y="66" width="48" height="36" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="412" y="66" width="48" height="36" fill="#FAF6EE" stroke="#1D5A80" stroke-width="2.2"/>
+        <text x="40" y="89" text-anchor="middle" font-size="13" fill="#22201B">87</text>
+        <text x="106" y="89" text-anchor="middle" font-size="13" fill="#22201B">37</text>
+        <text x="172" y="89" text-anchor="middle" font-size="13" fill="#22201B">17</text>
+        <text x="238" y="89" text-anchor="middle" font-size="13" fill="#22201B">7</text>
+        <text x="304" y="89" text-anchor="middle" font-size="13" fill="#22201B">2</text>
+        <text x="370" y="89" text-anchor="middle" font-size="13" fill="#22201B">1</text>
+        <text x="436" y="89" text-anchor="middle" font-size="13" fill="#1D5A80">0</text>
+        <!-- coin-taken arrows between boxes -->
+        <line x1="64" y1="84" x2="82" y2="84" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M82 84 L74 79 L74 89 Z" fill="#B57C33"/>
+        <line x1="130" y1="84" x2="148" y2="84" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M148 84 L140 79 L140 89 Z" fill="#B57C33"/>
+        <line x1="196" y1="84" x2="214" y2="84" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M214 84 L206 79 L206 89 Z" fill="#B57C33"/>
+        <line x1="262" y1="84" x2="280" y2="84" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M280 84 L272 79 L272 89 Z" fill="#B57C33"/>
+        <line x1="328" y1="84" x2="346" y2="84" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M346 84 L338 79 L338 89 Z" fill="#B57C33"/>
+        <line x1="394" y1="84" x2="412" y2="84" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M412 84 L404 79 L404 89 Z" fill="#B57C33"/>
+        <!-- coin labels -->
+        <text x="73" y="58" text-anchor="middle" font-size="11" fill="#B57C33">50</text>
+        <text x="139" y="58" text-anchor="middle" font-size="11" fill="#B57C33">20</text>
+        <text x="205" y="58" text-anchor="middle" font-size="11" fill="#B57C33">10</text>
+        <text x="271" y="58" text-anchor="middle" font-size="11" fill="#B57C33">5</text>
+        <text x="337" y="58" text-anchor="middle" font-size="11" fill="#B57C33">1</text>
+        <text x="403" y="58" text-anchor="middle" font-size="11" fill="#B57C33">1</text>
+        <text x="260" y="128" text-anchor="middle" font-size="10" fill="#56676F">coins taken: 50 20 10 5 1 1 (six coins, never looking back)</text>
+      </g>
+    </svg>
+    <figcaption>Greedy change for 87. Each timber arrow is the biggest coin that
+    still fits; the box after it is what remains. Six local best choices bring
+    the remainder to 0.</figcaption>
+  </figure>
+
   <pre class="code"><code>#include &lt;iostream&gt;
 #include &lt;vector&gt;
 
@@ -114,9 +161,7 @@ int main() {
     <p><strong>Divide and conquer.</strong> This paradigm has three moves:
     <em>divide</em> the problem into smaller problems of the same kind,
     <em>conquer</em> each smaller piece (usually by the same method, so it
-    recurses), then <em>combine</em> the pieces into the full answer. Splitting a
-    big job into halves you can trust, then joining the results, is the whole
-    idea.</p>
+    recurses), then <em>combine</em> the pieces into the full answer.</p>
     <p>Two sorts are built this way:</p>
     <ul>
       <li><strong>Merge sort.</strong> Divide the array into two halves, sort each
@@ -128,6 +173,61 @@ int main() {
     </ul>
     <p>Here is merge sort as a complete program, with the three moves labelled.</p>
   </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 290" width="520" height="290">
+      <g font-family="Helvetica" stroke-linejoin="round" stroke-linecap="round">
+        <text x="60" y="20" font-size="10" fill="#1D5A80">divide</text>
+        <text x="418" y="282" font-size="10" fill="#B57C33">combine (merge)</text>
+        <!-- divide arrows (blue, downward) -->
+        <g stroke="#1D5A80" stroke-width="2.2" fill="#1D5A80">
+          <line x1="240" y1="44" x2="170" y2="66"/><path d="M170 66 L179 64 L173 57 Z"/>
+          <line x1="280" y1="44" x2="350" y2="66"/><path d="M350 66 L347 57 L341 64 Z"/>
+          <line x1="135" y1="94" x2="108" y2="116"/><path d="M108 116 L117 115 L112 108 Z"/>
+          <line x1="165" y1="94" x2="192" y2="116"/><path d="M192 116 L188 108 L183 115 Z"/>
+          <line x1="355" y1="94" x2="328" y2="116"/><path d="M328 116 L337 115 L332 108 Z"/>
+          <line x1="385" y1="94" x2="412" y2="116"/><path d="M412 116 L408 108 L403 115 Z"/>
+        </g>
+        <!-- combine arrows (timber, upward) -->
+        <g stroke="#B57C33" stroke-width="2.2" fill="#B57C33">
+          <line x1="100" y1="150" x2="135" y2="178"/><path d="M135 178 L126 176 L131 169 Z"/>
+          <line x1="200" y1="150" x2="165" y2="178"/><path d="M165 178 L169 169 L174 176 Z"/>
+          <line x1="320" y1="150" x2="355" y2="178"/><path d="M355 178 L346 176 L351 169 Z"/>
+          <line x1="420" y1="150" x2="385" y2="178"/><path d="M385 178 L389 169 L394 176 Z"/>
+          <line x1="150" y1="204" x2="240" y2="234"/><path d="M240 234 L231 232 L235 224 Z"/>
+          <line x1="370" y1="204" x2="280" y2="234"/><path d="M280 234 L285 224 L289 232 Z"/>
+        </g>
+        <!-- L0 whole array -->
+        <rect x="200" y="16" width="120" height="28" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <text x="260" y="35" text-anchor="middle" font-size="12" fill="#22201B">38 27 43 3</text>
+        <!-- L1 halves -->
+        <rect x="118" y="66" width="64" height="28" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <text x="150" y="85" text-anchor="middle" font-size="12" fill="#22201B">38 27</text>
+        <rect x="338" y="66" width="64" height="28" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <text x="370" y="85" text-anchor="middle" font-size="12" fill="#22201B">43 3</text>
+        <!-- L2 singletons -->
+        <rect x="83" y="116" width="34" height="28" fill="#FAF6EE" stroke="#1D5A80" stroke-width="2.2"/>
+        <text x="100" y="135" text-anchor="middle" font-size="12" fill="#22201B">38</text>
+        <rect x="183" y="116" width="34" height="28" fill="#FAF6EE" stroke="#1D5A80" stroke-width="2.2"/>
+        <text x="200" y="135" text-anchor="middle" font-size="12" fill="#22201B">27</text>
+        <rect x="303" y="116" width="34" height="28" fill="#FAF6EE" stroke="#1D5A80" stroke-width="2.2"/>
+        <text x="320" y="135" text-anchor="middle" font-size="12" fill="#22201B">43</text>
+        <rect x="403" y="116" width="34" height="28" fill="#FAF6EE" stroke="#1D5A80" stroke-width="2.2"/>
+        <text x="420" y="135" text-anchor="middle" font-size="12" fill="#22201B">3</text>
+        <!-- M1 merged pairs -->
+        <rect x="118" y="178" width="64" height="28" fill="#FAF6EE" stroke="#B57C33" stroke-width="2.2"/>
+        <text x="150" y="197" text-anchor="middle" font-size="12" fill="#22201B">27 38</text>
+        <rect x="338" y="178" width="64" height="28" fill="#FAF6EE" stroke="#B57C33" stroke-width="2.2"/>
+        <text x="370" y="197" text-anchor="middle" font-size="12" fill="#22201B">3 43</text>
+        <!-- M0 fully merged -->
+        <rect x="200" y="234" width="120" height="28" fill="#FAF6EE" stroke="#B57C33" stroke-width="2.2"/>
+        <text x="260" y="253" text-anchor="middle" font-size="12" fill="#22201B">3 27 38 43</text>
+      </g>
+    </svg>
+    <figcaption>Merge sort by divide and conquer. Blue arrows divide the array
+    down to single elements (each trivially sorted); timber arrows combine, merging
+    sorted runs back up into one sorted array.</figcaption>
+  </figure>
 
   <pre class="code"><code>#include &lt;iostream&gt;
 #include &lt;vector&gt;

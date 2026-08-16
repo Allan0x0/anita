@@ -1,0 +1,321 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 14</p>
+  <h1>Pointers: a nail from one joint to the next</h1>
+
+  <div class="hook">
+    <p>Picture a roof truss. Each joint is a box holding a value. A pointer is
+    the nail driven from one joint into the next: it does not hold the value
+    itself, it holds where the next value lives. Learn to read that nail and
+    you can walk a whole frame, change a joint from across the room, and hand
+    one big timber to a helper without carrying a copy of it. That is what
+    pointers buy you, and every list, tree, and graph later in this book is
+    built from them.</p>
+  </div>
+
+  <div class="idea">
+    <p>Every variable lives at an <strong>address</strong> in memory, a number
+    like a plot number on a street. A <strong>pointer</strong> is a variable
+    whose value is that address. Two operators do the whole job. The
+    <strong>address-of</strong> operator <code>&amp;</code> asks "where does
+    this live?" and hands you the address. The <strong>dereference</strong>
+    operator <code>*</code> asks "what is at this address?" and hands you the
+    value back. You write the pointer's type with a <code>*</code>:
+    <code>int* p</code> means "p points at an int".</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" width="400" height="150">
+      <rect x="1" y="1" width="398" height="148" fill="none" stroke="#C9D4DB"/>
+      <!-- pointer box -->
+      <rect x="30" y="55" width="120" height="45" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="90" y="48" text-anchor="middle" font-size="11" fill="#16232B">p (a pointer)</text>
+      <text x="90" y="82" text-anchor="middle" font-size="11" fill="#56676F">holds 0x7ffe</text>
+      <!-- value box -->
+      <rect x="250" y="55" width="120" height="45" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="310" y="48" text-anchor="middle" font-size="11" fill="#16232B">span (an int)</text>
+      <text x="310" y="82" text-anchor="middle" font-size="13" fill="#16232B">48</text>
+      <text x="310" y="120" text-anchor="middle" font-size="10" fill="#56676F">lives at 0x7ffe</text>
+      <!-- the nail -->
+      <line x1="150" y1="77" x2="248" y2="77" stroke="#1D5A80" stroke-width="2"/>
+      <polygon points="248,77 238,72 238,82" fill="#1D5A80"/>
+      <text x="199" y="70" text-anchor="middle" font-size="10" fill="#1D5A80">the nail</text>
+    </svg>
+    <figcaption>A pointer box holds an address; the arrow (the nail) points at
+    the box that address names. Read <code>*p</code> to reach across and get
+    <code>48</code>.</figcaption>
+  </figure>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int span = 48;          // an int joint, value 48
+    int* p = &amp;span;        // p is a nail into span
+    std::cout &lt;&lt; "value of span:   " &lt;&lt; span  &lt;&lt; std::endl;
+    std::cout &lt;&lt; "address of span: " &lt;&lt; p     &lt;&lt; std::endl;  // the address
+    std::cout &lt;&lt; "value via *p:    " &lt;&lt; *p    &lt;&lt; std::endl;  // reach across: 48
+
+    *p = 60;                // change span from across the room
+    std::cout &lt;&lt; "span is now:     " &lt;&lt; span  &lt;&lt; std::endl;  // 60
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p>Read the two operators as opposites. <code>&amp;span</code> turns a value
+    into its address. <code>*p</code> turns an address back into the value. The
+    line <code>*p = 60;</code> does not change the pointer; it follows the nail
+    and rewrites the joint at the far end. That is the superpower: one pointer
+    lets code edit a value it does not own.</p>
+  </div>
+
+  <h2>Pointer to a struct: the arrow operator</h2>
+  <div class="idea">
+    <p>A joint usually holds more than one number. Group them in a
+    <code>struct</code>. When you hold a pointer to a struct, you could write
+    <code>(*t).span</code>, dereference then pick the field, but that is ugly.
+    C++ gives you the <strong>arrow</strong> <code>-&gt;</code> as shorthand:
+    <code>t-&gt;span</code> means exactly <code>(*t).span</code>. Dot for a
+    value in hand, arrow for a pointer to it.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Truss {
+    std::string name;
+    int span;        // millimetres
+    int members;     // count of timbers
+};
+
+int main() {
+    Truss t{ "gable", 4800, 5 };
+    Truss* tp = &amp;t;                 // a nail into the truss
+
+    // reach a field through the pointer with -&gt;
+    std::cout &lt;&lt; tp-&gt;name &lt;&lt; " spans " &lt;&lt; tp-&gt;span &lt;&lt; "mm" &lt;&lt; std::endl;
+
+    tp-&gt;span = 5200;                // edit the field through the pointer
+    tp-&gt;members += 1;
+    std::cout &lt;&lt; t.name &lt;&lt; " now spans " &lt;&lt; t.span
+              &lt;&lt; "mm with " &lt;&lt; t.members &lt;&lt; " members" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save the truss program as <code>truss.cpp</code> and run it:</p>
+    <p><code>g++ -std=c++17 truss.cpp -o truss &amp;&amp; ./truss</code></p>
+    <p>Build step, plain: you cut the <code>gable</code> joint at 4800mm, then
+    you widen the span to 5200mm and add one timber, all through the nail
+    <code>tp</code> without touching <code>t</code> by name. The change lands on
+    the real truss because the nail points at it.</p>
+  </div>
+
+  <h2>Pass by pointer versus pass by reference</h2>
+  <div class="idea">
+    <p>By default a function gets a <strong>copy</strong> of what you pass, so
+    edits inside it vanish when it returns. To let a function change the
+    caller's value, hand it a way back to the original. Two ways.</p>
+    <p><strong>Pass by pointer.</strong> The parameter is a pointer; the caller
+    passes an address with <code>&amp;</code>; the function reaches the value
+    with <code>*</code> or a field with <code>-&gt;</code>. A pointer can be
+    <code>nullptr</code> (pointing at nothing), so the function may have to
+    check first.</p>
+    <p><strong>Pass by reference.</strong> The parameter is written
+    <code>int&amp;</code>; it is an alias for the caller's variable, no address
+    juggling. The caller passes the plain variable, the function uses the plain
+    name. A reference cannot be null and cannot be re-seated, so it is the
+    tidier default when you always have a real value.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+// pass by pointer: caller sends an address, we follow the nail
+void widenByPointer(int* span) {
+    if (span == nullptr) return;   // a pointer might point at nothing
+    *span += 200;
+}
+
+// pass by reference: parameter is an alias for the caller's variable
+void widenByReference(int&amp; span) {
+    span += 200;                    // no * needed, it is the real thing
+}
+
+int main() {
+    int a = 4800;
+    int b = 4800;
+    widenByPointer(&amp;a);            // pass the address of a
+    widenByReference(b);           // pass b itself
+    std::cout &lt;&lt; "a = " &lt;&lt; a &lt;&lt; ", b = " &lt;&lt; b &lt;&lt; std::endl;  // 5000, 5000
+    return 0;
+}</code></pre>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 130" width="400" height="130">
+      <rect x="1" y="1" width="398" height="128" fill="none" stroke="#C9D4DB"/>
+      <text x="200" y="24" text-anchor="middle" font-size="11" fill="#16232B">two ways to reach the caller's joint</text>
+      <!-- pointer path -->
+      <rect x="30" y="45" width="90" height="35" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="75" y="67" text-anchor="middle" font-size="10" fill="#16232B">int* span</text>
+      <line x1="120" y1="62" x2="180" y2="62" stroke="#1D5A80" stroke-width="2"/>
+      <polygon points="180,62 170,57 170,67" fill="#1D5A80"/>
+      <text x="150" y="55" text-anchor="middle" font-size="9" fill="#1D5A80">*span</text>
+      <!-- reference path -->
+      <rect x="30" y="90" width="90" height="30" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="75" y="110" text-anchor="middle" font-size="10" fill="#16232B">int&amp; span</text>
+      <line x1="120" y1="105" x2="180" y2="105" stroke="#B57C33" stroke-width="2"/>
+      <polygon points="180,105 170,100 170,110" fill="#B57C33"/>
+      <text x="150" y="98" text-anchor="middle" font-size="9" fill="#B57C33">span</text>
+      <!-- the joint -->
+      <rect x="185" y="65" width="120" height="40" fill="#F6F8FA" stroke="#16232B" stroke-width="2"/>
+      <text x="245" y="82" text-anchor="middle" font-size="10" fill="#16232B">a in main()</text>
+      <text x="245" y="97" text-anchor="middle" font-size="12" fill="#16232B">4800</text>
+    </svg>
+    <figcaption>Pointer and reference both reach the same joint. The pointer
+    carries an address you dereference; the reference is a second name for the
+    joint itself.</figcaption>
+  </figure>
+
+  <h2>new and delete: joints you make while the roof is going up</h2>
+  <div class="idea">
+    <p>So far every value was a joint named at compile time. Sometimes you do
+    not know how many joints you need until the job is running: a recipe with an
+    unknown ingredient count, a tour with a variable number of stops.
+    <code>new</code> asks the system for a fresh box on the <strong>heap</strong>
+    (the big yard of memory that outlives the current function) and hands back a
+    pointer to it. <code>delete</code> gives that box back. Every
+    <code>new</code> needs exactly one <code>delete</code>, or the box is lost
+    for the rest of the run (a <strong>memory leak</strong>). Use
+    <code>new[]</code> with <code>delete[]</code> for arrays.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Recipe {
+    std::string dish;
+    int servings;
+};
+
+int main() {
+    // one Recipe on the heap, reached through a pointer
+    Recipe* r = new Recipe{ "jollof rice", 4 };
+    r-&gt;servings = 8;                       // scale it up through -&gt;
+    std::cout &lt;&lt; r-&gt;dish &lt;&lt; " for " &lt;&lt; r-&gt;servings &lt;&lt; std::endl;
+    delete r;                              // give the single box back
+
+    // an array of ingredient counts, size chosen at run time
+    int stops = 3;                         // tourist spots on today's tour
+    int* visitors = new int[stops];
+    for (int i = 0; i &lt; stops; ++i) visitors[i] = (i + 1) * 100;
+    std::cout &lt;&lt; "spot 2 had " &lt;&lt; visitors[1] &lt;&lt; " visitors" &lt;&lt; std::endl;
+    delete[] visitors;                     // array box: delete[] , not delete
+    return 0;
+}</code></pre>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: spot the bug</p>
+    <p>These lines are meant to double the servings of a recipe on the heap and
+    print it (assume <code>struct Recipe { std::string dish; int servings; };</code>
+    is defined above). The snippet has two bugs. Find both.</p>
+    <pre class="code"><code>Recipe* r = new Recipe{ "egusi soup", 6 };
+r.servings = r.servings * 2;               // (1)
+std::cout &lt;&lt; r-&gt;dish &lt;&lt; ": " &lt;&lt; r-&gt;servings &lt;&lt; std::endl;
+// (2) ... nothing more before the program ends</code></pre>
+    <p><strong>Answer.</strong> Bug (1): <code>r</code> is a pointer, so a field
+    needs the arrow, <code>r-&gt;servings</code>, not the dot <code>r.servings</code>;
+    the dot only works on a value in hand. Bug (2): the <code>new</code> is never
+    matched by a <code>delete r;</code> before <code>return</code>, so the heap
+    box leaks. Fixed, line (1) reads <code>r-&gt;servings = r-&gt;servings * 2;</code>
+    and a <code>delete r;</code> goes at line (2).</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>Exam questions</h2>
+
+  <div class="exam-q">
+    <p>Q1. Explain what a pointer is and why a program would use one. Include the
+    role of the <code>&amp;</code> and <code>*</code> operators.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A pointer is a variable that stores the memory address of another
+    variable, rather than a value of its own. Think of it as a nail from one
+    joint to the next: it records where the next value lives. The
+    address-of operator <code>&amp;</code> produces the address of a variable, so
+    <code>int* p = &amp;span;</code> makes <code>p</code> point at <code>span</code>.
+    The dereference operator <code>*</code> does the reverse: <code>*p</code>
+    reads (or with assignment, writes) the value at the stored address, so
+    <code>*p = 60;</code> changes <code>span</code> itself. Programs use pointers
+    to let one piece of code read and change a value it does not own, to pass
+    large objects to functions without copying them, and to build structures
+    whose size is not known until the program runs, such as linked lists and
+    trees.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Given <code>struct Spot { std::string name; int visitors; };</code>
+    and a pointer <code>Spot* s</code> that points at a valid <code>Spot</code>,
+    write the statement that adds 50 to that spot's <code>visitors</code> field
+    through the pointer. Explain why the operator you chose is correct.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The statement is:</p>
+    <pre class="code"><code>s-&gt;visitors = s-&gt;visitors + 50;   // or: s-&gt;visitors += 50;</code></pre>
+    <p>Because <code>s</code> is a pointer, not a <code>Spot</code> value, you
+    reach a field with the arrow operator <code>-&gt;</code>. The arrow is
+    shorthand for dereference-then-select: <code>s-&gt;visitors</code> means
+    exactly <code>(*s).visitors</code>. Writing <code>s.visitors</code> would be
+    a compile error, since the dot operator only applies to a value in hand, not
+    to a pointer.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Compare passing a variable to a function by pointer with passing it by
+    reference. Give one advantage of each, and show the function signature for
+    each in a short example that adds one visitor to a spot's count.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Both let a function change the caller's variable instead of a copy. The
+    difference is how.</p>
+    <p><strong>By pointer,</strong> the parameter is a pointer, the caller passes
+    an address with <code>&amp;</code>, and the function reaches the value with
+    <code>*</code>. Advantage: a pointer can be <code>nullptr</code>, so it can
+    represent "no value" and be re-pointed at different variables, which is what
+    linked structures need.</p>
+    <p><strong>By reference,</strong> the parameter is an alias
+    (<code>int&amp;</code>) for the caller's variable, so the caller passes the
+    plain variable and the function uses the plain name. Advantage: it cannot be
+    null and needs no <code>&amp;</code>/<code>*</code> juggling, so it is safer
+    and cleaner when a real value always exists.</p>
+    <pre class="code"><code>void addOneByPointer(int* v)   { if (v) *v += 1; }   // caller: addOneByPointer(&amp;count);
+void addOneByReference(int&amp; v) { v += 1; }           // caller: addOneByReference(count);</code></pre>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Explain what <code>new</code> and <code>delete</code> do, and state
+    the rule that ties them together. What goes wrong if that rule is broken?
+    Show a correct pair for a single heap-allocated <code>int</code> and for an
+    array of ints.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><code>new</code> allocates a fresh block of memory on the heap (memory
+    that outlives the current function) and returns a pointer to it.
+    <code>delete</code> releases a block that <code>new</code> allocated, giving
+    it back to the system. The rule: every <code>new</code> must be matched by
+    exactly one <code>delete</code>, and every <code>new[]</code> by exactly one
+    <code>delete[]</code>. Break it by forgetting the <code>delete</code> and the
+    block is never reclaimed for the rest of the run, a memory leak; call
+    <code>delete</code> twice on the same block, or use <code>delete</code> on an
+    array made with <code>new[]</code>, and the behaviour is undefined (a likely
+    crash). Correct pairs:</p>
+    <pre class="code"><code>int* one = new int(5);        // single int on the heap
+delete one;                    // matched with delete
+
+int* many = new int[3];        // array of 3 ints
+delete[] many;                 // matched with delete[]</code></pre>
+  </div>
+</section>

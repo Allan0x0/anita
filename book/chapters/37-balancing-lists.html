@@ -1,0 +1,461 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 37</p>
+  <h1>Balancing trees and better lists</h1>
+
+  <div class="hook">
+    <p>You can nail a whole roof truss out of plumb: peak leaning hard to one
+    side, every strut stacked below the last. It still stands, but it carries
+    load badly and any repair means climbing the long crooked side. A binary
+    search tree can lean the same way, and when it does, searching it is no
+    faster than reading a shopping list top to bottom. This chapter is about two
+    fixes builders reach for: keeping a tree balanced so it stays short and
+    quick, and giving a list a second rail so you can walk it both ways and
+    splice into it fast.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Why a BST needs balancing.</strong> A binary search tree is fast
+    only when it is short. Each step of a search throws away one side of the
+    tree, so a search costs about the height of the tree, not the number of
+    nodes. If the tree is bushy and short, height grows like log n, and a
+    thousand nodes are five or ten steps deep. Fast.</p>
+    <p>But the shape depends entirely on the order you insert. Feed a BST values
+    that are already sorted, say 10, 20, 30, 40, 50, and every value is larger
+    than the last, so every one goes right. The tree stops being a tree in any
+    useful sense: it is a straight line leaning right, height n, one long
+    crooked rafter. Searching it is now a linear scan, O(n), the very slowness
+    the tree was meant to beat.</p>
+    <p>A <strong>balanced</strong> tree keeps the two sides of every node close
+    to the same height, so the whole thing stays about log n tall no matter what
+    order the values arrive in.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 250" width="520" height="250">
+      <rect x="1" y="1" width="518" height="248" fill="none" stroke="#C9D4DB"/>
+      <!-- unbalanced (left) -->
+      <text x="120" y="24" text-anchor="middle" font-size="11" fill="#B57C33">unbalanced: height 4, a leaning line</text>
+      <line x1="60" y1="50" x2="110" y2="95" stroke="#56676F" stroke-width="2"/>
+      <line x1="110" y1="95" x2="160" y2="140" stroke="#56676F" stroke-width="2"/>
+      <line x1="160" y1="140" x2="210" y2="185" stroke="#56676F" stroke-width="2"/>
+      <circle cx="60" cy="50" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="60" y="54" text-anchor="middle" font-size="11" fill="#16232B">10</text>
+      <circle cx="110" cy="95" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="110" y="99" text-anchor="middle" font-size="11" fill="#16232B">20</text>
+      <circle cx="160" cy="140" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="160" y="144" text-anchor="middle" font-size="11" fill="#16232B">30</text>
+      <circle cx="210" cy="185" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="210" y="189" text-anchor="middle" font-size="11" fill="#16232B">40</text>
+      <!-- divider -->
+      <line x1="270" y1="30" x2="270" y2="220" stroke="#C9D4DB" stroke-width="1"/>
+      <!-- balanced (right) -->
+      <text x="390" y="24" text-anchor="middle" font-size="11" fill="#1D5A80">balanced: height 2, same four values</text>
+      <line x1="390" y1="55" x2="340" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="390" y1="55" x2="440" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="340" y1="120" x2="340" y2="120" stroke="#56676F" stroke-width="2"/>
+      <circle cx="390" cy="55" r="15" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="390" y="59" text-anchor="middle" font-size="11" fill="#16232B">20</text>
+      <circle cx="340" cy="120" r="15" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="340" y="124" text-anchor="middle" font-size="11" fill="#16232B">10</text>
+      <circle cx="440" cy="120" r="15" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="440" y="124" text-anchor="middle" font-size="11" fill="#16232B">30</text>
+      <line x1="440" y1="120" x2="470" y2="180" stroke="#56676F" stroke-width="2"/>
+      <circle cx="470" cy="180" r="15" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="470" y="184" text-anchor="middle" font-size="11" fill="#16232B">40</text>
+    </svg>
+    <figcaption>Same four values, two shapes. On the left, inserted in sorted
+    order, the tree leans into a line of height 4. On the right, balanced, it is
+    only height 2, so a search takes half as many steps.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>How you keep it balanced.</strong> You do not eyeball it. A plain
+    BST cannot fix its own shape, so we use a <strong>self-balancing</strong>
+    tree: one that watches its height as you insert and delete, and quietly
+    re-shapes itself to stay short. The re-shaping move is a
+    <strong>rotation</strong>, a small local swap that lifts one node up and
+    pushes its parent down, like re-hanging a strut on the joint above it. The
+    order of the values never changes, only the shape.</p>
+    <p>Two families of self-balancing BST are worth knowing by name:</p>
+    <ul>
+      <li><strong>AVL tree:</strong> after every insert or delete it checks each
+      node and rotates so the two subtrees never differ in height by more than
+      one. Strict, so it stays very short and searches are quick.</li>
+      <li><strong>Red-Black tree:</strong> a looser scheme that allows a bit more
+      lopsidedness but does less re-shaping work per change. It is the one the
+      C++ standard library uses under <code>std::map</code> and
+      <code>std::set</code>, so you have been using a balanced tree all along.</li>
+    </ul>
+  </div>
+
+  <div class="idea">
+    <p><strong>The Red-Black tree.</strong> A Red-Black tree is a binary search
+    tree where every node carries one extra bit of paint: it is either
+    <strong>red</strong> or <strong>black</strong>. The colours are not
+    decoration; they are a bookkeeping trick that forces the tree to stay
+    roughly balanced without the strict height check an AVL tree does. Five
+    rules (the Red-Black properties) hold at all times:</p>
+    <ul>
+      <li><strong>Every node is red or black.</strong> One colour bit per node,
+      nothing else.</li>
+      <li><strong>The root is black.</strong> The top of the tree is always
+      black.</li>
+      <li><strong>Every leaf is black.</strong> The empty null ends of the tree
+      count as black leaves.</li>
+      <li><strong>A red node has black children.</strong> So you can never have
+      two reds in a row on any path (no red parent with a red child).</li>
+      <li><strong>Equal black height.</strong> Every path from a given node down
+      to any leaf below it passes through the same number of black nodes.</li>
+    </ul>
+    <p>Those last two rules are the whole point. The equal-black-height rule sets
+    a baseline length for every downward path, and the no-two-reds rule says the
+    longest path can be at most twice the shortest (reds can only pad a path, and
+    never two in a row). A path that is at most twice another cannot lean into a
+    line, so the tree's height stays O(log n), and search, insert, and delete are
+    all O(log n). When an insert or delete breaks a rule, the tree repairs itself
+    by recolouring nodes and doing a rotation or two, then carries on.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 210" width="460" height="210">
+      <rect x="1" y="1" width="458" height="208" fill="none" stroke="#C9D4DB"/>
+      <line x1="230" y1="45" x2="140" y2="115" stroke="#56676F" stroke-width="2"/>
+      <line x1="230" y1="45" x2="320" y2="115" stroke="#56676F" stroke-width="2"/>
+      <line x1="320" y1="115" x2="380" y2="175" stroke="#56676F" stroke-width="2"/>
+      <!-- black root -->
+      <circle cx="230" cy="45" r="18" fill="#16232B" stroke="#16232B" stroke-width="2"/>
+      <text x="230" y="50" text-anchor="middle" font-size="12" fill="#F6F8FA">13</text>
+      <!-- black -->
+      <circle cx="140" cy="115" r="18" fill="#16232B" stroke="#16232B" stroke-width="2"/>
+      <text x="140" y="120" text-anchor="middle" font-size="12" fill="#F6F8FA">8</text>
+      <!-- black -->
+      <circle cx="320" cy="115" r="18" fill="#16232B" stroke="#16232B" stroke-width="2"/>
+      <text x="320" y="120" text-anchor="middle" font-size="12" fill="#F6F8FA">17</text>
+      <!-- red leaf -->
+      <circle cx="380" cy="175" r="18" fill="#B4472B" stroke="#B4472B" stroke-width="2"/>
+      <text x="380" y="180" text-anchor="middle" font-size="12" fill="#F6F8FA">25</text>
+      <text x="258" y="38" font-size="10" fill="#1D5A80">black root</text>
+      <text x="405" y="178" font-size="10" fill="#B4472B">red</text>
+    </svg>
+    <figcaption>A small Red-Black tree. The root 13 is black, no red node has a
+    red child, and every path from the root down to an empty end passes the same
+    count of black nodes. The one red node (25) only pads its path; it cannot
+    stack on another red.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>The doubly linked list.</strong> A plain (singly) linked list, from
+    the earlier chapter, gives each node one pointer: <code>next</code>. You can
+    only walk forward. A <strong>doubly linked list</strong> gives each node two
+    pointers: <code>next</code> to the node ahead and <code>prev</code> to the
+    node behind. Now the chain is a set of rafters bolted on both ends, and you
+    can walk it either direction.</p>
+    <p>That second rail buys real things over a singly linked list:</p>
+    <ul>
+      <li><strong>Walk backward.</strong> From any node you can step to the one
+      before it, so you can read the list in reverse without starting over from
+      the head.</li>
+      <li><strong>Delete in place.</strong> To remove a node in a singly list you
+      first have to find the node before it (walk from the head again). In a
+      doubly list the node already knows its <code>prev</code>, so you can unhook
+      it in one move.</li>
+      <li><strong>Splice either side.</strong> Given a node, you can insert a new
+      one before or after it directly, because you can reach both neighbours.</li>
+    </ul>
+    <p>The cost is honest: every node carries an extra pointer (more memory), and
+    every insert and delete has to fix up two links instead of one, so there is
+    slightly more code to get right.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 140" width="560" height="140">
+      <text x="20" y="20" font-size="11" fill="#16232B">head</text>
+      <line x1="35" y1="26" x2="35" y2="50" stroke="#1D5A80" stroke-width="1.5"/>
+      <polygon points="35,55 31,47 39,47" fill="#1D5A80"/>
+      <!-- node A -->
+      <rect x="20" y="55" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
+      <text x="80" y="82" text-anchor="middle" font-size="11" fill="#16232B">Rafter</text>
+      <!-- node B -->
+      <rect x="220" y="55" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
+      <text x="280" y="82" text-anchor="middle" font-size="11" fill="#16232B">Ridge</text>
+      <!-- node C -->
+      <rect x="420" y="55" width="120" height="44" fill="none" stroke="#1D5A80" stroke-width="1.5"/>
+      <text x="480" y="82" text-anchor="middle" font-size="11" fill="#16232B">Bolts</text>
+      <!-- A next B (top) -->
+      <line x1="140" y1="70" x2="220" y2="70" stroke="#B57C33" stroke-width="1.5"/>
+      <polygon points="220,70 212,66 212,74" fill="#B57C33"/>
+      <!-- B prev A (bottom) -->
+      <line x1="220" y1="86" x2="140" y2="86" stroke="#56676F" stroke-width="1.5"/>
+      <polygon points="140,86 148,82 148,90" fill="#56676F"/>
+      <!-- B next C (top) -->
+      <line x1="340" y1="70" x2="420" y2="70" stroke="#B57C33" stroke-width="1.5"/>
+      <polygon points="420,70 412,66 412,74" fill="#B57C33"/>
+      <!-- C prev B (bottom) -->
+      <line x1="420" y1="86" x2="340" y2="86" stroke="#56676F" stroke-width="1.5"/>
+      <polygon points="340,86 348,82 348,90" fill="#56676F"/>
+      <text x="180" y="60" text-anchor="middle" font-size="9" fill="#B57C33">next</text>
+      <text x="180" y="106" text-anchor="middle" font-size="9" fill="#56676F">prev</text>
+    </svg>
+    <figcaption>A doubly linked list: the timber arrows on top are
+    <code>next</code> (forward), the grey arrows underneath are <code>prev</code>
+    (backward). Every bolt joins two rafters, so you can walk the chain either
+    way.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>Insert at the front.</strong> Adding a node to the head of a
+    doubly linked list is the common case (a new item jumps to the top of the
+    pile). It is four link fixes: point the new node's <code>next</code> at the
+    old head, set the old head's <code>prev</code> back to the new node, clear the
+    new node's <code>prev</code> (it is the front now), and move <code>head</code>
+    to the new node. Here is the whole thing as a runnable program.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Node {
+    std::string data;
+    Node* prev;
+    Node* next;
+};
+
+// Insert a new node at the front of a doubly linked list.
+// head is passed by reference so we can move it to the new node.
+void pushFront(Node*&amp; head, const std::string&amp; data) {
+    Node* n = new Node;
+    n-&gt;data = data;
+    n-&gt;prev = nullptr;      // the new node is the front, nothing before it
+    n-&gt;next = head;         // it points at the old front
+    if (head != nullptr) {
+        head-&gt;prev = n;     // the old front now points back at the new node
+    }
+    head = n;              // the head is the new node
+}
+
+// Walk forward from the head, printing each value.
+void printForward(Node* head) {
+    for (Node* cur = head; cur != nullptr; cur = cur-&gt;next) {
+        std::cout &lt;&lt; cur-&gt;data &lt;&lt; ' ';
+    }
+    std::cout &lt;&lt; '\n';
+}
+
+int main() {
+    Node* head = nullptr;
+    pushFront(head, "bolts");
+    pushFront(head, "ridge");
+    pushFront(head, "rafter");   // most recent lands at the front
+
+    printForward(head);          // prints: rafter ridge bolts
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save the listing as <code>dll.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 dll.cpp -o dll &amp;&amp; ./dll</code></p>
+  </div>
+
+  <div class="idea">
+    <p><strong>The circular linked list.</strong> In a singly linked list the
+    last node points at <code>nullptr</code>: the chain has a definite end, and if
+    you walk off it you fall into null. A <strong>circular linked list</strong>
+    changes one link: the last node points back at the head instead of at null,
+    so the chain closes into a ring. Walk it and you never reach an end; you just
+    come back to where you started.</p>
+    <p>That ring shape suits anything that cycles: a rota of tour guides taking
+    the next group in turn, players around a table, or a playlist set to repeat.
+    From any node you can reach every other by going round, and there is no
+    special end to handle. The catch is the mirror of the gain: a naive loop that
+    waits for <code>nullptr</code> will spin forever, so you must stop when you
+    arrive back at the node you began from. The listing below walks a small ring
+    exactly once by watching for the head.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+struct Node {
+    int data;
+    Node* next;
+};
+
+int main() {
+    // Build a three-node ring by hand: 1 -&gt; 2 -&gt; 3 -&gt; back to 1.
+    Node* a = new Node{1, nullptr};
+    Node* b = new Node{2, nullptr};
+    Node* c = new Node{3, nullptr};
+    a-&gt;next = b;
+    b-&gt;next = c;
+    c-&gt;next = a;            // the last node closes the ring
+
+    Node* head = a;
+
+    // Walk the ring exactly once: stop when we return to the head.
+    Node* cur = head;
+    do {
+        std::cout &lt;&lt; cur-&gt;data &lt;&lt; ' ';
+        cur = cur-&gt;next;
+    } while (cur != head);   // NOT (cur != nullptr): a ring has no null end
+
+    std::cout &lt;&lt; '\n';       // prints: 1 2 3
+    return 0;
+}</code></pre>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge (spot the bug)</p>
+    <p>A student copies the ring-walking loop above but writes the stop condition
+    as a singly linked list out of habit:</p>
+    <pre class="code"><code>Node* cur = head;
+while (cur != nullptr) {
+    std::cout &lt;&lt; cur-&gt;data &lt;&lt; ' ';
+    cur = cur-&gt;next;
+}</code></pre>
+    <p>What happens when this runs on the three-node ring, and why? Fix it with
+    one change.</p>
+    <p>(Answer: it never stops. In a circular list no node's <code>next</code> is
+    ever <code>nullptr</code>, so <code>cur != nullptr</code> is always true and
+    the loop prints 1 2 3 1 2 3 1 2 3 ... forever. Fix: stop when you get back to
+    the head, using a <code>do ... while (cur != head)</code> loop as in the
+    working listing.)</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Explain why a binary search tree can become inefficient, and describe
+    how a tree is kept balanced.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A binary search tree searches by discarding one subtree at each step, so a
+    search costs about the height of the tree. The shape, and therefore the
+    height, depends on the order values are inserted. If values arrive already
+    sorted (for example 10, 20, 30, 40), every new value is larger than the last
+    and goes right, so the tree degenerates into a straight line of height n.
+    Searching it is then a linear O(n) scan, no better than an unsorted list, and
+    the advantage of the tree is lost.</p>
+    <p>A tree is kept balanced by using a self-balancing BST, which watches the
+    heights of subtrees as nodes are inserted and deleted and re-shapes itself to
+    stay short (height about log n). The re-shaping is done with rotations: small
+    local moves that lift a node up and push its parent down without changing the
+    left-smaller, right-larger ordering. AVL trees and Red-Black trees are the
+    two common schemes. Keeping height near log n keeps search, insert, and
+    delete at O(log n).</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. What is a Red-Black tree? State its properties.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A Red-Black tree is a self-balancing binary search tree in which every node
+    stores one extra bit of information, a colour that is either red or black. The
+    colours are used to keep the tree approximately balanced so that its height
+    stays O(log n) and search, insert, and delete are all O(log n). It is the
+    structure the C++ standard library uses for <code>std::map</code> and
+    <code>std::set</code>.</p>
+    <p>Its properties (which hold at all times) are:</p>
+    <ul>
+      <li>Every node is either red or black.</li>
+      <li>The root is black.</li>
+      <li>Every leaf (the null end of a branch) is black.</li>
+      <li>A red node has only black children (so no two red nodes appear in a row
+      on any path).</li>
+      <li>Every path from a given node down to any leaf below it contains the
+      same number of black nodes (equal black height).</li>
+    </ul>
+    <p>Together the last two properties guarantee that the longest root-to-leaf
+    path is at most twice the shortest, which keeps the tree from leaning into a
+    line and holds the height at O(log n). When an insert or delete breaks a
+    property, the tree restores it by recolouring nodes and performing rotations.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Define a doubly linked list and give two advantages it has over a
+    singly linked list.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A doubly linked list is a linked list in which each node holds its data and
+    two pointers: <code>next</code>, pointing to the node ahead of it, and
+    <code>prev</code>, pointing to the node behind it. A singly linked list gives
+    each node only a <code>next</code> pointer.</p>
+    <p>Two advantages over a singly linked list:</p>
+    <ul>
+      <li><strong>Two-way traversal.</strong> Because each node knows the node
+      before it, the list can be walked backward as well as forward, without
+      restarting from the head.</li>
+      <li><strong>Faster deletion of a known node.</strong> To delete a node you
+      need its predecessor; a singly list must walk from the head to find it,
+      while a doubly list already has it in <code>prev</code>, so the node can be
+      unhooked directly.</li>
+    </ul>
+    <p>(The cost is one extra pointer per node and two links to fix on each insert
+    or delete instead of one.)</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Write a C++ function that inserts a new node at the front of a doubly
+    linked list of integers. Explain the pointer changes it makes.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The head is passed by reference so the function can move it to the new
+    node.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+struct Node {
+    int data;
+    Node* prev;
+    Node* next;
+};
+
+void pushFront(Node*&amp; head, int value) {
+    Node* n = new Node;
+    n-&gt;data = value;
+    n-&gt;prev = nullptr;      // 1. new node is the front, nothing before it
+    n-&gt;next = head;         // 2. it points at the old front
+    if (head != nullptr) {
+        head-&gt;prev = n;     // 3. old front points back at the new node
+    }
+    head = n;              // 4. head now names the new node
+}
+
+int main() {
+    Node* head = nullptr;
+    pushFront(head, 30);
+    pushFront(head, 20);
+    pushFront(head, 10);   // 10 is now at the front
+
+    for (Node* cur = head; cur != nullptr; cur = cur-&gt;next) {
+        std::cout &lt;&lt; cur-&gt;data &lt;&lt; ' ';   // prints: 10 20 30
+    }
+    std::cout &lt;&lt; '\n';
+    return 0;
+}</code></pre>
+    <p>The four numbered steps are the whole job: link the new node forward to the
+    old head, link the old head backward to the new node (only if the list was not
+    empty), leave the new node's <code>prev</code> null because it is the front,
+    and move <code>head</code> to the new node.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q5. Explain the difference between a singly linked list and a circular
+    linked list.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>In a singly linked list each node points to the next, and the last node
+    points to <code>nullptr</code>, so the list has a definite end. To visit every
+    node you start at the head and follow <code>next</code> until you hit null.</p>
+    <p>In a circular linked list the last node points back to the head instead of
+    to null, so the chain closes into a ring with no end. Starting from any node
+    you can reach every other node by going round, and you return to where you
+    began. Because no node's <code>next</code> is ever null, a traversal must stop
+    when it comes back to its starting node rather than by testing for null; a
+    loop that waits for <code>nullptr</code> would run forever. Circular lists
+    suit things that repeat in a cycle, such as a round-robin rota or a playlist
+    set to repeat.</p>
+  </div>
+</section>

@@ -1,0 +1,333 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 38</p>
+  <h1>Paradigms: ADTs, Greedy, Divide and Conquer</h1>
+
+  <div class="hook">
+    <p>A carpenter does not think in nails and glue while sketching a roof. He
+    thinks "truss here, beam there", and only later decides how each is joined.
+    Software has the same two levels. First you say what a thing must do (a stack
+    of plates: put one on top, take the top one off). Only after do you pick how
+    to build it (an array, a linked list). This chapter is about that split, and
+    about two ways of thinking that solve whole families of problems: greedy, and
+    divide and conquer. These turn up on the exam again and again, so it pays to
+    see them clearly once.</p>
+  </div>
+
+  <div class="idea">
+    <p>An <strong>abstract data type</strong> (ADT) is a set of values plus the
+    operations allowed on them, described by <em>what</em> they do, not
+    <em>how</em> they are stored. The ADT is the menu; the data structure is the
+    kitchen. You order "a stack": push, pop, look at the top. Whether the cook
+    builds it from an array or a linked list is the kitchen's business, and you
+    can swap kitchens without changing a single order.</p>
+    <p>Two examples you already know, each an ADT mapped onto real structures:</p>
+    <ul>
+      <li><strong>Stack ADT.</strong> Operations: <code>push</code> (add on
+      top), <code>pop</code> (remove the top), <code>top</code> (peek). Rule:
+      last in, first out (LIFO), like a stack of clean plates. It can be
+      <em>implemented</em> with an array (a counter marks the top) or with a
+      singly linked list (the head is the top).</li>
+      <li><strong>Queue ADT.</strong> Operations: <code>enqueue</code> (join the
+      back), <code>dequeue</code> (leave the front). Rule: first in, first out
+      (FIFO), like the line at a food stall. It can be implemented with an array
+      (two indices, front and back) or with a linked list (head is the front,
+      tail is the back).</li>
+    </ul>
+    <p>Same idea both times: the ADT names the promise, the structure keeps it.
+    Change the structure and the promise still holds.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 220" width="500" height="220">
+      <rect x="1" y="1" width="498" height="218" fill="none" stroke="#C9D4DB"/>
+      <text x="250" y="26" text-anchor="middle" font-size="12" fill="#1D5A80">one ADT, many structures</text>
+      <!-- ADT box -->
+      <rect x="180" y="45" width="140" height="40" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="250" y="63" text-anchor="middle" font-size="12" fill="#16232B">Stack ADT</text>
+      <text x="250" y="78" text-anchor="middle" font-size="9" fill="#56676F">push / pop / top (LIFO)</text>
+      <!-- arrows down -->
+      <line x1="250" y1="85" x2="130" y2="130" stroke="#56676F" stroke-width="2"/>
+      <line x1="250" y1="85" x2="370" y2="130" stroke="#56676F" stroke-width="2"/>
+      <!-- structure boxes -->
+      <rect x="60" y="130" width="140" height="60" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="130" y="150" text-anchor="middle" font-size="11" fill="#16232B">array</text>
+      <text x="130" y="167" text-anchor="middle" font-size="9" fill="#56676F">a counter marks</text>
+      <text x="130" y="180" text-anchor="middle" font-size="9" fill="#56676F">the top slot</text>
+      <rect x="300" y="130" width="140" height="60" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="370" y="150" text-anchor="middle" font-size="11" fill="#16232B">linked list</text>
+      <text x="370" y="167" text-anchor="middle" font-size="9" fill="#56676F">the head node</text>
+      <text x="370" y="180" text-anchor="middle" font-size="9" fill="#56676F">is the top</text>
+    </svg>
+    <figcaption>The Stack ADT names the operations; an array or a linked list can
+    keep that promise. Swap the structure below and the operations above do not
+    change.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>Greedy.</strong> A greedy method builds an answer one step at a
+    time, and at each step takes the choice that looks best right now, never going
+    back to reconsider. The principle: <em>make the locally best choice and hope
+    it adds up to the globally best answer.</em> It is fast and simple, and for
+    some problems it is exactly right.</p>
+    <p>The classic example is making change with the fewest coins. To pay 87
+    cents, take the biggest coin that still fits, again and again: 50, then 20,
+    then 10, then 5, then 1, then 1. Each grab is the locally best move, and for
+    ordinary coin sets it lands on the fewest coins.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main() {
+    std::vector&lt;int&gt; coins = {50, 20, 10, 5, 1}; // largest first
+    int amount = 87;
+
+    std::cout &lt;&lt; "change for " &lt;&lt; amount &lt;&lt; ": ";
+    for (int coin : coins) {
+        while (amount &gt;= coin) {   // take this coin while it still fits
+            std::cout &lt;&lt; coin &lt;&lt; ' ';
+            amount -= coin;
+        }
+    }
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save as <code>greedy.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 greedy.cpp -o greedy &amp;&amp; ./greedy</code></p>
+    <p>It prints <code>change for 87: 50 20 10 5 1 1</code>. Six coins, chosen
+    without ever looking back.</p>
+  </div>
+
+  <div class="idea">
+    <p>Greedy is not magic. It only gives the best answer when the problem has the
+    right shape (each local best choice keeps a global best answer reachable). For
+    a coin set like 1, 5, 10, 20, 50 it works. For an odd set like 4, 3, 1 it can
+    fail: greedy pays 6 as 4, 1, 1 (three coins) when 3, 3 (two coins) is fewer.
+    Know one case where greedy wins and one where it loses; the exam likes that
+    contrast.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Divide and conquer.</strong> This paradigm has three moves:
+    <em>divide</em> the problem into smaller problems of the same kind,
+    <em>conquer</em> each smaller piece (usually by the same method, so it
+    recurses), then <em>combine</em> the pieces into the full answer. Splitting a
+    big job into halves you can trust, then joining the results, is the whole
+    idea.</p>
+    <p>Two sorts are built this way:</p>
+    <ul>
+      <li><strong>Merge sort.</strong> Divide the array into two halves, sort each
+      half, then <em>merge</em> the two sorted halves into one. The work is in the
+      combine step.</li>
+      <li><strong>Quicksort.</strong> Pick a pivot, <em>partition</em> the array
+      so smaller values sit left of the pivot and larger ones sit right, then sort
+      each side. The work is in the divide step.</li>
+    </ul>
+    <p>Here is merge sort as a complete program, with the three moves labelled.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Combine: merge two sorted halves of a into one sorted run.
+void merge(std::vector&lt;int&gt;&amp; a, int lo, int mid, int hi) {
+    std::vector&lt;int&gt; tmp;
+    int i = lo, j = mid + 1;
+    while (i &lt;= mid &amp;&amp; j &lt;= hi) {
+        if (a[i] &lt;= a[j]) tmp.push_back(a[i++]);
+        else             tmp.push_back(a[j++]);
+    }
+    while (i &lt;= mid) tmp.push_back(a[i++]);
+    while (j &lt;= hi)  tmp.push_back(a[j++]);
+    for (int k = 0; k &lt; (int)tmp.size(); ++k) a[lo + k] = tmp[k];
+}
+
+void mergeSort(std::vector&lt;int&gt;&amp; a, int lo, int hi) {
+    if (lo &gt;= hi) return;          // one element: already sorted
+    int mid = lo + (hi - lo) / 2;  // divide
+    mergeSort(a, lo, mid);         // conquer the left half
+    mergeSort(a, mid + 1, hi);     // conquer the right half
+    merge(a, lo, mid, hi);         // combine
+}
+
+int main() {
+    std::vector&lt;int&gt; a = {38, 27, 43, 3, 9, 82, 10};
+    mergeSort(a, 0, (int)a.size() - 1);
+    for (int x : a) std::cout &lt;&lt; x &lt;&lt; ' ';
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p><code>g++ -std=c++17 merge.cpp -o merge &amp;&amp; ./merge</code></p>
+    <p>Prints <code>3 9 10 27 38 43 82</code>. Same trick as framing a roof in
+    sections on the ground, then lifting each finished section and joining them
+    at the ridge.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Linear versus non-linear structures.</strong> A <strong>linear</strong>
+    structure lays its elements out in a single line, each with one element before
+    it and one after (except the ends). Arrays, linked lists, stacks, and queues
+    are linear: you walk them front to back like beads on a string.</p>
+    <p>A <strong>non-linear</strong> structure lets an element connect to many
+    others, so there is no one straight path through it. Trees and graphs are
+    non-linear: a tree node branches to several children, and a graph node can
+    link to any others. A tour route down one road is linear; the full road map,
+    with junctions and loops, is non-linear.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 210" width="500" height="210">
+      <rect x="1" y="1" width="498" height="208" fill="none" stroke="#C9D4DB"/>
+      <!-- linear side -->
+      <text x="120" y="26" text-anchor="middle" font-size="12" fill="#1D5A80">linear: one line</text>
+      <rect x="40" y="60" width="34" height="34" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <rect x="90" y="60" width="34" height="34" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <rect x="140" y="60" width="34" height="34" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <rect x="190" y="60" width="34" height="34" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <line x1="74" y1="77" x2="90" y2="77" stroke="#56676F" stroke-width="2"/>
+      <line x1="124" y1="77" x2="140" y2="77" stroke="#56676F" stroke-width="2"/>
+      <line x1="174" y1="77" x2="190" y2="77" stroke="#56676F" stroke-width="2"/>
+      <text x="130" y="130" text-anchor="middle" font-size="9" fill="#56676F">array, list, stack, queue</text>
+      <!-- divider -->
+      <line x1="270" y1="20" x2="270" y2="190" stroke="#C9D4DB" stroke-width="1"/>
+      <!-- non-linear side -->
+      <text x="390" y="26" text-anchor="middle" font-size="12" fill="#B57C33">non-linear: branches</text>
+      <line x1="390" y1="60" x2="340" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="390" y1="60" x2="440" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="340" y1="120" x2="315" y2="170" stroke="#56676F" stroke-width="2"/>
+      <line x1="340" y1="120" x2="365" y2="170" stroke="#56676F" stroke-width="2"/>
+      <circle cx="390" cy="60" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <circle cx="340" cy="120" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <circle cx="440" cy="120" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <circle cx="315" cy="170" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <circle cx="365" cy="170" r="15" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="390" y="196" text-anchor="middle" font-size="9" fill="#56676F">tree, graph</text>
+    </svg>
+    <figcaption>Linear structures run in a single line, each element with one
+    neighbour on each side. Non-linear structures branch, so an element can reach
+    many others and there is no single straight path.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>Why data structures matter at all.</strong> A data structure is a
+    way of arranging data so the operations you do most are cheap. The same values
+    stored two ways can differ enormously in speed. Numbers in a sorted array can
+    be searched in a handful of steps with binary search; the same numbers in an
+    unsorted heap must be scanned one by one. Choosing the structure to fit the job
+    is the difference between a program that answers instantly and one that crawls.
+    In short: the right structure turns a slow, awkward problem into a fast, simple
+    one, and picking it well is most of what makes a program good.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge (spot where greedy fails)</p>
+    <p>A stall has only 4c, 3c, and 1c tokens. A tourist needs 6c in change. The
+    greedy rule (take the biggest token that fits, repeat) grabs a 4, then a 1,
+    then a 1: three tokens. Find a payment using fewer tokens, and explain in one
+    line why greedy missed it.</p>
+    <p>(Answer: 3 + 3 = 6, just two tokens. Greedy missed it because grabbing the
+    4 first was the locally best move but left a remainder, 2, that no single
+    token could finish cheaply. Greedy never looks back to undo that first grab.)</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Define the term abstract data type (ADT) and give two examples, naming
+    for each a data structure that could implement it.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>An abstract data type is a description of a set of values together with the
+    operations allowed on them, defined by what the operations do rather than how
+    they are stored. It separates the interface (the promised operations) from the
+    implementation (the underlying data structure), so the structure can change
+    without changing how the type is used.</p>
+    <ul>
+      <li><strong>Stack ADT:</strong> operations push, pop, and top, following
+      last in, first out (LIFO). It can be implemented with an array (an index
+      marks the top) or a singly linked list (the head node is the top).</li>
+      <li><strong>Queue ADT:</strong> operations enqueue and dequeue, following
+      first in, first out (FIFO). It can be implemented with an array (front and
+      back indices) or a linked list (head is the front, tail is the back).</li>
+    </ul>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. State the greedy principle and illustrate it with a worked example.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The greedy principle: build a solution one step at a time, and at each step
+    take the choice that looks best at that moment, without reconsidering earlier
+    choices. It aims for the global best by making the locally best choice each
+    time.</p>
+    <p>Example, making 87 cents with coins 50, 20, 10, 5, 1 using the fewest
+    coins. Take the largest coin that still fits, repeatedly: 87 gives a 50 (left
+    37), a 20 (left 17), a 10 (left 7), a 5 (left 2), then a 1 and a 1 (left 0).
+    Result: 50, 20, 10, 5, 1, 1, which is six coins and the fewest possible for
+    this coin set. (Greedy is only correct for suitable coin sets; for a set such
+    as 4, 3, 1 it can give more coins than the true minimum.)</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Explain the divide-and-conquer paradigm and name two sorting algorithms
+    that use it.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Divide and conquer solves a problem in three steps: <strong>divide</strong>
+    the problem into smaller sub-problems of the same type, <strong>conquer</strong>
+    each sub-problem (typically by applying the same method recursively until the
+    pieces are trivial), and <strong>combine</strong> the sub-results into the
+    solution for the whole.</p>
+    <p>Two sorting algorithms that use it:</p>
+    <ul>
+      <li><strong>Merge sort:</strong> divide the array into two halves, sort each
+      half, then merge the two sorted halves into one sorted array.</li>
+      <li><strong>Quicksort:</strong> choose a pivot, partition the array so
+      smaller values go left and larger values go right of the pivot, then sort
+      each side.</li>
+    </ul>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Distinguish between linear and non-linear data structures, giving two
+    examples of each.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>In a <strong>linear</strong> data structure the elements are arranged in a
+    single sequence, so each element has exactly one predecessor and one successor
+    apart from the first and last. There is one straight path through all of them.
+    Examples: arrays and linked lists (also stacks and queues).</p>
+    <p>In a <strong>non-linear</strong> data structure an element may be connected
+    to more than one other element, so the data branches and there is no single
+    straight path through it. Examples: trees and graphs. A tree node can have
+    several children; a graph node can link to many other nodes and the links may
+    form loops.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q5. Explain the purpose and importance of data structures in programming.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A data structure is a way of organising and storing data so that the
+    operations performed on it (such as insert, delete, search, and traverse) can
+    be carried out efficiently. Its purpose is to match the arrangement of the data
+    to the way the program uses it.</p>
+    <p>It is important because the choice of structure directly affects how fast and
+    how simply a program runs. The same data held in different structures can give
+    very different performance: searching a sorted array with binary search takes
+    only a few steps, while scanning an unsorted list checks every element. A good
+    structure can turn a slow, complicated task into a fast, straightforward one, so
+    selecting the right one is a large part of writing efficient software.</p>
+  </div>
+</section>

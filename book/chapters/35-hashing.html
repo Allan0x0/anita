@@ -19,9 +19,9 @@
     and returns a bucket index, a plain integer in range. Store a value by
     hashing its key to an index and dropping it in that bucket; retrieve it by
     hashing the same key again and looking in the same bucket.</p>
-    <p>The whole point is speed. A linked list or an unsorted array makes you
-    walk item by item to find something, which is slow when there are many
-    items. A hash table skips the walk: the hash function computes the address
+    <p>The whole point is speed. A linked list or unsorted array makes you walk
+    item by item, slow when there are many items. A hash table skips the walk:
+    the hash function computes the address
     directly, so a lookup takes about the same short time whether the table
     holds ten items or ten thousand. That near-constant lookup time, written
     O(1) on average, is why hash tables sit under dictionaries, database
@@ -118,9 +118,8 @@ int main() {
     <p><strong>Collisions.</strong> A hash function squeezes a huge range of
     possible keys into a small range of buckets, so sooner or later two
     different keys hash to the same index. That clash is a
-    <strong>collision</strong>. It is not a bug and you cannot avoid it in
-    general; you just need a rule for what to do when it happens. Two standard
-    rules exist.</p>
+    <strong>collision</strong>. It is not a bug, and you cannot avoid it in
+    general; you just need a rule for what to do. Two standard rules exist.</p>
     <ul>
       <li><strong>Chaining (separate chaining):</strong> each bucket holds a
       small list, and colliding keys just get appended to that bucket's list.
@@ -186,6 +185,49 @@ int main() {
     linear probing storing tourist-site names. On a clash it steps forward to
     the next free slot; a lookup retraces those steps.</p>
   </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" width="520" height="200">
+      <g font-family="Helvetica" stroke-linejoin="round" stroke-linecap="round">
+        <!-- key entering -->
+        <rect x="18" y="96" width="66" height="34" fill="#FAF6EE" stroke="#1D5A80" stroke-width="2.2"/>
+        <text x="51" y="118" text-anchor="middle" font-size="13" fill="#22201B">owl</text>
+        <text x="51" y="86" text-anchor="middle" font-size="10" fill="#1D5A80">hashes to 3</text>
+        <line x1="84" y1="113" x2="150" y2="113" stroke="#1D5A80" stroke-width="2.2"/>
+        <path d="M150 113 L142 108 L142 118 Z" fill="#1D5A80"/>
+        <!-- seven slots -->
+        <rect x="160" y="96" width="46" height="40" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="208" y="96" width="46" height="40" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="256" y="96" width="46" height="40" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <rect x="304" y="96" width="46" height="40" fill="#FAF6EE" stroke="#B57C33" stroke-width="2.2"/>
+        <rect x="352" y="96" width="46" height="40" fill="#FAF6EE" stroke="#B57C33" stroke-width="2.2"/>
+        <rect x="400" y="96" width="46" height="40" fill="#FAF6EE" stroke="#1D5A80" stroke-width="2.2"/>
+        <rect x="448" y="96" width="46" height="40" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+        <!-- index labels -->
+        <text x="183" y="88" text-anchor="middle" font-size="10" fill="#B57C33">0</text>
+        <text x="231" y="88" text-anchor="middle" font-size="10" fill="#B57C33">1</text>
+        <text x="279" y="88" text-anchor="middle" font-size="10" fill="#B57C33">2</text>
+        <text x="327" y="88" text-anchor="middle" font-size="10" fill="#B57C33">3</text>
+        <text x="375" y="88" text-anchor="middle" font-size="10" fill="#B57C33">4</text>
+        <text x="423" y="88" text-anchor="middle" font-size="10" fill="#B57C33">5</text>
+        <text x="471" y="88" text-anchor="middle" font-size="10" fill="#B57C33">6</text>
+        <!-- contents -->
+        <text x="327" y="121" text-anchor="middle" font-size="12" fill="#22201B">cat</text>
+        <text x="375" y="121" text-anchor="middle" font-size="12" fill="#22201B">dog</text>
+        <text x="423" y="121" text-anchor="middle" font-size="12" fill="#1D5A80">owl</text>
+        <!-- probe walk: 3 taken, 4 taken, land in 5 -->
+        <path d="M327 78 L423 78 L423 90" fill="none" stroke="#B57C33" stroke-width="2.2"/>
+        <path d="M423 96 L418 86 L428 86 Z" fill="#B57C33"/>
+        <text x="375" y="72" text-anchor="middle" font-size="10" fill="#B57C33">probe forward</text>
+        <text x="327" y="152" text-anchor="middle" font-size="10" fill="#22201B">taken</text>
+        <text x="375" y="152" text-anchor="middle" font-size="10" fill="#22201B">taken</text>
+        <text x="423" y="152" text-anchor="middle" font-size="10" fill="#1D5A80">free: owl lands</text>
+      </g>
+    </svg>
+    <figcaption>Linear probing. owl hashes to slot 3, but slots 3 and 4 are
+    taken, so it steps forward to the first free slot, 5. A later lookup for owl
+    retraces the same walk: 3, 4, 5.</figcaption>
+  </figure>
 
   <pre class="code"><code>#include &lt;iostream&gt;
 #include &lt;string&gt;

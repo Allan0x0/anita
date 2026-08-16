@@ -1,0 +1,316 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 31</p>
+  <h1>Measuring speed</h1>
+
+  <div class="hook">
+    <p>Two guides can walk a tour group from the hotel to the falls. One knows a
+    shortcut and always takes the same six minutes. The other checks every side
+    street, so with twice the group he takes twice as long, and with ten times
+    the group he takes ten times as long. On a tiny group you cannot tell them
+    apart. Fill a whole bus and the difference is the whole afternoon. Measuring
+    the speed of an algorithm is exactly this question: not "how fast on today's
+    small input" but "how does the time grow as the input grows". That growth is
+    what Big-O captures, and it is what the exam asks you to name.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Asymptotic analysis</strong> means judging an algorithm by how its
+    running time grows as the input gets large, and ignoring everything that does
+    not affect that growth. "Asymptotic" is just a long word for "as the input
+    heads toward big". We drop three things on purpose:</p>
+    <ul>
+      <li><strong>Constant factors.</strong> Whether each step takes 2
+      nanoseconds or 20 does not change the shape of the growth, so we drop the
+      multiplier. <code>3n</code> and <code>n</code> both count as
+      <code>n</code>.</li>
+      <li><strong>Lower-order terms.</strong> In <code>n&#178; + n</code>, once
+      <code>n</code> is large the <code>n&#178;</code> dwarfs the <code>n</code>,
+      so we keep only <code>n&#178;</code>.</li>
+      <li><strong>Small inputs.</strong> We care about the trend for large
+      <code>n</code>, not the wobble when <code>n</code> is 3.</li>
+    </ul>
+    <p>Why throw away real detail? Because it is the growth that decides whether
+    your program still works when the data gets ten times bigger. A slower
+    constant you can fix with a faster machine; a worse growth curve you cannot
+    outrun.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 280" width="460" height="280">
+      <rect x="1" y="1" width="458" height="278" fill="none" stroke="#C9D4DB"/>
+      <!-- axes -->
+      <line x1="60" y1="240" x2="430" y2="240" stroke="#16232B" stroke-width="1.5"/>
+      <line x1="60" y1="240" x2="60" y2="30" stroke="#16232B" stroke-width="1.5"/>
+      <text x="245" y="268" text-anchor="middle" font-size="11" fill="#16232B">input size n</text>
+      <text x="20" y="135" font-size="11" fill="#16232B" transform="rotate(-90 20 135)">time</text>
+      <!-- O(1) flat -->
+      <line x1="60" y1="225" x2="430" y2="222" stroke="#56676F" stroke-width="2"/>
+      <text x="360" y="215" font-size="11" fill="#56676F">O(1)</text>
+      <!-- O(log n) -->
+      <path d="M60 235 Q 160 205 430 185" fill="none" stroke="#1D5A80" stroke-width="2"/>
+      <text x="360" y="180" font-size="11" fill="#1D5A80">O(log n)</text>
+      <!-- O(n) straight -->
+      <line x1="60" y1="240" x2="360" y2="60" stroke="#B57C33" stroke-width="2"/>
+      <text x="366" y="60" font-size="11" fill="#B57C33">O(n)</text>
+      <!-- O(n^2) steep curve -->
+      <path d="M60 240 Q 190 235 250 40" fill="none" stroke="#9B2D30" stroke-width="2"/>
+      <text x="200" y="40" font-size="11" fill="#9B2D30">O(n&#178;)</text>
+    </svg>
+    <figcaption>How four common growth rates climb as the input n grows. O(1)
+    stays flat, O(log n) barely rises, O(n) is a straight climb, and O(n&#178;)
+    shoots up. For large n the ranking never changes, which is why we name only
+    the fastest-growing term.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>Big-O (the ceiling).</strong> We write <code>O(f(n))</code> to say
+    the running time grows no faster than <code>f(n)</code>, up to a constant
+    factor, once <code>n</code> is large. It is an upper bound: a promise that the
+    cost will not climb worse than this shape. When people say "this algorithm is
+    O(n)" they mean the work grows in proportion to the input in the worst case.</p>
+    <p>To read Big-O off code, count how many times the innermost work runs as a
+    function of <code>n</code>, then keep only the fastest-growing term and drop
+    its constant. A single pass over <code>n</code> items is <code>O(n)</code>.
+    Here is that single pass as a running program that also counts its own
+    steps.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Linear scan: look at every element once. Cost grows like n, so O(n).
+int countSteps(const std::vector&lt;int&gt;&amp; items, int target) {
+    int steps = 0;
+    for (int x : items) {   // this loop body runs n times
+        ++steps;
+        if (x == target) break;
+    }
+    return steps;
+}
+
+int main() {
+    std::vector&lt;int&gt; menu = {5, 9, 2, 7, 4, 1, 8};
+    std::cout &lt;&lt; "worst-case steps: " &lt;&lt; countSteps(menu, 42) &lt;&lt; '\n';
+    std::cout &lt;&lt; "n = " &lt;&lt; menu.size() &lt;&lt; '\n';
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save as <code>scan.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 scan.cpp -o scan &amp;&amp; ./scan</code></p>
+    <p>Add items to the vector and rerun. The worst-case step count tracks the
+    number of items one for one: that one-for-one growth is what O(n) names.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Big-Omega and Big-Theta.</strong> Big-O is only the ceiling. Two
+    partners finish the picture:</p>
+    <ul>
+      <li><strong>Big-Omega, written &#937;(f(n)):</strong> the floor. The running
+      time grows <em>at least</em> this fast for large <code>n</code>. It is a
+      lower bound, the best case you cannot beat.</li>
+      <li><strong>Big-Theta, written &#920;(f(n)):</strong> the tight fit. The time
+      grows exactly like <code>f(n)</code>, both no faster and no slower, because
+      the same shape is both the ceiling and the floor. When O and &#937; agree,
+      you get &#920;.</li>
+    </ul>
+    <p>Picture the tour again. The shortcut guide is &#920;(1): fastest case and
+    slowest case are both flat, so the fit is tight. The street-checking guide
+    scanning a list for one name is O(n) in the worst case (the name is last or
+    missing) but &#937;(1) in the best case (the name is first), so his ceiling
+    and floor differ and there is no single &#920;.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Reading a nested loop.</strong> When one loop sits inside another
+    and both run <code>n</code> times, the inner body runs <code>n &#215; n</code>
+    times, which is <code>O(n&#178;)</code>. This is the classic pairwise pattern:
+    compare every guest with every other guest, check every seat against every
+    table. Count it and see.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+// For every pair of guests, print whether they can share a table.
+// Outer loop runs n times; inner loop runs n times; body runs n*n times => O(n^2).
+int main() {
+    std::vector&lt;std::string&gt; guests = {"Ada", "Ben", "Cy", "Di"};
+    long long pairs = 0;
+
+    for (std::size_t i = 0; i &lt; guests.size(); ++i) {
+        for (std::size_t j = 0; j &lt; guests.size(); ++j) {
+            ++pairs;   // this line runs n * n times
+        }
+    }
+
+    long long n = guests.size();
+    std::cout &lt;&lt; "n = " &lt;&lt; n &lt;&lt; '\n';
+    std::cout &lt;&lt; "inner-body runs: " &lt;&lt; pairs &lt;&lt; " (= n*n)\n";
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save as <code>pairs.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 pairs.cpp -o pairs &amp;&amp; ./pairs</code></p>
+    <p>With 4 guests the body runs 16 times; with 8 guests it runs 64. Double the
+    input, quadruple the work. That squaring is the signature of O(n&#178;).</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>The cost of the structures you already know.</strong> Most of the
+    exam is naming these from memory. Here is the table for the data structures
+    and algorithms from earlier chapters, worst case unless noted.</p>
+    <table>
+      <tr><th>Operation</th><th>Cost</th><th>Why</th></tr>
+      <tr><td>Array access by index</td><td>O(1)</td><td>The address is a
+      direct calculation, no searching.</td></tr>
+      <tr><td>Array/vector search (unsorted)</td><td>O(n)</td><td>Might have to
+      look at every element.</td></tr>
+      <tr><td>Linked-list access by position</td><td>O(n)</td><td>No index; you
+      walk node by node from the head.</td></tr>
+      <tr><td>Stack push / pop, queue enqueue / dequeue</td><td>O(1)</td><td>Work
+      happens only at one end.</td></tr>
+      <tr><td>Binary search (sorted array)</td><td>O(log n)</td><td>Each step
+      halves what is left to search.</td></tr>
+      <tr><td>Balanced binary-search-tree search / insert</td><td>O(log
+      n)</td><td>Height stays near log n, so you walk that far down.</td></tr>
+      <tr><td>Bubble / selection / insertion sort</td><td>O(n&#178;)</td><td>Nested
+      passes: compare items pairwise.</td></tr>
+      <tr><td>Merge sort</td><td>O(n log n)</td><td>Log n levels of splitting,
+      each level touches all n items.</td></tr>
+    </table>
+    <p>Two patterns carry most marks: <strong>halving</strong> the problem each
+    step gives <code>log n</code>, and a <strong>loop inside a loop</strong> over
+    the same data gives <code>n&#178;</code>.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge (name the cost)</p>
+    <p>A cook prices a set menu. The loop below walks the dishes once, and for
+    each dish walks the same list of dishes once more to find a cheaper pairing.
+    Before reading on, name the Big-O and say why.</p>
+    <pre class="code"><code>for (std::size_t i = 0; i &lt; dishes.size(); ++i) {
+    for (std::size_t j = 0; j &lt; dishes.size(); ++j) {
+        consider(dishes[i], dishes[j]);
+    }
+}</code></pre>
+    <p>(Answer: O(n&#178;). The outer loop runs n times, and for each of those the
+    inner loop runs n times, so <code>consider</code> is called n &#215; n times.
+    Doubling the menu quadruples the work.)</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Explain what Big-O notation measures, using a practical example.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Big-O notation describes how the running time (or memory) of an algorithm
+    grows as the size of the input, <code>n</code>, grows. It is an upper bound:
+    it names the worst-case growth rate, ignoring constant factors and
+    lower-order terms, so that we compare algorithms by how they scale rather
+    than by exact timings on one machine.</p>
+    <p>Practical example: searching a guest list of <code>n</code> names one by
+    one for a booking. In the worst case the name is last or missing, so you check
+    all <code>n</code> names. Double the list and you double the checks; ten times
+    the list, ten times the checks. The work grows in direct proportion to
+    <code>n</code>, so the search is <code>O(n)</code>. If instead the list were
+    sorted and you used binary search, each step would halve the remaining names,
+    giving <code>O(log n)</code>, which grows far more slowly and is why sorted
+    data is worth keeping.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. State the time complexity of the following code in terms of Big-O and
+    justify your answer.</p>
+    <pre class="code"><code>for (int i = 0; i &lt; n; ++i) {
+    for (int j = 0; j &lt; n; ++j) {
+        std::cout &lt;&lt; i * j &lt;&lt; '\n';
+    }
+}</code></pre>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The complexity is <code>O(n&#178;)</code>.</p>
+    <p>Justification: the outer loop runs <code>n</code> times, once for each
+    value of <code>i</code> from 0 to <code>n - 1</code>. For every single one of
+    those iterations, the inner loop runs its own full <code>n</code> times.
+    The body (the print statement) therefore executes <code>n &#215; n = n&#178;</code>
+    times in total. Keeping only the fastest-growing term and dropping constants,
+    that is <code>O(n&#178;)</code>. As a check: at <code>n = 10</code> the body
+    runs 100 times, and at <code>n = 20</code> it runs 400 times, so doubling the
+    input quadruples the work, which is the tell-tale sign of quadratic growth.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Define Big-O, Big-Omega, and Big-Theta, and explain how they relate.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <ul>
+      <li><strong>Big-O, O(f(n)):</strong> an upper bound. The running time grows
+      no faster than <code>f(n)</code> (up to a constant factor) for large
+      <code>n</code>. It names the worst case.</li>
+      <li><strong>Big-Omega, &#937;(f(n)):</strong> a lower bound. The running time
+      grows at least as fast as <code>f(n)</code> for large <code>n</code>. It
+      names the best case you cannot beat.</li>
+      <li><strong>Big-Theta, &#920;(f(n)):</strong> a tight bound. The running time
+      grows exactly like <code>f(n)</code>, because <code>f(n)</code> is both its
+      upper and its lower bound.</li>
+    </ul>
+    <p>Relation: &#920; is the combination of the other two. When an algorithm is
+    both <code>O(f(n))</code> and <code>&#937;(f(n))</code> for the same
+    <code>f</code>, its ceiling and floor meet, so it is <code>&#920;(f(n))</code>.
+    Example: a linear scan of an unsorted list is <code>O(n)</code> in the worst
+    case (target last or absent) but <code>&#937;(1)</code> in the best case
+    (target first); since these differ there is no single &#920;. A loop that
+    always visits all <code>n</code> items with no early exit is
+    <code>&#920;(n)</code>, because best and worst case are both <code>n</code>.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. What is asymptotic analysis, and why do we ignore constant factors and
+    lower-order terms when we use it?</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Asymptotic analysis studies how an algorithm's cost behaves as the input
+    size <code>n</code> grows toward large values, rather than measuring an exact
+    time for one fixed input. It gives the growth rate, which is what we express
+    with Big-O, Big-Omega, and Big-Theta.</p>
+    <p>We drop constant factors because they depend on the machine, the compiler,
+    and small implementation choices, not on the algorithm's shape; a step that
+    takes 2 or 20 nanoseconds does not change whether the total grows linearly or
+    quadratically. We drop lower-order terms because, once <code>n</code> is large,
+    the fastest-growing term dominates: in <code>n&#178; + 100n + 500</code> the
+    <code>n&#178;</code> term overwhelms the rest, so we call it
+    <code>O(n&#178;)</code>. The point is to compare how algorithms scale, and only
+    the leading term decides whether a program still copes when the data gets ten
+    times bigger.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q5. Give the worst-case time complexity of each of the following, with a
+    one-line reason: (a) accessing an array element by its index, (b) searching an
+    unsorted linked list for a value, (c) binary search on a sorted array.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <ul>
+      <li><strong>(a) O(1).</strong> An array element's address is computed
+      directly from the index, so it takes the same constant time regardless of
+      the array's size.</li>
+      <li><strong>(b) O(n).</strong> A linked list has no index; you follow the
+      links from the head, and in the worst case the value is at the end or
+      absent, so you visit all <code>n</code> nodes.</li>
+      <li><strong>(c) O(log n).</strong> Binary search discards half of the
+      remaining range at each step, so the number of steps is how many times
+      <code>n</code> can be halved, which is <code>log n</code>.</li>
+    </ul>
+  </div>
+</section>

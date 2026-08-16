@@ -1,0 +1,424 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 20</p>
+  <h1>Trees</h1>
+
+  <div class="hook">
+    <p>Stand under a finished roof truss and look up. One peak, the king-post,
+    sits at the top. From it, two rafters fall away to the left and right, and
+    each rafter can carry smaller struts under it. Nothing loops back on itself:
+    you never climb a rafter and end up back at the peak. That shape, one thing
+    at the top and everything branching downward without loops, is a tree. Learn
+    to see it in a truss and you already understand the data structure that
+    databases, file systems, and menu screens are built from.</p>
+  </div>
+
+  <div class="idea">
+    <p>A <strong>tree</strong> is a set of nodes joined by edges, with one node
+    at the top called the <strong>root</strong> and no loops anywhere. Every
+    node except the root has exactly one node above it (its parent), and may have
+    nodes below it (its children).</p>
+    <p>A <strong>binary tree</strong> is the common case: each node has at most
+    two children, a left child and a right child. That is the whole rule. The
+    king-post truss is a binary tree drawn in timber: the peak is the root, and
+    it branches into a left side and a right side.</p>
+    <p>Key words, all from the truss picture:</p>
+    <ul>
+      <li><strong>Root:</strong> the top node, the one with no parent. The
+      king-post peak.</li>
+      <li><strong>Leaf:</strong> a node with no children. The feet of the truss,
+      where the rafters land on the wall.</li>
+      <li><strong>Subtree:</strong> any node together with everything hanging
+      below it. The whole left half of the truss is a subtree; so is the right
+      half.</li>
+      <li><strong>Height:</strong> the longest run of edges from the root down to
+      a leaf. A lone root has height 0; a truss two joints deep has height 2. A
+      short bushy tree searches fast; a tall lopsided one does not.</li>
+    </ul>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 210" width="440" height="210">
+      <rect x="1" y="1" width="438" height="208" fill="none" stroke="#C9D4DB"/>
+      <!-- truss timbers -->
+      <line x1="60" y1="160" x2="380" y2="160" stroke="#B57C33" stroke-width="3"/>
+      <line x1="60" y1="160" x2="220" y2="50" stroke="#B57C33" stroke-width="3"/>
+      <line x1="380" y1="160" x2="220" y2="50" stroke="#B57C33" stroke-width="3"/>
+      <line x1="220" y1="50" x2="220" y2="160" stroke="#1D5A80" stroke-width="2"/>
+      <!-- nodes -->
+      <circle cx="220" cy="50" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="220" y="54" text-anchor="middle" font-size="10" fill="#16232B">peak</text>
+      <circle cx="60" cy="160" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="60" y="164" text-anchor="middle" font-size="10" fill="#16232B">foot</text>
+      <circle cx="380" cy="160" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="380" y="164" text-anchor="middle" font-size="10" fill="#16232B">foot</text>
+      <!-- labels -->
+      <text x="252" y="40" font-size="10" fill="#1D5A80">root (king-post peak)</text>
+      <text x="60" y="192" text-anchor="middle" font-size="10" fill="#56676F">leaf</text>
+      <text x="380" y="192" text-anchor="middle" font-size="10" fill="#56676F">leaf</text>
+    </svg>
+    <figcaption>The truss as a binary tree: the king-post peak is the root, the
+    two rafter feet are leaves, and the left and right halves are its two
+    subtrees.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p>A plain binary tree lets you store two children per node, but it does not
+    say where a new value goes. A <strong>binary search tree</strong> (BST) adds
+    one rule that makes it useful: for every node, everything in its
+    <em>left</em> subtree is smaller, and everything in its <em>right</em>
+    subtree is larger.</p>
+    <p><strong>The BST insert rule.</strong> To add a value, start at the root
+    and walk down: if the new value is less than the node, go left; if greater,
+    go right; repeat until you reach an empty spot, and plant the value there.
+    The first value you ever insert becomes the root.</p>
+    <p>Walk the numbers 50, 30, 70, 20, 40, 60, 80 through that rule and you get
+    the tree below. 50 lands first, so it is the root. 30 is less than 50, so it
+    goes left; 70 is greater, so it goes right; and so on down.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 230" width="500" height="230">
+      <rect x="1" y="1" width="498" height="228" fill="none" stroke="#C9D4DB"/>
+      <!-- edges -->
+      <line x1="250" y1="40" x2="150" y2="110" stroke="#56676F" stroke-width="2"/>
+      <line x1="250" y1="40" x2="350" y2="110" stroke="#56676F" stroke-width="2"/>
+      <line x1="150" y1="110" x2="100" y2="180" stroke="#56676F" stroke-width="2"/>
+      <line x1="150" y1="110" x2="200" y2="180" stroke="#56676F" stroke-width="2"/>
+      <line x1="350" y1="110" x2="300" y2="180" stroke="#56676F" stroke-width="2"/>
+      <line x1="350" y1="110" x2="400" y2="180" stroke="#56676F" stroke-width="2"/>
+      <!-- nodes -->
+      <circle cx="250" cy="40" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="250" y="45" text-anchor="middle" font-size="12" fill="#16232B">50</text>
+      <circle cx="150" cy="110" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="150" y="115" text-anchor="middle" font-size="12" fill="#16232B">30</text>
+      <circle cx="350" cy="110" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="350" y="115" text-anchor="middle" font-size="12" fill="#16232B">70</text>
+      <circle cx="100" cy="180" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="100" y="185" text-anchor="middle" font-size="12" fill="#16232B">20</text>
+      <circle cx="200" cy="180" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="200" y="185" text-anchor="middle" font-size="12" fill="#16232B">40</text>
+      <circle cx="300" cy="180" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="300" y="185" text-anchor="middle" font-size="12" fill="#16232B">60</text>
+      <circle cx="400" cy="180" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="400" y="185" text-anchor="middle" font-size="12" fill="#16232B">80</text>
+      <!-- labels -->
+      <text x="278" y="30" font-size="10" fill="#1D5A80">root</text>
+      <text x="100" y="215" text-anchor="middle" font-size="10" fill="#56676F">leaf</text>
+      <text x="400" y="215" text-anchor="middle" font-size="10" fill="#56676F">leaf</text>
+    </svg>
+    <figcaption>A binary search tree built from 50, 30, 70, 20, 40, 60, 80. Left
+    is always smaller, right is always larger. The blue nodes are the root and
+    its inner joints; the timber nodes at the bottom are leaves.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p>In C++ a node is a small struct holding a value and two pointers. An empty
+    branch is a null pointer. Here is the whole thing: build the tree from the
+    numbers above, then read it back in order.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+struct Node {
+    int value;
+    Node* left;
+    Node* right;
+};
+
+// Make a fresh leaf node.
+Node* makeNode(int value) {
+    Node* n = new Node;
+    n-&gt;value = value;
+    n-&gt;left = nullptr;
+    n-&gt;right = nullptr;
+    return n;
+}
+
+// BST insert: smaller goes left, larger goes right.
+Node* insert(Node* root, int value) {
+    if (root == nullptr) return makeNode(value);
+    if (value &lt; root-&gt;value)      root-&gt;left  = insert(root-&gt;left, value);
+    else if (value &gt; root-&gt;value) root-&gt;right = insert(root-&gt;right, value);
+    return root; // duplicates are ignored
+}
+
+// In-order traversal: left subtree, then this node, then right subtree.
+void inOrder(Node* root) {
+    if (root == nullptr) return;
+    inOrder(root-&gt;left);
+    std::cout &lt;&lt; root-&gt;value &lt;&lt; ' ';
+    inOrder(root-&gt;right);
+}
+
+int main() {
+    Node* root = nullptr;
+    int nums[] = {50, 30, 70, 20, 40, 60, 80};
+    for (int n : nums) root = insert(root, n);
+
+    std::cout &lt;&lt; "in-order: ";
+    inOrder(root);
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save the listing as <code>bst.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 bst.cpp -o bst &amp;&amp; ./bst</code></p>
+    <p>On the truss, this is the moment you nail the king-post at the apex first,
+    then hang each rafter and strut off the joint above it, working down to the
+    feet. Insert the peak (the first value) before anything else, exactly as the
+    code sets <code>root</code> from the first number, then let every later piece
+    find its own place by the left-smaller, right-larger rule.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Three ways to read a tree.</strong> A traversal visits every node
+    once. Which order you print the node in, relative to its two subtrees,
+    changes the result:</p>
+    <ul>
+      <li><strong>In-order:</strong> left, node, right. For a BST this prints the
+      values sorted. From the tree above: 20 30 40 50 60 70 80.</li>
+      <li><strong>Pre-order:</strong> node, left, right. Prints the root first,
+      handy for copying a tree. Above: 50 30 20 40 70 60 80.</li>
+      <li><strong>Post-order:</strong> left, right, node. Prints children before
+      parents, handy for freeing a tree. Above: 20 40 30 60 80 70 50.</li>
+    </ul>
+    <p>Same tree, three orders, one tiny change in where the print line sits.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+struct Node {
+    int value;
+    Node* left;
+    Node* right;
+};
+
+Node* makeNode(int value) {
+    Node* n = new Node;
+    n-&gt;value = value;
+    n-&gt;left = nullptr;
+    n-&gt;right = nullptr;
+    return n;
+}
+
+Node* insert(Node* root, int value) {
+    if (root == nullptr) return makeNode(value);
+    if (value &lt; root-&gt;value)      root-&gt;left  = insert(root-&gt;left, value);
+    else if (value &gt; root-&gt;value) root-&gt;right = insert(root-&gt;right, value);
+    return root;
+}
+
+void preOrder(Node* r)  { if (!r) return; std::cout &lt;&lt; r-&gt;value &lt;&lt; ' '; preOrder(r-&gt;left);  preOrder(r-&gt;right); }
+void inOrder(Node* r)   { if (!r) return; inOrder(r-&gt;left);  std::cout &lt;&lt; r-&gt;value &lt;&lt; ' '; inOrder(r-&gt;right); }
+void postOrder(Node* r) { if (!r) return; postOrder(r-&gt;left); postOrder(r-&gt;right); std::cout &lt;&lt; r-&gt;value &lt;&lt; ' '; }
+
+int main() {
+    Node* root = nullptr;
+    int nums[] = {50, 30, 70, 20, 40, 60, 80};
+    for (int n : nums) root = insert(root, n);
+
+    std::cout &lt;&lt; "pre-order:  "; preOrder(root);  std::cout &lt;&lt; '\n';
+    std::cout &lt;&lt; "in-order:   "; inOrder(root);   std::cout &lt;&lt; '\n';
+    std::cout &lt;&lt; "post-order: "; postOrder(root); std::cout &lt;&lt; '\n';
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p><strong>Tree versus graph.</strong> A tree is a special, tidy kind of
+    graph. A <strong>graph</strong> is just nodes joined by edges, with no rules:
+    edges can loop, a node can have many things pointing at it, and there may be
+    no single starting point. A tree adds three restrictions: one root, exactly
+    one parent per node, and no cycles (you can never walk a path that returns to
+    where you started).</p>
+    <p>Think of tourist spots. A <em>tree</em> is the day plan handed out at the
+    hotel: start at the hotel (root), then the falls or the market, and each of
+    those leads to its own smaller stops, always downward, never back. A
+    <em>graph</em> is the real road map: the falls, the market, and the museum
+    are all linked to each other, roads loop, and you can drive from any one to
+    any other. Same towns, but the map has cycles and the day plan does not.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" width="500" height="180">
+      <rect x="1" y="1" width="498" height="178" fill="none" stroke="#C9D4DB"/>
+      <!-- tree side -->
+      <text x="120" y="24" text-anchor="middle" font-size="11" fill="#1D5A80">tree: no loops</text>
+      <line x1="120" y1="50" x2="70" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="120" y1="50" x2="170" y2="120" stroke="#56676F" stroke-width="2"/>
+      <circle cx="120" cy="50" r="14" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <circle cx="70" cy="120" r="14" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <circle cx="170" cy="120" r="14" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <!-- divider -->
+      <line x1="250" y1="20" x2="250" y2="160" stroke="#C9D4DB" stroke-width="1"/>
+      <!-- graph side -->
+      <text x="380" y="24" text-anchor="middle" font-size="11" fill="#B57C33">graph: a loop</text>
+      <line x1="380" y1="50" x2="330" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="380" y1="50" x2="430" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="330" y1="120" x2="430" y2="120" stroke="#56676F" stroke-width="2"/>
+      <circle cx="380" cy="50" r="14" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <circle cx="330" cy="120" r="14" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <circle cx="430" cy="120" r="14" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+    </svg>
+    <figcaption>Same three nodes. On the left, a tree: one root, no way back. On
+    the right, a graph: the extra edge between the two lower nodes closes a loop,
+    so it is no longer a tree.</figcaption>
+  </figure>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge (predict the output)</p>
+    <p>A cook inserts recipe rating scores into a fresh BST in this order: 5, 3,
+    8, 1, 4. Then runs the <code>inOrder</code> function from the first listing.
+    Before you compile it, write down exactly what it prints. Then check: does an
+    in-order walk of a BST always come out sorted, no matter what order the
+    values went in?</p>
+    <p>(Answer: <code>in-order: 1 3 4 5 8</code>. Yes: in-order on a BST always
+    prints ascending, because left-subtree values are all smaller and get
+    printed first.)</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Define a binary search tree and state the rule used to insert a new
+    value into it.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A binary search tree is a binary tree (each node has at most two children,
+    a left and a right) in which, for every node, all values in its left subtree
+    are smaller than the node and all values in its right subtree are larger.</p>
+    <p>The insert rule: begin at the root. Compare the new value with the current
+    node. If it is smaller, move to the left child; if it is larger, move to the
+    right child. Repeat until you reach an empty (null) position, and place the
+    new value there as a new leaf. The first value inserted into an empty tree
+    becomes the root. (Equal values are usually ignored, so the tree holds no
+    duplicates.)</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Draw the binary search tree that results from inserting these values,
+    in this order, into an empty tree: 55, 30, 80, 20, 45, 70. Take the first
+    value inserted as the root.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>55 is inserted first, so it is the root. 30 &lt; 55 goes left; 80 &gt; 55
+    goes right; 20 &lt; 55 then &lt; 30 goes left of 30; 45 &lt; 55 then &gt; 30
+    goes right of 30; 70 &gt; 55 then &lt; 80 goes left of 80. That gives:</p>
+    <figure class="diagram">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 230" width="460" height="230">
+        <rect x="1" y="1" width="458" height="228" fill="none" stroke="#C9D4DB"/>
+        <line x1="230" y1="40" x2="140" y2="110" stroke="#56676F" stroke-width="2"/>
+        <line x1="230" y1="40" x2="330" y2="110" stroke="#56676F" stroke-width="2"/>
+        <line x1="140" y1="110" x2="90" y2="180" stroke="#56676F" stroke-width="2"/>
+        <line x1="140" y1="110" x2="190" y2="180" stroke="#56676F" stroke-width="2"/>
+        <line x1="330" y1="110" x2="280" y2="180" stroke="#56676F" stroke-width="2"/>
+        <circle cx="230" cy="40" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="230" y="45" text-anchor="middle" font-size="12" fill="#16232B">55</text>
+        <circle cx="140" cy="110" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="140" y="115" text-anchor="middle" font-size="12" fill="#16232B">30</text>
+        <circle cx="330" cy="110" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="330" y="115" text-anchor="middle" font-size="12" fill="#16232B">80</text>
+        <circle cx="90" cy="180" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="90" y="185" text-anchor="middle" font-size="12" fill="#16232B">20</text>
+        <circle cx="190" cy="180" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="190" y="185" text-anchor="middle" font-size="12" fill="#16232B">45</text>
+        <circle cx="280" cy="180" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="280" y="185" text-anchor="middle" font-size="12" fill="#16232B">70</text>
+        <text x="258" y="30" font-size="10" fill="#1D5A80">root</text>
+      </svg>
+      <figcaption>The BST for 55, 30, 80, 20, 45, 70. Leaves: 20, 45, 70.</figcaption>
+    </figure>
+    <p>An in-order read confirms it: 20 30 45 55 70 80, which is sorted.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Using a tree of your choice as an example, define each of these terms:
+    root, leaf, subtree, and height.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Take the tree from Q2 (root 55).</p>
+    <ul>
+      <li><strong>Root:</strong> the single top node with no parent. Here, 55.</li>
+      <li><strong>Leaf:</strong> a node with no children. Here, 20, 45, and 70.</li>
+      <li><strong>Subtree:</strong> a node together with all nodes below it. For
+      example, node 30 with its children 20 and 45 forms the left subtree of the
+      root.</li>
+      <li><strong>Height:</strong> the number of edges on the longest path from
+      the root down to a leaf. Here it is 2 (for example 55 to 30 to 20, two
+      edges). A single lone node has height 0.</li>
+    </ul>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Explain the difference between a tree and a graph.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Both are made of nodes joined by edges, but a tree is a restricted kind of
+    graph. A general graph has no rules: edges may form cycles (a path that
+    returns to its start), a node may be reached by many edges, and there need
+    not be any single starting node.</p>
+    <p>A tree adds three conditions: it has exactly one root, every node except
+    the root has exactly one parent, and there are no cycles. So a tree is a
+    connected graph with no loops and a chosen top node. In short, every tree is
+    a graph, but not every graph is a tree. A tourist day plan (start at the
+    hotel, branch out, never loop back) is a tree; the full road map linking
+    every spot to every other, with loops, is a graph.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q5. Write a complete C++ program that inserts a list of integers into a
+    binary search tree and prints them in sorted order using an in-order
+    traversal.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The in-order traversal of a BST is exactly a sort, so no separate sorting
+    step is needed. Build the tree, then walk it left-node-right.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+struct Node {
+    int value;
+    Node* left;
+    Node* right;
+};
+
+Node* insert(Node* root, int value) {
+    if (root == nullptr) {
+        Node* n = new Node;
+        n-&gt;value = value;
+        n-&gt;left = nullptr;
+        n-&gt;right = nullptr;
+        return n;
+    }
+    if (value &lt; root-&gt;value)      root-&gt;left  = insert(root-&gt;left, value);
+    else if (value &gt; root-&gt;value) root-&gt;right = insert(root-&gt;right, value);
+    return root;
+}
+
+void inOrder(Node* root) {
+    if (root == nullptr) return;
+    inOrder(root-&gt;left);
+    std::cout &lt;&lt; root-&gt;value &lt;&lt; ' ';
+    inOrder(root-&gt;right);
+}
+
+int main() {
+    Node* root = nullptr;
+    int data[] = {40, 20, 60, 10, 30, 50, 70};
+    for (int v : data) root = insert(root, v);
+
+    std::cout &lt;&lt; "sorted: ";
+    inOrder(root);          // prints 10 20 30 40 50 60 70
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+    <p>The program prints <code>sorted: 10 20 30 40 50 60 70</code>. The insert
+    function places each value by the left-smaller, right-larger rule, and the
+    in-order walk reads the whole tree back in ascending order.</p>
+  </div>
+</section>

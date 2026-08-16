@@ -1,0 +1,184 @@
+<section class="chapter">
+  <p class="eyebrow">Appendix: mock exams</p>
+  <h1>Three mock exam papers</h1>
+
+  <div class="hook">
+    <p>The best way to walk into the BITH132 exam calm is to have already sat it,
+    on paper, under the clock, more than once. The three papers below are built
+    to the exact shape of the real thing: three hours, one hundred marks, four
+    questions worth twenty five each, every question split into parts a and b (or
+    a, b, c) with the marks shown beside each part. The question styles are the
+    same ones the real papers use: define or explain a term, write C++ code, draw
+    a structure, work out and justify a Big-O figure, compare two things, and
+    describe the steps of an algorithm. Model answers for all three papers follow
+    in the next appendix, so you can sit a paper cold, then mark yourself.</p>
+  </div>
+
+  <div class="idea">
+    <p>How to use these papers. Give yourself three uninterrupted hours and a
+    blank sheet. Answer all four questions. Write real, compilable C++, not
+    pseudo-code, because the real paper asks for C++ throughout. When the time is
+    up, stop, then turn to the answers appendix and mark each part against the
+    marks shown. Sitting all three, one per study session, covers every unit in
+    the module: arrays, strings, structures, pointers, linked lists, stacks,
+    queues, sorting, searching, and trees, plus the analysis topics (Big-O,
+    recursion, merge and quick sort, graphs, hashing, heaps, balancing, and the
+    ADT, greedy, and divide and conquer ideas).</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="idea">
+    <p><strong>MOCK EXAM PAPER 1</strong><br>
+    BITH132: Data Structures and Algorithms Using C++<br>
+    Time: 3 hours. Total: 100 marks. Answer all four questions.<br>
+    All code must be written in C++. Marks for each part are shown in brackets.</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION ONE [25 Marks]</strong></p>
+    <p>(a) Explain the difference between an array and a linked list with respect
+    to (i) how memory is allocated and (ii) the cost of inserting or deleting an
+    element in the middle. [10]</p>
+    <p>(b) Write a complete C++ program that reads a word into a
+    <code>std::string</code> and reverses it in place (without allocating a
+    second string), then prints the reversed word. [15]</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION TWO [25 Marks]</strong></p>
+    <p>(a) Define a stack data structure. State the principle it obeys and give
+    two real world applications of a stack. [10]</p>
+    <p>(b) Write a complete C++ program that implements a stack of integers using
+    a fixed size array. Include the operations <code>push</code>,
+    <code>pop</code>, <code>isEmpty</code>, and <code>isFull</code>, and
+    demonstrate them from <code>main</code>. [15]</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION THREE [25 Marks]</strong></p>
+    <p>(a) Explain Big-O notation and what it measures. Illustrate your answer
+    with one practical example. [10]</p>
+    <p>(b) Determine the time complexity of each snippet below and justify your
+    answer in one or two sentences each. [15]</p>
+    <pre class="code"><code>// Snippet 1
+for (int i = 0; i &lt; n; i++) {
+    for (int j = 0; j &lt; n; j++) {
+        sum += a[i] * a[j];
+    }
+}
+
+// Snippet 2
+for (int i = 1; i &lt; n; i = i * 2) {
+    cout &lt;&lt; i &lt;&lt; "\n";
+}
+
+// Snippet 3
+for (int i = 0; i &lt; n; i++) {
+    cout &lt;&lt; a[i] &lt;&lt; "\n";
+}</code></pre>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION FOUR [25 Marks]</strong></p>
+    <p>(a) Describe the main steps of the Merge Sort algorithm and state its best,
+    average, and worst case time complexity. [10]</p>
+    <p>(b) Write a complete C++ program that uses Binary Search to find a given
+    value in a sorted array of ten integers, printing the index if found or a
+    "not found" message otherwise. [15]</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="idea">
+    <p><strong>MOCK EXAM PAPER 2</strong><br>
+    BITH132: Data Structures and Algorithms Using C++<br>
+    Time: 3 hours. Total: 100 marks. Answer all four questions.<br>
+    All code must be written in C++. Marks for each part are shown in brackets.</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION ONE [25 Marks]</strong></p>
+    <p>(a) Define an abstract data type (ADT). Give two examples of ADTs and name
+    a data structure that can implement each. [10]</p>
+    <p>(b) Define a C++ structure called <code>Employee</code> that holds a name
+    (string), an id number (integer), and a salary (double). Write a complete
+    program that declares one <code>Employee</code>, initialises it with data of
+    your choice, and prints its fields. [15]</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION TWO [25 Marks]</strong></p>
+    <p>(a) Define a queue data structure. Explain the meaning of the terms FRONT
+    and REAR, and state the difference between a simple queue and a circular
+    queue. [10]</p>
+    <p>(b) Write a complete C++ program that implements a queue of integers using
+    an array, with the operations <code>enqueue</code>, <code>dequeue</code>,
+    <code>isFull</code>, and <code>isEmpty</code>. [15]</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION THREE [25 Marks]</strong></p>
+    <p>(a) What is recursion? State three properties that every correct recursive
+    solution must have. [10]</p>
+    <p>(b) Write a complete C++ program that computes the nth Fibonacci number
+    using a recursive function, where n is read from the user. [15]</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION FOUR [25 Marks]</strong></p>
+    <p>(a) Draw the binary search tree that results from inserting the following
+    values, in this order, into an empty tree, taking the first as the root:
+    60, 25, 80, 15, 40, 70, 90. Then write down its in-order traversal. [15]</p>
+    <p>(b) Explain what it means for a binary search tree to be balanced and why
+    balance matters. Name one kind of self balancing search tree and state, in
+    one line, the idea it uses to stay balanced. [10]</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="idea">
+    <p><strong>MOCK EXAM PAPER 3</strong><br>
+    BITH132: Data Structures and Algorithms Using C++<br>
+    Time: 3 hours. Total: 100 marks. Answer all four questions.<br>
+    All code must be written in C++. Marks for each part are shown in brackets.</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION ONE [25 Marks]</strong></p>
+    <p>(a) What is a pointer in C++? Explain the address-of operator
+    <code>&amp;</code> and the dereference operator <code>*</code>, and explain
+    why a linked list needs pointers. [10]</p>
+    <p>(b) Write a complete C++ program that builds a singly linked list of
+    integers by repeatedly inserting new nodes at the beginning of the list, then
+    prints the list from head to tail. [15]</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION TWO [25 Marks]</strong></p>
+    <p>(a) What is a hash table? Explain the job of a hash function, and describe
+    two techniques for resolving collisions. [10]</p>
+    <p>(b) Write a complete C++ program that implements a small integer hash table
+    of fixed size using the modulo hash function and linear probing to resolve
+    collisions. Include an <code>insert</code> operation and a <code>search</code>
+    operation and demonstrate them. [15]</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION THREE [25 Marks]</strong></p>
+    <p>(a) Explain the divide and conquer paradigm and the greedy paradigm for
+    algorithm design. Contrast the two, and name one problem suited to each. [10]</p>
+    <p>(b) Describe the steps of the Quick Sort algorithm, then write a C++
+    <code>partition</code> function (using the last element as the pivot) that
+    Quick Sort would call. [15]</p>
+  </div>
+
+  <div class="exam-q">
+    <p><strong>QUESTION FOUR [25 Marks]</strong></p>
+    <p>(a) Define a graph data structure and explain the difference between a
+    directed and an undirected graph. Then explain the Breadth-First Search (BFS)
+    traversal of a graph, illustrating it with a small worked example. [15]</p>
+    <p>(b) Explain the heap data structure and state its properties. Explain the
+    difference between a min-heap and a max-heap. [10]</p>
+  </div>
+</section>

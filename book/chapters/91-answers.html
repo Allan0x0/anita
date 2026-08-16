@@ -1,0 +1,668 @@
+<section class="chapter">
+  <p class="eyebrow">Appendix: mock exam answers</p>
+  <h1>Worked answers to the three mock papers</h1>
+
+  <div class="hook">
+    <p>Sit each paper cold, then mark yourself here. Every model answer shows the
+    marks it is worth, so you can add up your score out of 100 per paper. The
+    code answers are complete C++ programs: copy any one, compile it with
+    <code>g++ -std=c++17</code>, and it runs. Where a question asked you to draw a
+    structure, the answer shows the drawing and the reasoning behind it, so you
+    can check both your picture and your working.</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="idea"><p><strong>PAPER 1: MODEL ANSWERS</strong></p></div>
+
+  <div class="exam-q"><p><strong>Q1 (a)</strong> Array versus linked list: memory
+  and insertion cost. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Memory allocation.</strong> An array is one contiguous block of
+    memory, sized when it is created; all its elements sit side by side and are
+    reached by index arithmetic. A linked list allocates each node separately on
+    the heap; the nodes can sit anywhere in memory and are joined only by pointers,
+    so the list can grow one node at a time without reserving a block up front. [5]</p>
+    <p><strong>Insertion and deletion in the middle.</strong> In an array, adding
+    or removing an element in the middle means shifting every element after it up
+    or down by one slot to keep the block contiguous, which costs O(n) moves. In a
+    linked list, once you hold the node before the target you insert or delete by
+    re-pointing a couple of pointers, which is O(1); the cost is that you first
+    have to walk the list to reach that position. [5]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q1 (b)</strong> Reverse a string in place. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Swap the two ends and walk inward until the two indices meet. No second
+    string is allocated.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+void reverseInPlace(std::string&amp; s) {
+    int i = 0;
+    int j = static_cast&lt;int&gt;(s.size()) - 1;
+    while (i &lt; j) {
+        char tmp = s[i];
+        s[i] = s[j];
+        s[j] = tmp;
+        i++;
+        j--;
+    }
+}
+
+int main() {
+    std::string word;
+    std::cout &lt;&lt; "Enter a word: ";
+    std::cin &gt;&gt; word;
+    reverseInPlace(word);
+    std::cout &lt;&lt; "Reversed: " &lt;&lt; word &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+    <p>Award up to 15: correct two-pointer loop [8], swap without a second string
+    [4], working <code>main</code> that reads and prints [3].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q2 (a)</strong> Define a stack; principle; two
+  applications. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A <strong>stack</strong> is a linear data structure in which elements are
+    added and removed at one end only, called the top. It obeys the
+    <strong>Last-In, First-Out (LIFO)</strong> principle: the most recently pushed
+    element is the first one popped. The two core operations are <code>push</code>
+    (add to the top) and <code>pop</code> (remove from the top). [4]</p>
+    <p>Two applications: (1) the function call stack, where each call is pushed and
+    popped as it returns, which is also how recursion is tracked; (2) the
+    undo feature in an editor, where each action is pushed and undo pops the most
+    recent one. (Also acceptable: expression evaluation, or matching brackets.) [6]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q2 (b)</strong> Stack of integers using an array. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+const int CAP = 100;
+
+struct Stack {
+    int data[CAP];
+    int top;   // index of top element, -1 when empty
+};
+
+void init(Stack&amp; s)      { s.top = -1; }
+bool isEmpty(const Stack&amp; s) { return s.top == -1; }
+bool isFull(const Stack&amp; s)  { return s.top == CAP - 1; }
+
+bool push(Stack&amp; s, int value) {
+    if (isFull(s)) return false;
+    s.data[++s.top] = value;
+    return true;
+}
+
+bool pop(Stack&amp; s, int&amp; out) {
+    if (isEmpty(s)) return false;
+    out = s.data[s.top--];
+    return true;
+}
+
+int main() {
+    Stack s;
+    init(s);
+    push(s, 10);
+    push(s, 20);
+    push(s, 30);
+
+    int x;
+    while (pop(s, x)) {
+        std::cout &lt;&lt; x &lt;&lt; "\n";   // prints 30, 20, 10 (LIFO)
+    }
+    std::cout &lt;&lt; "empty? " &lt;&lt; (isEmpty(s) ? "yes" : "no") &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+    <p>Award: correct <code>top</code> tracking and <code>push</code>/<code>pop</code>
+    [8], <code>isEmpty</code> and <code>isFull</code> guards against overflow and
+    underflow [4], working demonstration [3].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q3 (a)</strong> Explain Big-O with an example. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Big-O notation</strong> describes how the running time (or memory)
+    of an algorithm grows as the input size n grows, keeping only the dominant term
+    and dropping constants. It is an upper bound on the growth rate, so it tells you
+    the worst that will happen as n gets large, not the exact time in seconds. [5]</p>
+    <p>Example: linear search through an unsorted array of n items looks at each
+    item once, so in the worst case it does n comparisons and is O(n). If the array
+    is ten times larger, the work is about ten times greater. Binary search on a
+    sorted array halves the range each step, so it is O(log n): ten times more data
+    adds only a few extra steps. [5]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q3 (b)</strong> Complexity of the three snippets. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Snippet 1: O(n squared).</strong> The outer loop runs n times and
+    for each of those the inner loop runs n times, so the body runs n times n, which
+    is n squared, times. [5]</p>
+    <p><strong>Snippet 2: O(log n).</strong> The counter i doubles every iteration
+    (1, 2, 4, 8, ...), so the number of steps before i reaches n is log base 2 of n.
+    Multiplying instead of adding is the signature of a logarithmic loop. [5]</p>
+    <p><strong>Snippet 3: O(n).</strong> A single loop that runs once per element,
+    doing constant work each time, is linear in n. [5]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q4 (a)</strong> Merge Sort steps and complexity. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Merge Sort is a divide and conquer sort. Its steps: (1) <strong>divide</strong>
+    the array into two halves; (2) <strong>recurse</strong>, sorting each half the
+    same way, until a half has one element (already sorted); (3) <strong>merge</strong>
+    the two sorted halves into one sorted array by repeatedly taking the smaller of
+    the two front elements. [6]</p>
+    <p>Complexity: the array is split into log n levels and each level does O(n) work
+    to merge, so the time is O(n log n) in the best, average, and worst case alike.
+    It needs O(n) extra memory for the merge. [4]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q4 (b)</strong> Binary search on ten sorted ints. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+// Returns the index of target in the sorted array a[0..n-1], or -1 if absent.
+int binarySearch(const int a[], int n, int target) {
+    int lo = 0;
+    int hi = n - 1;
+    while (lo &lt;= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (a[mid] == target)      return mid;
+        else if (a[mid] &lt; target)  lo = mid + 1;
+        else                       hi = mid - 1;
+    }
+    return -1;
+}
+
+int main() {
+    int a[10] = {3, 8, 12, 17, 23, 31, 44, 55, 68, 90};
+    int target = 44;
+
+    int pos = binarySearch(a, 10, target);
+    if (pos != -1)
+        std::cout &lt;&lt; target &lt;&lt; " found at index " &lt;&lt; pos &lt;&lt; "\n";
+    else
+        std::cout &lt;&lt; target &lt;&lt; " not found\n";
+    return 0;
+}</code></pre>
+    <p>Award: correct halving loop with <code>lo</code>/<code>hi</code>/<code>mid</code>
+    [8], overflow-safe mid and correct comparisons [4], working <code>main</code>
+    that reports index or not-found [3].</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="idea"><p><strong>PAPER 2: MODEL ANSWERS</strong></p></div>
+
+  <div class="exam-q"><p><strong>Q1 (a)</strong> Define an ADT; two examples. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>An <strong>abstract data type (ADT)</strong> is a description of a data type
+    by the operations it offers and the rules those operations obey, without saying
+    how they are implemented. It is the "what", separated from the "how": a user of
+    the ADT relies only on the interface, so the implementation can change
+    underneath without breaking the caller. [4]</p>
+    <p>Examples: (1) a <strong>Stack</strong> ADT (push, pop, top, isEmpty) can be
+    implemented with an array or a linked list; (2) a <strong>Queue</strong> ADT
+    (enqueue, dequeue, front) can be implemented with an array or a linked list.
+    (Also acceptable: List, Map, or Priority Queue with a heap.) [6]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q1 (b)</strong> <code>Employee</code> structure program. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Employee {
+    std::string name;
+    int id;
+    double salary;
+};
+
+int main() {
+    Employee e;
+    e.name = "Rudo Chikafu";
+    e.id = 20418;
+    e.salary = 32750.00;
+
+    std::cout &lt;&lt; "Name:   " &lt;&lt; e.name &lt;&lt; "\n";
+    std::cout &lt;&lt; "ID:     " &lt;&lt; e.id &lt;&lt; "\n";
+    std::cout &lt;&lt; "Salary: " &lt;&lt; e.salary &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+    <p>Award: correct <code>struct</code> with the three typed fields [8],
+    a declared and initialised variable [4], printing all fields [3].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q2 (a)</strong> Define a queue; FRONT and REAR;
+  simple versus circular. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A <strong>queue</strong> is a linear structure that obeys First-In,
+    First-Out (FIFO): elements are added at one end and removed at the other, so the
+    first in is the first out. <strong>FRONT</strong> is the end from which elements
+    are removed (dequeued); <strong>REAR</strong> is the end at which elements are
+    added (enqueued). [5]</p>
+    <p>In a <strong>simple (linear) array queue</strong>, FRONT and REAR only move
+    forward, so once REAR reaches the last slot the queue looks full even though the
+    slots freed at the front are wasted. A <strong>circular queue</strong> fixes this
+    by letting REAR and FRONT wrap around to index 0 using modulo arithmetic, so the
+    freed front slots are reused and the whole array holds data. [5]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q2 (b)</strong> Queue of integers using an array. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A circular array queue, so freed slots at the front are reused.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+const int CAP = 100;
+
+struct Queue {
+    int data[CAP];
+    int front;   // index of first element
+    int count;   // number of elements held
+};
+
+void init(Queue&amp; q)          { q.front = 0; q.count = 0; }
+bool isEmpty(const Queue&amp; q)  { return q.count == 0; }
+bool isFull(const Queue&amp; q)   { return q.count == CAP; }
+
+bool enqueue(Queue&amp; q, int value) {
+    if (isFull(q)) return false;
+    int rear = (q.front + q.count) % CAP;
+    q.data[rear] = value;
+    q.count++;
+    return true;
+}
+
+bool dequeue(Queue&amp; q, int&amp; out) {
+    if (isEmpty(q)) return false;
+    out = q.data[q.front];
+    q.front = (q.front + 1) % CAP;
+    q.count--;
+    return true;
+}
+
+int main() {
+    Queue q;
+    init(q);
+    enqueue(q, 1);
+    enqueue(q, 2);
+    enqueue(q, 3);
+
+    int x;
+    while (dequeue(q, x)) {
+        std::cout &lt;&lt; x &lt;&lt; "\n";   // prints 1, 2, 3 (FIFO)
+    }
+    return 0;
+}</code></pre>
+    <p>Award: correct <code>enqueue</code>/<code>dequeue</code> with wrap-around
+    [8], <code>isFull</code>/<code>isEmpty</code> guards [4], working demo [3].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q3 (a)</strong> What is recursion; three properties. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Recursion</strong> is when a function solves a problem by calling
+    itself on a smaller version of the same problem, until the problem is small
+    enough to answer directly. [4]</p>
+    <p>Three properties every correct recursive solution has: (1) a <strong>base
+    case</strong> that stops the recursion without another call; (2) a
+    <strong>recursive case</strong> that calls the function on a strictly smaller
+    input; (3) <strong>progress</strong> toward the base case on every call, so the
+    recursion is guaranteed to end. [6]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q3 (b)</strong> Recursive nth Fibonacci program. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+// fib(0) = 0, fib(1) = 1, fib(n) = fib(n-1) + fib(n-2)
+long long fib(int n) {
+    if (n &lt; 2) return n;          // base cases: fib(0)=0, fib(1)=1
+    return fib(n - 1) + fib(n - 2);
+}
+
+int main() {
+    int n;
+    std::cout &lt;&lt; "Enter n: ";
+    std::cin &gt;&gt; n;
+    std::cout &lt;&lt; "fib(" &lt;&lt; n &lt;&lt; ") = " &lt;&lt; fib(n) &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+    <p>Award: correct base case(s) [5], correct recursive step [5], working
+    <code>main</code> that reads n and prints the result [5].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q4 (a)</strong> Draw the BST for 60, 25, 80, 15,
+  40, 70, 90; give the in-order traversal. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>60 is inserted first, so it is the root. 25 &lt; 60 goes left; 80 &gt; 60 goes
+    right; 15 &lt; 60 then &lt; 25 goes left of 25; 40 &lt; 60 then &gt; 25 goes right
+    of 25; 70 &gt; 60 then &lt; 80 goes left of 80; 90 &gt; 60 then &gt; 80 goes right
+    of 80.</p>
+    <figure class="diagram">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 250" width="480" height="250">
+        <rect x="1" y="1" width="478" height="248" fill="none" stroke="#C9D4DB"/>
+        <line x1="240" y1="40" x2="150" y2="110" stroke="#56676F" stroke-width="2"/>
+        <line x1="240" y1="40" x2="340" y2="110" stroke="#56676F" stroke-width="2"/>
+        <line x1="150" y1="110" x2="95" y2="185" stroke="#56676F" stroke-width="2"/>
+        <line x1="150" y1="110" x2="205" y2="185" stroke="#56676F" stroke-width="2"/>
+        <line x1="340" y1="110" x2="285" y2="185" stroke="#56676F" stroke-width="2"/>
+        <line x1="340" y1="110" x2="395" y2="185" stroke="#56676F" stroke-width="2"/>
+        <circle cx="240" cy="40" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="240" y="45" text-anchor="middle" font-size="12" fill="#16232B">60</text>
+        <circle cx="150" cy="110" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="150" y="115" text-anchor="middle" font-size="12" fill="#16232B">25</text>
+        <circle cx="340" cy="110" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="340" y="115" text-anchor="middle" font-size="12" fill="#16232B">80</text>
+        <circle cx="95" cy="185" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="95" y="190" text-anchor="middle" font-size="12" fill="#16232B">15</text>
+        <circle cx="205" cy="185" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="205" y="190" text-anchor="middle" font-size="12" fill="#16232B">40</text>
+        <circle cx="285" cy="185" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="285" y="190" text-anchor="middle" font-size="12" fill="#16232B">70</text>
+        <circle cx="395" cy="185" r="18" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="395" y="190" text-anchor="middle" font-size="12" fill="#16232B">90</text>
+        <text x="268" y="30" font-size="10" fill="#1D5A80">root</text>
+      </svg>
+      <figcaption>The BST for 60, 25, 80, 15, 40, 70, 90. Leaves: 15, 40, 70, 90.</figcaption>
+    </figure>
+    <p><strong>In-order traversal</strong> (left, node, right): 15 25 40 60 70 80 90,
+    which is the values in sorted order. Award: correct shape [10], correct in-order
+    [5].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q4 (b)</strong> What "balanced" means; a self
+  balancing tree. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A binary search tree is <strong>balanced</strong> when the left and right
+    subtrees of every node have heights that differ by little, so the whole tree
+    stays short and bushy rather than tall and lopsided. Balance matters because
+    search, insert, and delete all take time proportional to the height: a balanced
+    tree of n nodes has height about log n, giving O(log n) operations, whereas a
+    degenerate tree (values inserted in sorted order) becomes a straight line of
+    height n, degrading to O(n), no better than a list. [6]</p>
+    <p>One self balancing search tree is the <strong>AVL tree</strong>: it stores a
+    balance factor at each node and, after an insert or delete unbalances a node, it
+    performs rotations to restore the height difference to at most one. (A
+    <strong>Red-Black tree</strong> is also acceptable: it colours nodes red or black
+    and enforces colouring rules that keep the longest path at most twice the
+    shortest.) [4]</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="idea"><p><strong>PAPER 3: MODEL ANSWERS</strong></p></div>
+
+  <div class="exam-q"><p><strong>Q1 (a)</strong> Pointers; <code>&amp;</code> and
+  <code>*</code>; why a list needs them. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A <strong>pointer</strong> is a variable whose value is the memory address of
+    another variable. The <strong>address-of operator</strong> <code>&amp;</code>
+    takes a variable and yields its address, so <code>&amp;x</code> is "where x
+    lives". The <strong>dereference operator</strong> <code>*</code> takes a pointer
+    and yields the variable it points to, so <code>*p</code> is "the thing at the
+    address in p", which can be read or assigned. [6]</p>
+    <p>A linked list needs pointers because its nodes are allocated separately and
+    are not next to each other in memory. Each node stores a pointer to the next
+    node, and that chain of pointers is the only thing that keeps the list together;
+    following the pointers is how you walk from one node to the next. [4]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q1 (b)</strong> Singly linked list, insert at
+  beginning. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+struct Node {
+    int value;
+    Node* next;
+};
+
+// Insert a new node at the front; returns the new head.
+Node* insertFront(Node* head, int value) {
+    Node* n = new Node;
+    n-&gt;value = value;
+    n-&gt;next = head;
+    return n;
+}
+
+void print(Node* head) {
+    for (Node* p = head; p != nullptr; p = p-&gt;next)
+        std::cout &lt;&lt; p-&gt;value &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";
+}
+
+int main() {
+    Node* head = nullptr;
+    head = insertFront(head, 10);
+    head = insertFront(head, 20);
+    head = insertFront(head, 30);
+
+    print(head);   // 30 20 10 (last inserted is at the front)
+
+    // free the list
+    while (head != nullptr) {
+        Node* tmp = head;
+        head = head-&gt;next;
+        delete tmp;
+    }
+    return 0;
+}</code></pre>
+    <p>Award: correct <code>Node</code> struct [3], correct front insertion that
+    updates the head [8], working build and print [4].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q2 (a)</strong> Hash table; hash function; two
+  collision techniques. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A <strong>hash table</strong> stores key-value pairs in an array and aims for
+    near-constant-time insert and lookup. A <strong>hash function</strong> turns a
+    key into an array index (for integers, commonly <code>key % tableSize</code>);
+    ideally it spreads keys evenly across the slots. A <strong>collision</strong>
+    happens when two keys hash to the same slot. [4]</p>
+    <p>Two collision resolution techniques: (1) <strong>chaining (separate
+    chaining)</strong>, where each slot holds a linked list and colliding keys are
+    appended to that list; (2) <strong>open addressing with linear probing</strong>,
+    where on a collision you scan forward slot by slot (wrapping around) until an
+    empty slot is found. (Quadratic probing and double hashing are also acceptable.) [6]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q2 (b)</strong> Hash table with linear probing. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+const int SIZE = 10;
+const int EMPTY = -1;   // sentinel for an unused slot
+
+struct HashTable {
+    int slots[SIZE];
+};
+
+void init(HashTable&amp; h) {
+    for (int i = 0; i &lt; SIZE; i++) h.slots[i] = EMPTY;
+}
+
+// Insert key using modulo hash + linear probing. Returns false if table full.
+bool insert(HashTable&amp; h, int key) {
+    int start = key % SIZE;
+    for (int i = 0; i &lt; SIZE; i++) {
+        int idx = (start + i) % SIZE;
+        if (h.slots[idx] == EMPTY) {
+            h.slots[idx] = key;
+            return true;
+        }
+    }
+    return false;   // table full
+}
+
+// Return the index of key, or -1 if absent.
+int search(const HashTable&amp; h, int key) {
+    int start = key % SIZE;
+    for (int i = 0; i &lt; SIZE; i++) {
+        int idx = (start + i) % SIZE;
+        if (h.slots[idx] == EMPTY) return -1;   // empty slot: key not present
+        if (h.slots[idx] == key)   return idx;
+    }
+    return -1;
+}
+
+int main() {
+    HashTable h;
+    init(h);
+    int keys[] = {23, 43, 13, 27};   // 23,43,13 all hash to slot 3: collisions
+    for (int k : keys) insert(h, k);
+
+    std::cout &lt;&lt; "43 at index " &lt;&lt; search(h, 43) &lt;&lt; "\n";
+    std::cout &lt;&lt; "99 at index " &lt;&lt; search(h, 99) &lt;&lt; "\n";   // -1, absent
+    return 0;
+}</code></pre>
+    <p>Award: modulo hash and probing loop that wraps [8], correct
+    <code>search</code> that stops at an empty slot [4], working demo showing a
+    collision [3].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q3 (a)</strong> Divide and conquer versus greedy. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Divide and conquer</strong> solves a problem by splitting it into
+    smaller subproblems of the same kind, solving each (usually by recursion), then
+    combining their results into the answer for the whole. [3]</p>
+    <p><strong>Greedy</strong> builds a solution one step at a time, at each step
+    taking the choice that looks best right now (the local optimum), never
+    reconsidering an earlier choice. [3]</p>
+    <p><strong>Contrast.</strong> Divide and conquer breaks the problem down and
+    combines partial answers, often recursively; greedy makes one forward pass of
+    locally optimal choices and does no combining or backtracking. Greedy is usually
+    faster but only gives the correct global answer for problems that have the
+    greedy-choice property. Example suited to divide and conquer: Merge Sort. Example
+    suited to greedy: finding a minimum spanning tree with Prim's or Kruskal's
+    algorithm (or making change with the fewest coins). [4]</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q3 (b)</strong> Quick Sort steps; partition
+  function. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Steps.</strong> (1) Choose a pivot element. (2) Partition the array so
+    that all elements less than the pivot come before it and all greater come after
+    it; the pivot is now in its final sorted position. (3) Recursively Quick Sort the
+    part to the left of the pivot and the part to the right. The base case is a
+    sub-array of size zero or one, which is already sorted. [6]</p>
+    <p>The <code>partition</code> function below uses the last element as the pivot
+    (Lomuto scheme) and returns the pivot's final index. A full program is shown so
+    it compiles and runs.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+void swap(int&amp; a, int&amp; b) { int t = a; a = b; b = t; }
+
+// Lomuto partition: pivot is the last element a[high].
+int partition(int a[], int low, int high) {
+    int pivot = a[high];
+    int i = low - 1;                 // boundary of the "less than pivot" region
+    for (int j = low; j &lt; high; j++) {
+        if (a[j] &lt; pivot) {
+            i++;
+            swap(a[i], a[j]);
+        }
+    }
+    swap(a[i + 1], a[high]);         // put pivot in its final place
+    return i + 1;                    // pivot's index
+}
+
+void quickSort(int a[], int low, int high) {
+    if (low &lt; high) {
+        int p = partition(a, low, high);
+        quickSort(a, low, p - 1);
+        quickSort(a, p + 1, high);
+    }
+}
+
+int main() {
+    int a[] = {29, 10, 14, 37, 13};
+    int n = 5;
+    quickSort(a, 0, n - 1);
+    for (int i = 0; i &lt; n; i++) std::cout &lt;&lt; a[i] &lt;&lt; " ";
+    std::cout &lt;&lt; "\n";   // 10 13 14 29 37
+    return 0;
+}</code></pre>
+    <p>Award: correct step description [6], correct partition (pivot choice,
+    boundary index, final swap, returned index) [9].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q4 (a)</strong> Graphs; directed versus undirected;
+  BFS with an example. [15]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A <strong>graph</strong> is a set of <strong>vertices</strong> (nodes) joined
+    by <strong>edges</strong>. In an <strong>undirected</strong> graph an edge has no
+    direction, so an edge between A and B can be travelled both ways. In a
+    <strong>directed</strong> graph (digraph) each edge has a direction, an arrow from
+    one vertex to another, so an edge A to B does not let you travel B to A. [6]</p>
+    <p><strong>Breadth-First Search (BFS)</strong> visits a graph in layers outward
+    from a start vertex: first the start, then all its direct neighbours, then their
+    unvisited neighbours, and so on. It uses a <strong>queue</strong>: enqueue the
+    start and mark it visited; then repeatedly dequeue a vertex, and enqueue each of
+    its unvisited neighbours (marking them visited as they are enqueued). [5]</p>
+    <figure class="diagram">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" width="420" height="200">
+        <rect x="1" y="1" width="418" height="198" fill="none" stroke="#C9D4DB"/>
+        <line x1="70" y1="100" x2="200" y2="50" stroke="#56676F" stroke-width="2"/>
+        <line x1="70" y1="100" x2="200" y2="150" stroke="#56676F" stroke-width="2"/>
+        <line x1="200" y1="50" x2="330" y2="100" stroke="#56676F" stroke-width="2"/>
+        <line x1="200" y1="150" x2="330" y2="100" stroke="#56676F" stroke-width="2"/>
+        <line x1="200" y1="50" x2="200" y2="150" stroke="#56676F" stroke-width="2"/>
+        <circle cx="70" cy="100" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="70" y="105" text-anchor="middle" font-size="12" fill="#16232B">A</text>
+        <circle cx="200" cy="50" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="200" y="55" text-anchor="middle" font-size="12" fill="#16232B">B</text>
+        <circle cx="200" cy="150" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="200" y="155" text-anchor="middle" font-size="12" fill="#16232B">C</text>
+        <circle cx="330" cy="100" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="330" y="105" text-anchor="middle" font-size="12" fill="#16232B">D</text>
+      </svg>
+      <figcaption>Undirected graph with edges A-B, A-C, B-C, B-D, C-D.</figcaption>
+    </figure>
+    <p><strong>Worked example</strong> starting at A. Queue steps: visit A, enqueue
+    its neighbours B and C; dequeue B, enqueue its unvisited neighbour D; dequeue C
+    (D already queued); dequeue D. BFS order: <strong>A, B, C, D</strong>. Award:
+    graph definition and directed vs undirected [6], BFS explanation [5], correct
+    worked order with diagram [4].</p>
+  </div>
+
+  <div class="exam-q"><p><strong>Q4 (b)</strong> Heaps; properties; min versus max. [10]</p></div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A <strong>heap</strong> is a complete binary tree (every level full except
+    possibly the last, which fills left to right) that satisfies the <strong>heap
+    property</strong>: each node compares in a fixed way with its children. Because it
+    is complete, a heap is normally stored in an array, where the children of index i
+    sit at 2i+1 and 2i+2. Its properties: it is always complete, so its height is
+    about log n; the extreme value (largest or smallest) is always at the root; and
+    insert and remove-root both cost O(log n). It is the usual implementation of a
+    priority queue. [6]</p>
+    <p>In a <strong>max-heap</strong>, every parent is greater than or equal to its
+    children, so the maximum is at the root. In a <strong>min-heap</strong>, every
+    parent is less than or equal to its children, so the minimum is at the root. [4]</p>
+  </div>
+</section>

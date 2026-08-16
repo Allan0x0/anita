@@ -5,8 +5,8 @@
   <div class="hook">
     <p>The saw only cuts one truss at a time. Jobs pile up on the bench in the
     order they arrive, and the saw takes the oldest one first: the truss that
-    has waited longest gets cut next. Nobody jumps the line. That waiting line
-    is a queue, and it is the fairest data structure on the site.</p>
+    has waited longest. Nobody jumps the line. That waiting line is a queue, the
+    fairest data structure on the site.</p>
   </div>
 
   <div class="idea">
@@ -50,6 +50,53 @@
     </svg>
     <figcaption>A simple array queue. Items leave at FRONT (left), join at REAR
     (right). Index 0 is on the far left.</figcaption>
+  </figure>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" width="520" height="200">
+      <g font-family="Helvetica" stroke-linejoin="round" stroke-linecap="round">
+        <!-- panel A: A B C queued -->
+        <g stroke="#22201B" stroke-width="2.2" fill="#FAF6EE">
+          <rect x="20" y="80" width="40" height="34"/>
+          <rect x="60" y="80" width="40" height="34"/>
+          <rect x="100" y="80" width="40" height="34"/>
+        </g>
+        <g font-size="13" fill="#22201B" text-anchor="middle">
+          <text x="40" y="102">A</text><text x="80" y="102">B</text><text x="120" y="102">C</text>
+        </g>
+        <text x="40" y="70" text-anchor="middle" font-size="10.5" fill="#1D5A80">FRONT</text>
+        <text x="120" y="70" text-anchor="middle" font-size="10.5" fill="#B57C33">REAR</text>
+        <text x="80" y="138" text-anchor="middle" font-size="10.5" fill="#56676F">after enqueue A, B, C</text>
+
+        <!-- transition arrows -->
+        <g stroke="#B57C33" stroke-width="2.2" fill="#B57C33">
+          <line x1="170" y1="88" x2="212" y2="88"/>
+          <polygon points="214,88 204,83 204,93"/>
+          <line x1="170" y1="110" x2="212" y2="110"/>
+          <polygon points="214,110 204,105 204,115"/>
+        </g>
+        <text x="191" y="80" text-anchor="middle" font-size="10" fill="#B57C33">dequeue: A out</text>
+        <text x="191" y="126" text-anchor="middle" font-size="10" fill="#B57C33">enqueue: D in</text>
+
+        <!-- panel B: A gone, B C D -->
+        <rect x="300" y="80" width="40" height="34" fill="#F3ECE0" stroke="#C9BBA3" stroke-width="1.6" stroke-dasharray="5 4"/>
+        <text x="320" y="102" text-anchor="middle" font-size="9.5" fill="#B08C55">A gone</text>
+        <g stroke="#22201B" stroke-width="2.2" fill="#FAF6EE">
+          <rect x="340" y="80" width="40" height="34"/>
+          <rect x="380" y="80" width="40" height="34"/>
+          <rect x="420" y="80" width="40" height="34" fill="#EEF5F9" stroke="#1D5A80"/>
+        </g>
+        <g font-size="13" fill="#22201B" text-anchor="middle">
+          <text x="360" y="102">B</text><text x="400" y="102">C</text><text x="440" y="102">D</text>
+        </g>
+        <text x="360" y="70" text-anchor="middle" font-size="10.5" fill="#1D5A80">FRONT</text>
+        <text x="440" y="70" text-anchor="middle" font-size="10.5" fill="#B57C33">REAR</text>
+        <text x="380" y="138" text-anchor="middle" font-size="10.5" fill="#56676F">B is now oldest, D newest</text>
+      </g>
+    </svg>
+    <figcaption>FIFO in two frames. A joined first, so a dequeue hands back A
+    first; a fresh enqueue drops D at the rear. The line always serves oldest
+    first.</figcaption>
   </figure>
 
   <div class="idea">
@@ -232,6 +279,42 @@ int main() {
     frees it. It is never "full" until the machine runs out of memory, so
     <code>isFull</code> disappears.</p>
   </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 170" width="520" height="170">
+      <g font-family="Helvetica" stroke-linejoin="round" stroke-linecap="round">
+        <!-- three nodes, each a value box + next box -->
+        <g stroke="#22201B" stroke-width="2.2" fill="#FAF6EE">
+          <rect x="30" y="70" width="46" height="34"/><rect x="76" y="70" width="24" height="34"/>
+          <rect x="180" y="70" width="46" height="34"/><rect x="226" y="70" width="24" height="34"/>
+          <rect x="330" y="70" width="46" height="34"/><rect x="376" y="70" width="24" height="34"/>
+        </g>
+        <g font-size="12" fill="#22201B" text-anchor="middle">
+          <text x="53" y="91">A</text><text x="203" y="91">B</text><text x="353" y="91">C</text>
+        </g>
+        <!-- next pointers -->
+        <g stroke="#22201B" stroke-width="2.2" fill="#22201B">
+          <line x1="100" y1="87" x2="176" y2="87"/><polygon points="178,87 168,82 168,92"/>
+          <line x1="250" y1="87" x2="326" y2="87"/><polygon points="328,87 318,82 318,92"/>
+        </g>
+        <!-- rear next = null -->
+        <text x="388" y="120" text-anchor="middle" font-size="11" fill="#56676F">/</text>
+        <!-- front / rear pointers -->
+        <g stroke="#1D5A80" stroke-width="2.2" fill="#1D5A80">
+          <line x1="53" y1="40" x2="53" y2="66"/><polygon points="53,68 48,58 58,58"/>
+        </g>
+        <text x="53" y="32" text-anchor="middle" font-size="11" fill="#1D5A80">front</text>
+        <g stroke="#B57C33" stroke-width="2.2" fill="#B57C33">
+          <line x1="353" y1="40" x2="353" y2="66"/><polygon points="353,68 348,58 358,58"/>
+        </g>
+        <text x="353" y="32" text-anchor="middle" font-size="11" fill="#B57C33">rear</text>
+        <text x="270" y="150" text-anchor="middle" font-size="10.5" fill="#56676F">dequeue unlinks A at front; enqueue links a new node after C at rear</text>
+      </g>
+    </svg>
+    <figcaption>The linked-list queue. Each node points to the next; the
+    <code>front</code> pointer marks who leaves next, <code>rear</code> marks
+    where a new node attaches. The rear node's next is null.</figcaption>
+  </figure>
 
   <pre class="code"><code>#include &lt;iostream&gt;
 #include &lt;string&gt;

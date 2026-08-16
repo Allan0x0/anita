@@ -1,0 +1,489 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 34</p>
+  <h1>Graphs</h1>
+
+  <div class="hook">
+    <p>Unfold a tourist map of a town and look at what it really is: dots for the
+    places worth seeing (the falls, the market, the museum) and lines for the
+    roads that join them. Some roads run both ways; a few are one way only. There
+    is no top and no bottom, no single starting point, and you can drive in a
+    circle and end up where you began. That picture, dots joined by lines with no
+    rules about loops or direction, is a graph. Trees were the tidy special case;
+    graphs are the whole messy world, and they model road maps, friend lists,
+    web links, and the trusses whose joints brace each other.</p>
+  </div>
+
+  <div class="idea">
+    <p>A <strong>graph</strong> is a set of <strong>vertices</strong> (also called
+    nodes, the dots) joined by <strong>edges</strong> (the lines). That is the
+    entire definition. Unlike a tree, a graph has no root, a vertex can be joined
+    to any number of others, and edges may form <strong>cycles</strong> (a path
+    that returns to where it started).</p>
+    <p>The one big fork is direction:</p>
+    <ul>
+      <li><strong>Undirected graph:</strong> an edge between A and B works both
+      ways. If you can walk from the market to the falls, you can walk back. A
+      two-way road, or a friendship (if you are my friend, I am yours).</li>
+      <li><strong>Directed graph</strong> (digraph): each edge has a direction, an
+      arrow from one vertex to another. A to B does not imply B to A. A one-way
+      street, or "follows" on a social app: you can follow a page that does not
+      follow you back.</li>
+    </ul>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 180" width="480" height="180">
+      <rect x="1" y="1" width="478" height="178" fill="none" stroke="#C9D4DB"/>
+      <!-- undirected side -->
+      <text x="135" y="30" text-anchor="middle" font-size="11" fill="#1D5A80">undirected: two-way road</text>
+      <line x1="86" y1="95" x2="184" y2="95" stroke="#56676F" stroke-width="2"/>
+      <circle cx="70" cy="95" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="70" y="99" text-anchor="middle" font-size="11" fill="#16232B">A</text>
+      <circle cx="200" cy="95" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="200" y="99" text-anchor="middle" font-size="11" fill="#16232B">B</text>
+      <text x="135" y="130" text-anchor="middle" font-size="10" fill="#56676F">drive A to B or B to A</text>
+      <!-- divider -->
+      <line x1="240" y1="20" x2="240" y2="160" stroke="#C9D4DB" stroke-width="1"/>
+      <!-- directed side -->
+      <text x="355" y="30" text-anchor="middle" font-size="11" fill="#B57C33">directed: one-way street</text>
+      <line x1="306" y1="95" x2="404" y2="95" stroke="#56676F" stroke-width="2"/>
+      <polygon points="404,95 392,89 392,101" fill="#B57C33"/>
+      <circle cx="290" cy="95" r="16" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="290" y="99" text-anchor="middle" font-size="11" fill="#16232B">C</text>
+      <circle cx="420" cy="95" r="16" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="420" y="99" text-anchor="middle" font-size="11" fill="#16232B">D</text>
+      <text x="355" y="130" text-anchor="middle" font-size="10" fill="#56676F">drive C to D only</text>
+    </svg>
+    <figcaption>The one big fork. On the left an undirected edge: travel runs both
+    ways between A and B. On the right a directed edge: the arrow allows C to D
+    but not D to C.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>How you store a graph in code.</strong> Two representations cover
+    almost everything:</p>
+    <ul>
+      <li><strong>Adjacency list:</strong> for each vertex, keep a list of the
+      vertices it joins. In C++ that is a <code>std::vector</code> of
+      <code>std::vector&lt;int&gt;</code>: <code>adj[2]</code> holds every stop
+      reachable in one hop from stop 2. Compact when the map is sparse (few roads
+      per town), which real maps are.</li>
+      <li><strong>Adjacency matrix:</strong> a grid of booleans where
+      <code>m[i][j]</code> is true when an edge joins i to j. Simple, but it spends
+      space on every pair whether or not a road exists, so it wastes room on
+      sparse maps.</li>
+    </ul>
+    <p>For an undirected graph you record each edge twice (2 in the list of 5, and
+    5 in the list of 2); for a directed graph you record it only in the direction
+    the arrow points. This book uses adjacency lists.</p>
+  </div>
+
+  <div class="idea">
+    <p>Here is the tourist map we will traverse. Six stops, numbered 0 to 5, joined
+    by two-way roads. It is undirected and it has cycles (0, 2, 3, 1 and back to 0
+    is a loop), so it is a graph and not a tree.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+      <rect x="1" y="1" width="478" height="298" fill="none" stroke="#C9D4DB"/>
+      <!-- edges -->
+      <line x1="240" y1="45" x2="110" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="240" y1="45" x2="370" y2="120" stroke="#56676F" stroke-width="2"/>
+      <line x1="110" y1="120" x2="240" y2="175" stroke="#56676F" stroke-width="2"/>
+      <line x1="370" y1="120" x2="240" y2="175" stroke="#56676F" stroke-width="2"/>
+      <line x1="370" y1="120" x2="405" y2="225" stroke="#56676F" stroke-width="2"/>
+      <line x1="240" y1="175" x2="295" y2="255" stroke="#56676F" stroke-width="2"/>
+      <line x1="405" y1="225" x2="295" y2="255" stroke="#56676F" stroke-width="2"/>
+      <!-- vertices -->
+      <circle cx="240" cy="45" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="240" y="50" text-anchor="middle" font-size="12" fill="#16232B">0</text>
+      <text x="240" y="20" text-anchor="middle" font-size="10" fill="#1D5A80">Hotel</text>
+      <circle cx="110" cy="120" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="110" y="125" text-anchor="middle" font-size="12" fill="#16232B">1</text>
+      <text x="85" y="105" text-anchor="end" font-size="10" fill="#56676F">Falls</text>
+      <circle cx="370" cy="120" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="370" y="125" text-anchor="middle" font-size="12" fill="#16232B">2</text>
+      <text x="395" y="105" text-anchor="start" font-size="10" fill="#56676F">Market</text>
+      <circle cx="240" cy="175" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="240" y="180" text-anchor="middle" font-size="12" fill="#16232B">3</text>
+      <text x="240" y="208" text-anchor="middle" font-size="10" fill="#56676F">Museum</text>
+      <circle cx="405" cy="225" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="405" y="230" text-anchor="middle" font-size="12" fill="#16232B">4</text>
+      <text x="405" y="258" text-anchor="middle" font-size="10" fill="#56676F">Bridge</text>
+      <circle cx="295" cy="255" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="295" y="260" text-anchor="middle" font-size="12" fill="#16232B">5</text>
+      <text x="295" y="288" text-anchor="middle" font-size="10" fill="#56676F">Park</text>
+    </svg>
+    <figcaption>The tourist map as an undirected graph. Roads: 0 to 1, 0 to 2, 1 to
+    3, 2 to 3, 2 to 4, 3 to 5, 4 to 5. It has cycles, so it is not a tree.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>Breadth-First Search (BFS)</strong> explores in rings. Start at one
+    vertex, visit all of its direct neighbours, then all of their unvisited
+    neighbours, and so on, spreading outward one hop at a time like a ripple. It
+    uses a <strong>queue</strong> (first in, first out): you push a vertex when you
+    first see it, and process vertices in the order they arrived. Because it fans
+    out in rings, BFS on an unweighted graph finds the path with the fewest hops
+    from the start to every other vertex.</p>
+    <p>Run BFS from stop 0 on the map above. Visit 0, then its neighbours 1 and 2,
+    then their new neighbours 3 and 4, then 5. The visit order comes out
+    <strong>0 1 2 3 4 5</strong>.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+
+int main() {
+    // Six tourist stops, 0..5. adj[x] lists the stops joined to x.
+    std::vector&lt;std::vector&lt;int&gt;&gt; adj = {
+        {1, 2},        // 0 Hotel
+        {0, 3},        // 1 Falls
+        {0, 3, 4},     // 2 Market
+        {1, 2, 5},     // 3 Museum
+        {2, 5},        // 4 Bridge
+        {3, 4}         // 5 Park
+    };
+
+    int start = 0;
+    std::vector&lt;bool&gt; seen(adj.size(), false);
+    std::queue&lt;int&gt; q;
+
+    seen[start] = true;   // mark when you push, not when you pop
+    q.push(start);
+
+    std::cout &lt;&lt; "BFS from " &lt;&lt; start &lt;&lt; ": ";
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+        std::cout &lt;&lt; node &lt;&lt; ' ';
+        for (int next : adj[node]) {
+            if (!seen[next]) {
+                seen[next] = true;
+                q.push(next);
+            }
+        }
+    }
+    std::cout &lt;&lt; std::endl;   // prints: BFS from 0: 0 1 2 3 4 5
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save as <code>bfs.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 bfs.cpp -o bfs &amp;&amp; ./bfs</code></p>
+    <p>The <code>seen</code> vector is the whole trick: mark a stop the moment you
+    push it, so the same stop never joins the queue twice. Forget that mark on a
+    graph with cycles and BFS loops forever, driving the same ring road again and
+    again.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Depth-First Search (DFS)</strong> does the opposite. Instead of
+    spreading in rings, it plunges: from a vertex it walks to the first unvisited
+    neighbour, then that vertex's first unvisited neighbour, going as deep as it
+    can before it runs out of new stops and backs up to try the next branch. It is
+    the natural fit for recursion, where the call stack does the remembering, or a
+    plain stack (last in, first out) if you write it by hand.</p>
+    <p>Run DFS from stop 0. Go 0, then dive to 1, from 1 dive to 3, from 3 dive to
+    2, from 2 dive to 4, from 4 reach 5. Every later branch is already visited, so
+    it unwinds. The visit order is <strong>0 1 3 2 4 5</strong>, different from
+    BFS on the same map.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+      <rect x="1" y="1" width="478" height="298" fill="none" stroke="#C9D4DB"/>
+      <!-- edges: the ones DFS walked are blue and thick -->
+      <line x1="240" y1="45" x2="110" y2="120" stroke="#1D5A80" stroke-width="3"/>
+      <line x1="240" y1="45" x2="370" y2="120" stroke="#C9D4DB" stroke-width="2"/>
+      <line x1="110" y1="120" x2="240" y2="175" stroke="#1D5A80" stroke-width="3"/>
+      <line x1="370" y1="120" x2="240" y2="175" stroke="#1D5A80" stroke-width="3"/>
+      <line x1="370" y1="120" x2="405" y2="225" stroke="#1D5A80" stroke-width="3"/>
+      <line x1="240" y1="175" x2="295" y2="255" stroke="#C9D4DB" stroke-width="2"/>
+      <line x1="405" y1="225" x2="295" y2="255" stroke="#1D5A80" stroke-width="3"/>
+      <!-- vertices, labelled with DFS visit order -->
+      <circle cx="240" cy="45" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="240" y="50" text-anchor="middle" font-size="12" fill="#16232B">0</text>
+      <text x="240" y="20" text-anchor="middle" font-size="10" fill="#B57C33">1st</text>
+      <circle cx="110" cy="120" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="110" y="125" text-anchor="middle" font-size="12" fill="#16232B">1</text>
+      <text x="85" y="105" text-anchor="end" font-size="10" fill="#B57C33">2nd</text>
+      <circle cx="370" cy="120" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="370" y="125" text-anchor="middle" font-size="12" fill="#16232B">2</text>
+      <text x="395" y="105" text-anchor="start" font-size="10" fill="#B57C33">4th</text>
+      <circle cx="240" cy="175" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="240" y="180" text-anchor="middle" font-size="12" fill="#16232B">3</text>
+      <text x="240" y="208" text-anchor="middle" font-size="10" fill="#B57C33">3rd</text>
+      <circle cx="405" cy="225" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="405" y="230" text-anchor="middle" font-size="12" fill="#16232B">4</text>
+      <text x="405" y="258" text-anchor="middle" font-size="10" fill="#B57C33">5th</text>
+      <circle cx="295" cy="255" r="18" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="295" y="260" text-anchor="middle" font-size="12" fill="#16232B">5</text>
+      <text x="295" y="288" text-anchor="middle" font-size="10" fill="#B57C33">6th</text>
+    </svg>
+    <figcaption>DFS from stop 0. The timber labels (1st, 2nd, ...) give the visit
+    order 0, 1, 3, 2, 4, 5. Blue edges are the ones DFS actually walked; the two
+    grey edges were skipped because both their ends were already visited.</figcaption>
+  </figure>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+std::vector&lt;std::vector&lt;int&gt;&gt; adj = {
+    {1, 2}, {0, 3}, {0, 3, 4}, {1, 2, 5}, {2, 5}, {3, 4}
+};
+std::vector&lt;bool&gt; seen(6, false);
+
+// Visit this stop, then dive into each unvisited neighbour in turn.
+void dfs(int node) {
+    seen[node] = true;
+    std::cout &lt;&lt; node &lt;&lt; ' ';
+    for (int next : adj[node]) {
+        if (!seen[next]) dfs(next);
+    }
+}
+
+int main() {
+    std::cout &lt;&lt; "DFS from 0: ";
+    dfs(0);
+    std::cout &lt;&lt; std::endl;   // prints: DFS from 0: 0 1 3 2 4 5
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save as <code>dfs.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 dfs.cpp -o dfs &amp;&amp; ./dfs</code></p>
+    <p>Same map, same start, same <code>seen</code> guard against cycles. The only
+    change from BFS is the container in your head: a queue fans out in rings, the
+    recursion stack plunges down one branch first.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Spanning tree.</strong> Take a connected graph and pick just enough
+    edges to keep every vertex joined, with no cycles left. The result is a tree
+    that "spans" (touches) all the vertices, called a <strong>spanning tree</strong>.
+    For a graph with n vertices a spanning tree always has exactly n minus 1 edges:
+    fewer and something falls off the network, more and you have made a cycle. On
+    the road map it is the smallest set of roads that still lets a tour bus reach
+    every stop.</p>
+    <p><strong>Minimum spanning tree (MST).</strong> Now put a weight on each edge:
+    the length of the road in kilometres, or the cost to pave it. Many spanning
+    trees exist; the <strong>minimum spanning tree</strong> is the one whose edge
+    weights add to the smallest total. Same job (reach every stop, no cycles) at
+    the lowest cost. It is exactly what you want when laying water pipe or fibre to
+    every town for the least trench dug.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" width="460" height="300">
+      <rect x="1" y="1" width="458" height="298" fill="none" stroke="#C9D4DB"/>
+      <!-- non-MST edges: thin grey -->
+      <line x1="100" y1="60" x2="260" y2="50" stroke="#C9D4DB" stroke-width="2"/>
+      <line x1="260" y1="50" x2="350" y2="150" stroke="#C9D4DB" stroke-width="2"/>
+      <line x1="180" y1="140" x2="350" y2="150" stroke="#C9D4DB" stroke-width="2"/>
+      <!-- MST edges: thick blue -->
+      <line x1="100" y1="60" x2="180" y2="140" stroke="#1D5A80" stroke-width="3"/>
+      <line x1="260" y1="50" x2="180" y2="140" stroke="#1D5A80" stroke-width="3"/>
+      <line x1="180" y1="140" x2="300" y2="240" stroke="#1D5A80" stroke-width="3"/>
+      <line x1="350" y1="150" x2="300" y2="240" stroke="#1D5A80" stroke-width="3"/>
+      <!-- edge weights -->
+      <text x="180" y="48" text-anchor="middle" font-size="10" fill="#56676F">4</text>
+      <text x="132" y="98" text-anchor="middle" font-size="10" fill="#1D5A80">3</text>
+      <text x="228" y="92" text-anchor="middle" font-size="10" fill="#1D5A80">2</text>
+      <text x="312" y="96" text-anchor="middle" font-size="10" fill="#56676F">5</text>
+      <text x="262" y="140" text-anchor="middle" font-size="10" fill="#56676F">6</text>
+      <text x="228" y="196" text-anchor="middle" font-size="10" fill="#1D5A80">4</text>
+      <text x="332" y="200" text-anchor="middle" font-size="10" fill="#1D5A80">1</text>
+      <!-- vertices -->
+      <circle cx="100" cy="60" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="100" y="64" text-anchor="middle" font-size="11" fill="#16232B">A</text>
+      <circle cx="260" cy="50" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="260" y="54" text-anchor="middle" font-size="11" fill="#16232B">B</text>
+      <circle cx="180" cy="140" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="180" y="144" text-anchor="middle" font-size="11" fill="#16232B">C</text>
+      <circle cx="350" cy="150" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="350" y="154" text-anchor="middle" font-size="11" fill="#16232B">D</text>
+      <circle cx="300" cy="240" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="300" y="244" text-anchor="middle" font-size="11" fill="#16232B">E</text>
+    </svg>
+    <figcaption>A weighted graph of five stops. The thick blue edges (A to C, B to
+    C, C to E, E to D) form the minimum spanning tree: 4 edges for 5 vertices,
+    total weight 3 plus 2 plus 4 plus 1 equals 10. The thin grey edges (A to B, B
+    to D, C to D) are cheaper to leave out.</figcaption>
+  </figure>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge (predict the output)</p>
+    <p>A guide starts a walking tour at stop 2 (the Market) on the six-stop map and
+    runs the BFS listing with <code>start = 2</code> instead of 0. Before you
+    compile it, write down the exact visit order BFS prints. Remember: mark a stop
+    when you push it, and process stops in the order they entered the queue.</p>
+    <p>(Answer: <code>BFS from 2: 2 0 3 4 1 5</code>. From 2 you push its
+    neighbours 0, 3, 4; processing 0 adds 1; processing 3 adds 5; the rest are
+    already seen.)</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Define a graph. Explain the difference between a directed and an
+    undirected graph, giving one real-world example of each.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A graph is a set of vertices (nodes) joined by edges (links). Unlike a tree
+    it has no root, a vertex may join any number of others, and its edges may form
+    cycles (paths that return to their start).</p>
+    <p>In an <strong>undirected</strong> graph an edge has no direction: an edge
+    between A and B means you can travel from A to B and from B to A. Example: a
+    network of two-way roads between towns, or a friendship list where being
+    friends is mutual.</p>
+    <p>In a <strong>directed</strong> graph (digraph) each edge is an arrow with a
+    direction: an edge from A to B lets you go A to B but not necessarily B to A.
+    Example: a system of one-way streets, or "follows" on a social app, where you
+    can follow an account that does not follow you back.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Explain how Breadth-First Search (BFS) traverses a graph, and state
+    which data structure it uses. Using the graph with edges 0-1, 0-2, 1-3, 2-3,
+    2-4, 3-5, 4-5, give the order BFS visits the vertices starting from vertex 0.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>BFS explores the graph in rings. Starting from one vertex it first visits all
+    of that vertex's direct neighbours, then all of their unvisited neighbours, and
+    so on, spreading outward one hop at a time. It uses a <strong>queue</strong>
+    (first in, first out): each vertex is pushed when it is first discovered and
+    marked as visited at that moment, so it is never queued twice. This matters on
+    graphs with cycles, where an unmarked vertex would be visited forever.</p>
+    <p>Starting from vertex 0: visit 0 and push its neighbours 1 and 2; visit 1 and
+    push its new neighbour 3; visit 2 and push its new neighbour 4; visit 3 and push
+    5; visit 4 (5 already queued); visit 5. The visit order is:</p>
+    <p><strong>0, 1, 2, 3, 4, 5.</strong></p>
+    <p>Because BFS fans out ring by ring, this order also gives the fewest-hop
+    distance from vertex 0 to every other vertex.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Explain how Depth-First Search (DFS) differs from BFS, and state which
+    data structure it uses. Draw or describe the DFS visit order for the same graph
+    starting from vertex 0.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>DFS goes deep instead of wide. From the start vertex it walks to the first
+    unvisited neighbour, then to that vertex's first unvisited neighbour, diving as
+    far as it can along one branch before backing up to try the next. Where BFS uses
+    a queue, DFS uses a <strong>stack</strong> (last in, first out); most often this
+    is the call stack of a recursive function, so no explicit stack is written.</p>
+    <p>On the same graph from vertex 0: go to 0, dive to 1, from 1 dive to 3, from 3
+    dive to 2, from 2 dive to 4, from 4 reach 5. Every remaining edge leads to an
+    already-visited vertex, so the search unwinds. The visit order is:</p>
+    <p><strong>0, 1, 3, 2, 4, 5.</strong></p>
+    <figure class="diagram">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 150" width="420" height="150">
+        <rect x="1" y="1" width="418" height="148" fill="none" stroke="#C9D4DB"/>
+        <line x1="46" y1="75" x2="94" y2="75" stroke="#1D5A80" stroke-width="3"/>
+        <polygon points="94,75 84,70 84,80" fill="#1D5A80"/>
+        <line x1="126" y1="75" x2="174" y2="75" stroke="#1D5A80" stroke-width="3"/>
+        <polygon points="174,75 164,70 164,80" fill="#1D5A80"/>
+        <line x1="206" y1="75" x2="254" y2="75" stroke="#1D5A80" stroke-width="3"/>
+        <polygon points="254,75 244,70 244,80" fill="#1D5A80"/>
+        <line x1="286" y1="75" x2="334" y2="75" stroke="#1D5A80" stroke-width="3"/>
+        <polygon points="334,75 324,70 324,80" fill="#1D5A80"/>
+        <line x1="366" y1="75" x2="386" y2="75" stroke="#1D5A80" stroke-width="3"/>
+        <circle cx="30" cy="75" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="30" y="79" text-anchor="middle" font-size="11" fill="#16232B">0</text>
+        <circle cx="110" cy="75" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="110" y="79" text-anchor="middle" font-size="11" fill="#16232B">1</text>
+        <circle cx="190" cy="75" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="190" y="79" text-anchor="middle" font-size="11" fill="#16232B">3</text>
+        <circle cx="270" cy="75" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="270" y="79" text-anchor="middle" font-size="11" fill="#16232B">2</text>
+        <circle cx="350" cy="75" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="350" y="79" text-anchor="middle" font-size="11" fill="#16232B">4</text>
+        <circle cx="392" cy="75" r="16" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="392" y="79" text-anchor="middle" font-size="11" fill="#16232B">5</text>
+      </svg>
+      <figcaption>The DFS visit order as one deep dive: 0, 1, 3, 2, 4, 5.</figcaption>
+    </figure>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Define a spanning tree and a minimum spanning tree (MST). For a connected
+    graph of n vertices, how many edges does any spanning tree have?</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A <strong>spanning tree</strong> of a connected graph is a subset of its
+    edges that keeps every vertex connected while containing no cycle. It is a tree
+    (connected, no loops) that touches, or spans, all the vertices. For a graph of n
+    vertices, any spanning tree has exactly <strong>n minus 1</strong> edges: with
+    fewer, the graph would split into pieces; with more, some edge would close a
+    cycle.</p>
+    <p>A <strong>minimum spanning tree</strong> is a spanning tree of a weighted
+    graph (each edge carries a weight, such as distance or cost) whose edge weights
+    add up to the smallest possible total. A graph can have many spanning trees; the
+    MST is the cheapest one. For example, to lay water pipe to every town for the
+    least total trench, you build the MST of the road graph. In the weighted
+    five-vertex example, choosing edges A-C (3), B-C (2), C-E (4) and E-D (1) spans
+    all five vertices with 4 edges for a total weight of 10, less than any other
+    choice.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q5. Write a complete C++ program that stores an undirected graph as an
+    adjacency list and prints the vertices reachable from a start vertex using a
+    breadth-first traversal.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Store the graph as a <code>std::vector</code> of neighbour lists, then run BFS
+    with a queue, marking each vertex when it is pushed so cycles cannot cause an
+    endless loop.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+
+int main() {
+    // Undirected graph: each edge is listed at both of its ends.
+    std::vector&lt;std::vector&lt;int&gt;&gt; adj = {
+        {1, 2},        // 0
+        {0, 3},        // 1
+        {0, 3, 4},     // 2
+        {1, 2, 5},     // 3
+        {2, 5},        // 4
+        {3, 4}         // 5
+    };
+
+    int start = 0;
+    std::vector&lt;bool&gt; seen(adj.size(), false);
+    std::queue&lt;int&gt; q;
+    seen[start] = true;
+    q.push(start);
+
+    std::cout &lt;&lt; "reachable from " &lt;&lt; start &lt;&lt; ": ";
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+        std::cout &lt;&lt; node &lt;&lt; ' ';
+        for (int next : adj[node]) {
+            if (!seen[next]) {
+                seen[next] = true;
+                q.push(next);
+            }
+        }
+    }
+    std::cout &lt;&lt; std::endl;   // reachable from 0: 0 1 2 3 4 5
+    return 0;
+}</code></pre>
+    <p>The program prints <code>reachable from 0: 0 1 2 3 4 5</code>. Every vertex it
+    prints is reachable from the start; any vertex missing from the output would sit
+    in a disconnected part of the graph.</p>
+  </div>
+</section>

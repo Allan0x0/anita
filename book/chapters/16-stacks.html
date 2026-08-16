@@ -1,0 +1,359 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 16</p>
+  <h1>The Stack</h1>
+
+  <div class="hook">
+    <p>You cut trusses all morning and the offcuts pile up beside the saw. The
+    piece you drop on last is the one sitting on top, so it is the one you grab
+    first. Nobody digs to the bottom of the pile for a short. That pile has a
+    name in code: a <strong>stack</strong>. Last one in is the first one out.
+    Learn the pile and you have learned undo buttons, back buttons, and the way
+    the computer itself remembers where it was.</p>
+  </div>
+
+  <div class="idea">
+    <p>A stack is a list you may only touch at one end, the <strong>top</strong>.
+    You add to the top (<code>push</code>), you take from the top
+    (<code>pop</code>), and you may peek at the top without taking it
+    (<code>peek</code>). You cannot reach into the middle. This one rule is
+    called <strong>LIFO</strong>: Last In, First Out. The last thing you pushed
+    is the first thing you pop.</p>
+    <p>Four moves cover everything a stack does:</p>
+    <table>
+      <tr><th>Move</th><th>What it does</th></tr>
+      <tr><td><code>push(x)</code></td><td>put <code>x</code> on the top</td></tr>
+      <tr><td><code>pop()</code></td><td>remove the top and hand it back</td></tr>
+      <tr><td><code>peek()</code></td><td>look at the top, leave it there</td></tr>
+      <tr><td><code>isEmpty()</code></td><td>true when nothing is on the pile</td></tr>
+    </table>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 250" width="300" height="250">
+      <rect x="1" y="1" width="298" height="248" fill="none" stroke="#C9D4DB"/>
+      <!-- four offcuts stacked, bottom first -->
+      <rect x="70" y="190" width="120" height="34" fill="#F0E4D0" stroke="#B57C33"/>
+      <text x="130" y="211" text-anchor="middle" font-size="11" fill="#16232B">300mm</text>
+      <rect x="70" y="152" width="120" height="34" fill="#F0E4D0" stroke="#B57C33"/>
+      <text x="130" y="173" text-anchor="middle" font-size="11" fill="#16232B">450mm</text>
+      <rect x="70" y="114" width="120" height="34" fill="#F0E4D0" stroke="#B57C33"/>
+      <text x="130" y="135" text-anchor="middle" font-size="11" fill="#16232B">120mm</text>
+      <rect x="70" y="76" width="120" height="34" fill="#EEF5F9" stroke="#1D5A80" stroke-width="2"/>
+      <text x="130" y="97" text-anchor="middle" font-size="11" fill="#16232B">80mm</text>
+      <!-- TOP arrow -->
+      <line x1="255" y1="93" x2="196" y2="93" stroke="#1D5A80" stroke-width="2"/>
+      <polygon points="196,93 206,88 206,98" fill="#1D5A80"/>
+      <text x="258" y="90" font-size="11" fill="#1D5A80" font-weight="700">TOP</text>
+      <text x="258" y="103" font-size="9" fill="#56676F">push / pop</text>
+      <!-- bottom label -->
+      <text x="130" y="242" text-anchor="middle" font-size="9" fill="#56676F">bottom (untouchable until the rest is gone)</text>
+    </svg>
+    <figcaption>An offcut rack as a stack. The 80mm piece went on last, so it is
+    on top, so it comes off first.</figcaption>
+  </figure>
+
+  <h2>A stack backed by an array</h2>
+
+  <div class="idea">
+    <p>The simplest stack is a fixed array plus one integer, <code>top</code>,
+    that marks the index of the topmost item. Start it at <code>-1</code> to mean
+    "empty". To push you step <code>top</code> up by one, then write. To pop you
+    read, then step <code>top</code> down by one. The offcut rack, in code:</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+const int MAX = 100;
+
+struct OffcutStack {
+    std::string item[MAX];
+    int top = -1;
+
+    bool isEmpty() { return top == -1; }
+    bool isFull()  { return top == MAX - 1; }
+
+    void push(std::string cut) {
+        if (isFull()) { std::cout &lt;&lt; "rack full\n"; return; }
+        item[++top] = cut;          // step up, then write
+    }
+
+    std::string pop() {
+        if (isEmpty()) { std::cout &lt;&lt; "rack empty\n"; return ""; }
+        return item[top--];         // read, then step down
+    }
+
+    std::string peek() {
+        if (isEmpty()) return "";
+        return item[top];
+    }
+};
+
+int main() {
+    OffcutStack rack;
+    rack.push("300mm pine");
+    rack.push("450mm pine");
+    rack.push("80mm pine");
+
+    std::cout &lt;&lt; "top of rack: " &lt;&lt; rack.peek() &lt;&lt; "\n";
+    std::cout &lt;&lt; "grab: " &lt;&lt; rack.pop() &lt;&lt; "\n";
+    std::cout &lt;&lt; "grab: " &lt;&lt; rack.pop() &lt;&lt; "\n";
+    std::cout &lt;&lt; "top of rack: " &lt;&lt; rack.peek() &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p>The array way is fast and tiny, but it has a ceiling: <code>MAX</code>
+    slots and no more. Push past the top slot and the rack is full. When you
+    cannot guess the size ahead of time, reach for the second design.</p>
+  </div>
+
+  <h2>A stack backed by a linked list</h2>
+
+  <div class="idea">
+    <p>Think of a sink of dirty dishes after a big meal. Each dish points down at
+    the one under it. The <code>top</code> pointer holds the plate you can see.
+    To push, make a new node whose <code>next</code> is the old top, then move
+    <code>top</code> to it. To pop, hand back the top and move <code>top</code>
+    down to <code>next</code>. No fixed size: the pile grows until memory runs
+    out.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Node {
+    std::string dish;
+    Node* next;
+};
+
+struct PlateStack {
+    Node* top = nullptr;
+
+    bool isEmpty() { return top == nullptr; }
+
+    void push(std::string dish) {
+        top = new Node{dish, top};   // new node points at the old top
+    }
+
+    std::string pop() {
+        if (isEmpty()) return "";
+        Node* old = top;
+        std::string dish = old-&gt;dish;
+        top = old-&gt;next;             // slide down one
+        delete old;                  // give the memory back
+        return dish;
+    }
+};
+
+int main() {
+    PlateStack sink;
+    sink.push("bowl");
+    sink.push("mug");
+    sink.push("plate");
+
+    while (!sink.isEmpty()) {
+        std::cout &lt;&lt; "wash: " &lt;&lt; sink.pop() &lt;&lt; "\n";
+    }
+    std::cout &lt;&lt; "sink empty? " &lt;&lt; (sink.isEmpty() ? "yes" : "no") &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it: truss offcut tracker</p>
+    <p>Real site step. You are framing a roof and every truss cut leaves a
+    short. Save the array program as <code>rack.cpp</code>, then each time you
+    drop an offcut on the pile, <code>push</code> its length; each time you use
+    one, <code>pop</code> it. The rack always hands you the most recent cut
+    first, which is the one still fresh in your hand.</p>
+    <p>Compile and run:
+    <code>g++ -std=c++17 rack.cpp -o rack &amp;&amp; ./rack</code></p>
+  </div>
+
+  <h2>Reverse a string with a stack</h2>
+
+  <div class="idea">
+    <p>Here is the trick that shows off LIFO. Push every letter of a word onto a
+    stack, then pop them all back off. Because the last letter in is the first
+    letter out, the word comes back reversed for free. The C++ standard library
+    ships a ready-made stack, <code>std::stack</code>, so you rarely hand-roll
+    one in real code.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;stack&gt;
+
+int main() {
+    std::string word = "TABLE";
+    std::stack&lt;char&gt; s;
+
+    for (char c : word) s.push(c);      // T, A, B, L, E go on
+
+    std::string reversed;
+    while (!s.empty()) {
+        reversed += s.top();            // E comes off first
+        s.pop();
+    }
+
+    std::cout &lt;&lt; word &lt;&lt; " reversed is " &lt;&lt; reversed &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: predict the output</p>
+    <p>You visit three tourist spots and drop a ticket stub on a spike as you
+    leave each one. What does this print?</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;stack&gt;
+
+int main() {
+    std::stack&lt;int&gt; spike;
+    spike.push(2);      // Victoria Falls
+    spike.push(4);      // Hwange
+    spike.push(6);      // Great Zimbabwe
+    std::cout &lt;&lt; spike.top();
+    spike.pop();
+    std::cout &lt;&lt; spike.top();
+    spike.pop();
+    std::cout &lt;&lt; spike.top() &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+    <p>Answer: <code>642</code>. The last stub pushed (6) is the first one seen,
+    so the spike reads back in reverse of the order you visited.</p>
+  </div>
+
+  <h2>Exam practice</h2>
+
+  <div class="exam-q">
+    <p>Q1. Define a stack and state the principle it follows. Give one everyday
+    example.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A stack is a linear data structure where items are added and removed at
+    one end only, called the top. It follows the <strong>LIFO</strong> principle,
+    Last In First Out: the most recently added item is the first one removed. Its
+    core operations are <code>push</code> (add to the top), <code>pop</code>
+    (remove from the top), <code>peek</code> (read the top without removing), and
+    <code>isEmpty</code> (test whether it holds anything). Everyday example: a
+    pile of offcuts beside a saw, where you grab the piece you dropped on last.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Implement a stack of integers using an array. Show the
+    <code>push</code> and <code>pop</code> operations in a complete program.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+const int MAX = 100;
+
+struct Stack {
+    int item[MAX];
+    int top = -1;
+
+    bool isEmpty() { return top == -1; }
+    bool isFull()  { return top == MAX - 1; }
+
+    void push(int x) {
+        if (isFull()) { std::cout &lt;&lt; "overflow\n"; return; }
+        item[++top] = x;
+    }
+
+    int pop() {
+        if (isEmpty()) { std::cout &lt;&lt; "underflow\n"; return -1; }
+        return item[top--];
+    }
+};
+
+int main() {
+    Stack s;
+    s.push(10);
+    s.push(20);
+    s.push(30);
+    std::cout &lt;&lt; s.pop() &lt;&lt; "\n";   // 30
+    std::cout &lt;&lt; s.pop() &lt;&lt; "\n";   // 20
+    return 0;
+}</code></pre>
+    <p>Note the two guards. <code>isFull</code> stops a push past the last slot
+    (overflow); <code>isEmpty</code> stops a pop on nothing (underflow). Without
+    them the program reads or writes outside the array.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Implement a stack using a linked list. Show <code>push</code>,
+    <code>pop</code>, and <code>isEmpty</code>.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+struct Node {
+    int data;
+    Node* next;
+};
+
+struct Stack {
+    Node* top = nullptr;
+
+    bool isEmpty() { return top == nullptr; }
+
+    void push(int x) {
+        top = new Node{x, top};      // new node points at old top
+    }
+
+    int pop() {
+        if (isEmpty()) { std::cout &lt;&lt; "underflow\n"; return -1; }
+        Node* old = top;
+        int x = old-&gt;data;
+        top = old-&gt;next;
+        delete old;
+        return x;
+    }
+};
+
+int main() {
+    Stack s;
+    s.push(5);
+    s.push(9);
+    std::cout &lt;&lt; s.pop() &lt;&lt; "\n";        // 9
+    std::cout &lt;&lt; (s.isEmpty() ? "empty" : "not empty") &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+    <p>The linked-list stack has no fixed limit, so there is no
+    <code>isFull</code>: it grows until memory runs out. Each <code>pop</code>
+    calls <code>delete</code> so freed nodes do not leak.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Write a complete program that reverses a string using a stack.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;stack&gt;
+
+int main() {
+    std::string name = "SADZA";
+    std::stack&lt;char&gt; s;
+
+    for (char c : name) s.push(c);   // push every letter
+
+    std::string result;
+    while (!s.empty()) {
+        result += s.top();           // pop pulls them back reversed
+        s.pop();
+    }
+
+    std::cout &lt;&lt; result &lt;&lt; "\n";       // AZDAS
+    return 0;
+}</code></pre>
+    <p>Why it works: pushing loads the letters in reading order, so the last
+    letter sits on top. Popping empties the stack from the top down, which hands
+    the letters back in the opposite order. LIFO does the reversing; you write no
+    reversing logic of your own.</p>
+  </div>
+</section>

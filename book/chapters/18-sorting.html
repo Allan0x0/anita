@@ -1,0 +1,365 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 18</p>
+  <h1>Sorting</h1>
+
+  <div class="hook">
+    <p>You have a pile of cut boards for the roof, jumbled: 2.1m, 4.8m, 1.2m,
+    3.6m, and on and on. The foreman wants the longest laid out first so the
+    ridge goes up before anyone reaches for a short one. Right now the pile is
+    in the order it left the saw, which is no order at all. Sorting is how you
+    turn that jumble into a line, longest to shortest, so nobody wastes a
+    4.8m board on a 1.2m job and leaves an offcut on the ground.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Sorting</strong> means putting a list in order: smallest to
+    largest, largest to smallest, A to Z. The list starts jumbled; you finish
+    with it arranged. This chapter shows three ways to do it by hand and in
+    code: <strong>bubble sort</strong>, <strong>selection sort</strong>, and
+    <strong>insertion sort</strong>. All three reach the same sorted list; they
+    differ in how they get there and how much work they do. We measure that work
+    with <strong>Big-O</strong>, the count of comparisons as the list grows, and
+    we look at the best, average, and worst case for each.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 170" width="360" height="170">
+      <text x="10" y="18" font-family="Helvetica" font-size="11" fill="#16232B">Cut-list, jumbled (bar height = board length)</text>
+      <rect x="20"  y="90"  width="34" height="50"  fill="#B57C33"/>
+      <rect x="64"  y="40"  width="34" height="100" fill="#B57C33"/>
+      <rect x="108" y="115" width="34" height="25"  fill="#B57C33"/>
+      <rect x="152" y="65"  width="34" height="75"  fill="#B57C33"/>
+      <line x1="20" y1="140" x2="196" y2="140" stroke="#16232B" stroke-width="1"/>
+      <text x="245" y="95" font-family="Helvetica" font-size="24" fill="#1D5A80">&#8594;</text>
+      <text x="285" y="18" font-family="Helvetica" font-size="11" fill="#16232B">sorted</text>
+      <rect x="285" y="40"  width="14" height="100" fill="#1D5A80"/>
+      <rect x="303" y="65"  width="14" height="75"  fill="#1D5A80"/>
+      <rect x="321" y="90"  width="14" height="50"  fill="#1D5A80"/>
+      <rect x="339" y="115" width="14" height="25"  fill="#1D5A80"/>
+      <line x1="285" y1="140" x2="353" y2="140" stroke="#16232B" stroke-width="1"/>
+    </svg>
+    <figcaption>Sorting rearranges the same boards into a clean descending run,
+    longest on the left.</figcaption>
+  </figure>
+
+  <h2>Bubble sort: swap neighbours until nothing moves</h2>
+  <div class="idea">
+    <p>Bubble sort walks the list comparing each pair of neighbours. If they are
+    out of order it swaps them. One full walk is a <strong>pass</strong>. Each
+    pass floats the next-largest value up to its place, the way a bubble rises;
+    you repeat passes until a whole pass makes no swaps, which means the list is
+    sorted. Below we sort a small cut-list into ascending metres so it is easy
+    to trace.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 210" width="360" height="210">
+      <text x="10" y="16" font-family="Helvetica" font-size="11" fill="#16232B">Bubble sort, pass by pass on [3, 1, 4, 2]</text>
+      <g font-family="Helvetica" font-size="12" fill="#16232B" text-anchor="middle">
+        <text x="10" y="52" text-anchor="start" fill="#1D5A80">start</text>
+        <rect x="70"  y="40" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="83"  y="55">3</text>
+        <rect x="100" y="40" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="113" y="55">1</text>
+        <rect x="130" y="40" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="143" y="55">4</text>
+        <rect x="160" y="40" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="173" y="55">2</text>
+
+        <text x="10" y="97" text-anchor="start" fill="#1D5A80">pass 1</text>
+        <rect x="70"  y="85" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="83"  y="100">1</text>
+        <rect x="100" y="85" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="113" y="100">3</text>
+        <rect x="130" y="85" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="143" y="100">2</text>
+        <rect x="160" y="85" width="26" height="20" fill="#B57C33" stroke="#16232B"/><text x="173" y="100" fill="#F6F8FA">4</text>
+
+        <text x="10" y="142" text-anchor="start" fill="#1D5A80">pass 2</text>
+        <rect x="70"  y="130" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="83"  y="145">1</text>
+        <rect x="100" y="130" width="26" height="20" fill="#F6F8FA" stroke="#16232B"/><text x="113" y="145">2</text>
+        <rect x="130" y="130" width="26" height="20" fill="#B57C33" stroke="#16232B"/><text x="143" y="145" fill="#F6F8FA">3</text>
+        <rect x="160" y="130" width="26" height="20" fill="#B57C33" stroke="#16232B"/><text x="173" y="145" fill="#F6F8FA">4</text>
+
+        <text x="10" y="187" text-anchor="start" fill="#1D5A80">pass 3</text>
+        <rect x="70"  y="175" width="26" height="20" fill="#1D5A80" stroke="#16232B"/><text x="83"  y="190" fill="#F6F8FA">1</text>
+        <rect x="100" y="175" width="26" height="20" fill="#1D5A80" stroke="#16232B"/><text x="113" y="190" fill="#F6F8FA">2</text>
+        <rect x="130" y="175" width="26" height="20" fill="#1D5A80" stroke="#16232B"/><text x="143" y="190" fill="#F6F8FA">3</text>
+        <rect x="160" y="175" width="26" height="20" fill="#1D5A80" stroke="#16232B"/><text x="173" y="190" fill="#F6F8FA">4</text>
+      </g>
+    </svg>
+    <figcaption>Timber-coloured cells are settled at the top end after each
+    pass; pass 3 makes no swaps, so the list is sorted.</figcaption>
+  </figure>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+// bubble sort: ascending, stops early when a pass makes no swaps
+int main() {
+    double cut[6] = {2.1, 4.8, 1.2, 3.6, 2.4, 1.8};
+    int n = 6;
+
+    for (int pass = 0; pass &lt; n - 1; pass = pass + 1) {
+        bool swapped = false;
+        for (int i = 0; i &lt; n - 1 - pass; i = i + 1) {
+            if (cut[i] &gt; cut[i + 1]) {
+                double tmp = cut[i];
+                cut[i] = cut[i + 1];
+                cut[i + 1] = tmp;
+                swapped = true;
+            }
+        }
+        if (!swapped) {
+            break;   // a clean pass means the list is already sorted
+        }
+    }
+
+    for (int i = 0; i &lt; n; i = i + 1) {
+        std::cout &lt;&lt; cut[i] &lt;&lt; "m ";
+    }
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it: sort the cut-list before you climb the roof</p>
+    <p>Save the program as <code>cutlist.cpp</code> and run it:</p>
+    <p><code>g++ -std=c++17 cutlist.cpp -o cutlist &amp;&amp; ./cutlist</code></p>
+    <p>It prints <code>1.2m 1.8m 2.1m 2.4m 3.6m 4.8m</code>. On site this is the
+    step between cutting and raising: feed the day's cut lengths in jumbled, get
+    them back in order, then lay the longest boards on the ridge first and match
+    the shorts to the short jobs. Nothing sound gets sawn down into an offcut.</p>
+  </div>
+
+  <h2>Selection sort: find the smallest, put it in front</h2>
+  <div class="idea">
+    <p>Selection sort is how most people sort by hand without thinking about it.
+    Scan the whole unsorted part, find the smallest value, and swap it to the
+    front. Now the front is settled; repeat on the rest. It makes exactly one
+    swap per pass, which is handy when moving items is expensive, but it always
+    scans the full remainder even when the list is already sorted.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+// selection sort: order tourist stops by distance in km
+int main() {
+    std::string stop[5] = {"Falls", "Ruins", "Dune", "Lake", "Cave"};
+    int km[5] = {120, 45, 300, 80, 15};
+    int n = 5;
+
+    for (int i = 0; i &lt; n - 1; i = i + 1) {
+        int smallest = i;
+        for (int j = i + 1; j &lt; n; j = j + 1) {
+            if (km[j] &lt; km[smallest]) {
+                smallest = j;
+            }
+        }
+        // one swap: bring the nearest remaining stop to the front
+        int tk = km[i];      km[i] = km[smallest];      km[smallest] = tk;
+        std::string ts = stop[i]; stop[i] = stop[smallest]; stop[smallest] = ts;
+    }
+
+    for (int i = 0; i &lt; n; i = i + 1) {
+        std::cout &lt;&lt; stop[i] &lt;&lt; " (" &lt;&lt; km[i] &lt;&lt; "km)" &lt;&lt; std::endl;
+    }
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p>That prints the tour nearest-first: <code>Cave (15km)</code>,
+    <code>Ruins (45km)</code>, <code>Lake (80km)</code>,
+    <code>Falls (120km)</code>, <code>Dune (300km)</code>. Note the name array
+    moves in lockstep with the distance array, so each stop keeps its own
+    number.</p>
+  </div>
+
+  <h2>Insertion sort: slot each new item into place</h2>
+  <div class="idea">
+    <p>Insertion sort is how you sort a hand of cards. Hold the left part
+    sorted; take the next item and slide it left, past everything larger, until
+    it drops into its slot. When the incoming item is already bigger than its
+    left neighbour it stops at once, so a nearly-sorted list barely moves. That
+    early stop is why insertion sort is the fastest of the three on lists that
+    are close to sorted already.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+// insertion sort: order recipe bake temperatures, ascending
+int main() {
+    int temp[7] = {180, 220, 160, 200, 175, 240, 190};
+    int n = 7;
+
+    for (int i = 1; i &lt; n; i = i + 1) {
+        int key = temp[i];        // the item to slot in
+        int j = i - 1;
+        while (j &gt;= 0 &amp;&amp; temp[j] &gt; key) {
+            temp[j + 1] = temp[j]; // shift the larger one right
+            j = j - 1;
+        }
+        temp[j + 1] = key;         // drop the item into its slot
+    }
+
+    for (int i = 0; i &lt; n; i = i + 1) {
+        std::cout &lt;&lt; temp[i] &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it: on-site truss step</p>
+    <p>Compile and run either sort the same way:</p>
+    <p><code>g++ -std=c++17 temps.cpp -o temps &amp;&amp; ./temps</code></p>
+    <p>Truss build step 4, after cutting: run the day's board lengths through
+    one of these sorts, print the ordered list, and pin it to the timber rack.
+    The crew pulls from the top of the list, longest first for the ridge and
+    rafters, shortest last for the noggins between them. An ordered rack is a
+    rack with no guessing and no cutting a good board short.</p>
+  </div>
+
+  <h2>How much work: best, average, worst</h2>
+  <div class="idea">
+    <p>All three sorts do roughly n comparisons per pass across roughly n
+    passes, so the general cost is <strong>O(n squared)</strong>: double the
+    list, quadruple the work. But the cases differ. The <strong>best case</strong>
+    is an already-sorted list; the <strong>worst case</strong> is one sorted
+    exactly backwards; the <strong>average case</strong> is a random jumble.
+    Bubble and insertion sort can notice an already-sorted list and finish in
+    O(n): bubble sort by making a clean pass, insertion sort by never entering
+    its shift loop. Selection sort cannot; it scans the full remainder every
+    time, so even a sorted list costs it O(n squared).</p>
+  </div>
+
+  <table>
+    <tr><th>Sort</th><th>Best</th><th>Average</th><th>Worst</th><th>Notices sorted?</th></tr>
+    <tr><td>Bubble</td><td>O(n)</td><td>O(n squared)</td><td>O(n squared)</td><td>Yes, clean pass ends it</td></tr>
+    <tr><td>Selection</td><td>O(n squared)</td><td>O(n squared)</td><td>O(n squared)</td><td>No, always full scan</td></tr>
+    <tr><td>Insertion</td><td>O(n)</td><td>O(n squared)</td><td>O(n squared)</td><td>Yes, shift loop skipped</td></tr>
+  </table>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: predict the output</p>
+    <p>The insertion-sort program above starts with
+    <code>{180, 220, 160, 200, 175, 240, 190}</code>. Before you run it, write
+    down the printed line. Then run it and check. (Answer:
+    <code>160 175 180 190 200 220 240</code>, ascending, one space after each.)</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: spot the bug</p>
+    <p>A trainee writes a bubble sort but types the outer loop as
+    <code>for (int pass = 0; pass &lt; n; pass = pass + 1)</code> and the inner as
+    <code>for (int i = 0; i &lt; n; i = i + 1)</code>, reading <code>cut[i + 1]</code>
+    each time. The list sorts, but the program sometimes crashes or prints
+    garbage. Why? (Answer: on the last <code>i</code>, <code>i + 1</code> is
+    <code>n</code>, one past the end of the array. Reading <code>cut[n]</code> is
+    out of bounds. The inner loop must stop at <code>i &lt; n - 1</code>.)</p>
+  </div>
+
+  <h2>Exam questions</h2>
+
+  <div class="exam-q">
+    <p>Q1. Write a complete C++ program that reads ten jumbled whole numbers into
+    an array and sorts them into ascending order using <strong>insertion
+    sort</strong>, then prints the sorted list. You may hard-code the ten
+    numbers.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Insertion sort holds the left part sorted and slides each new value left
+    into its slot. Ten values fixed in the array, one pass from index 1 to 9:</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    int a[10] = {37, 12, 88, 4, 61, 25, 9, 70, 43, 18};
+    int n = 10;
+
+    for (int i = 1; i &lt; n; i = i + 1) {
+        int key = a[i];
+        int j = i - 1;
+        while (j &gt;= 0 &amp;&amp; a[j] &gt; key) {
+            a[j + 1] = a[j];   // shift larger values right
+            j = j - 1;
+        }
+        a[j + 1] = key;        // drop key into its slot
+    }
+
+    for (int i = 0; i &lt; n; i = i + 1) {
+        std::cout &lt;&lt; a[i] &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+    <p>It prints <code>4 9 12 18 25 37 43 61 70 88</code>. The
+    <code>while</code> condition <code>a[j] &gt; key</code> is what keeps the sort
+    ascending; the <code>j &gt;= 0</code> guard stops it running off the front of
+    the array.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Compare bubble sort and insertion sort by their best-case,
+    average-case, and worst-case time complexity. State when each best case
+    happens.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Both share the same average and worst case and differ only in how their
+    best case arises:</p>
+    <table>
+      <tr><th>Case</th><th>Bubble</th><th>Insertion</th></tr>
+      <tr><td>Best</td><td>O(n)</td><td>O(n)</td></tr>
+      <tr><td>Average</td><td>O(n squared)</td><td>O(n squared)</td></tr>
+      <tr><td>Worst</td><td>O(n squared)</td><td>O(n squared)</td></tr>
+    </table>
+    <p>The best case for both is an <strong>already-sorted list</strong>. Bubble
+    sort reaches O(n) only if it tracks a <code>swapped</code> flag: the first
+    pass makes no swap, so it stops after one walk of the list. Insertion sort
+    reaches O(n) because each new item is already larger than its left
+    neighbour, so the shift loop never runs; it walks the list once. The worst
+    case for both is a list sorted exactly backwards, where every comparison
+    forces a move, giving O(n squared). In practice insertion sort usually moves
+    fewer items on partly-sorted data, so it is the faster of the two on
+    real-world, nearly-ordered lists like a cut-list that was already close to
+    length order.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Trace one pass of bubble sort (ascending) over the cut-list
+    <code>[4.8, 1.2, 3.6, 2.1]</code>. Show each comparison, whether it swaps,
+    and the list after the pass. Which value is guaranteed to be in its final
+    place?</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>One pass compares each neighbour pair left to right, swapping when the
+    left value is larger:</p>
+    <table>
+      <tr><th>Compare</th><th>Values</th><th>Action</th><th>List after</th></tr>
+      <tr><td>index 0 and 1</td><td>4.8 vs 1.2</td><td>4.8 &gt; 1.2, swap</td><td>[1.2, 4.8, 3.6, 2.1]</td></tr>
+      <tr><td>index 1 and 2</td><td>4.8 vs 3.6</td><td>4.8 &gt; 3.6, swap</td><td>[1.2, 3.6, 4.8, 2.1]</td></tr>
+      <tr><td>index 2 and 3</td><td>4.8 vs 2.1</td><td>4.8 &gt; 2.1, swap</td><td>[1.2, 3.6, 2.1, 4.8]</td></tr>
+    </table>
+    <p>After the pass the list is <code>[1.2, 3.6, 2.1, 4.8]</code>. The largest
+    value, <strong>4.8</strong>, has floated to the far right and is now in its
+    final place; that is why each later pass can ignore one more item at the top
+    end. The list is not yet sorted (3.6 and 2.1 are still out of order), so a
+    second pass is needed.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Explain in plain words why selection sort has the same O(n squared)
+    cost on an already-sorted list as on a jumbled one, while bubble and
+    insertion sort can be O(n) on a sorted list.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Selection sort's job each pass is to find the smallest value in the
+    unsorted remainder, and the only way to be sure it has found the smallest is
+    to look at every remaining value. It cannot tell that the list is already
+    sorted, because it never compares neighbours; it always scans the full
+    remainder. So the number of comparisons is fixed by the list length, about
+    n plus (n minus 1) plus (n minus 2) and so on, which is O(n squared) no
+    matter the starting order. Bubble and insertion sort compare adjacent items,
+    so they can detect order locally: bubble sort sees a whole pass with no
+    swaps and stops; insertion sort finds each item already in place and skips
+    its shift loop. On a sorted list each does about n comparisons and no moves,
+    which is O(n). The lesson: a sort that looks at local order can shortcut,
+    one that always does a global scan cannot.</p>
+  </div>
+</section>

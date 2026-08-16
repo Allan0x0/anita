@@ -1,0 +1,461 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 17</p>
+  <h1>Queues: first in, first out</h1>
+
+  <div class="hook">
+    <p>The saw only cuts one truss at a time. Jobs pile up on the bench in the
+    order they arrive, and the saw takes the oldest one first: the truss that
+    has waited longest gets cut next. Nobody jumps the line. That waiting line
+    is a queue, and it is the fairest data structure on the site.</p>
+  </div>
+
+  <div class="idea">
+    <p>A <strong>queue</strong> is a line. You add to the back and remove from
+    the front, so the first item in is the first item out. That rule has a
+    name: <strong>FIFO</strong> (first in, first out). Compare it to a stack,
+    which is last in, first out; a queue is the opposite.</p>
+    <p>Two markers do all the work:</p>
+    <ul>
+      <li><strong>FRONT</strong>, the position of the oldest item, the one that
+      leaves next (the truss the saw cuts now).</li>
+      <li><strong>REAR</strong>, the position of the newest item, the last one
+      that joined the line (the truss just dropped on the bench).</li>
+    </ul>
+    <p>Four actions are all you ever need:</p>
+    <ul>
+      <li><strong>enqueue</strong>, add an item at the REAR.</li>
+      <li><strong>dequeue</strong>, remove the item at the FRONT.</li>
+      <li><strong>isEmpty</strong>, true when the line has nobody in it.</li>
+      <li><strong>isFull</strong>, true when the line has no room left.</li>
+    </ul>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 140" width="460" height="140">
+      <rect x="1" y="1" width="458" height="138" fill="none" stroke="#C9D4DB"/>
+      <rect x="40"  y="55" width="70" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="110" y="55" width="70" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="180" y="55" width="70" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="250" y="55" width="70" height="40" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="320" y="55" width="70" height="40" fill="none"    stroke="#C9D4DB" stroke-dasharray="4 3"/>
+      <text x="75"  y="80" text-anchor="middle" font-size="12" fill="#16232B">A</text>
+      <text x="145" y="80" text-anchor="middle" font-size="12" fill="#16232B">B</text>
+      <text x="215" y="80" text-anchor="middle" font-size="12" fill="#16232B">C</text>
+      <text x="285" y="80" text-anchor="middle" font-size="12" fill="#16232B">D</text>
+      <text x="355" y="80" text-anchor="middle" font-size="11" fill="#56676F">free</text>
+      <text x="75"  y="45" text-anchor="middle" font-size="11" fill="#1D5A80">FRONT</text>
+      <text x="285" y="45" text-anchor="middle" font-size="11" fill="#B57C33">REAR</text>
+      <text x="75"  y="115" text-anchor="middle" font-size="10" fill="#56676F">dequeue takes this</text>
+      <text x="285" y="115" text-anchor="middle" font-size="10" fill="#56676F">enqueue added this</text>
+    </svg>
+    <figcaption>A simple array queue. Items leave at FRONT (left), join at REAR
+    (right). Index 0 is on the far left.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p>Here is the saw-job queue as a full program. An array holds the jobs,
+    <code>front</code> and <code>rear</code> are plain integers, and both start
+    at <code>-1</code> to mean the line is empty.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+const int SIZE = 5;
+string jobs[SIZE];
+int front = -1;
+int rear = -1;
+
+bool isEmpty() {
+    return front == -1;
+}
+
+bool isFull() {
+    return rear == SIZE - 1;
+}
+
+void enqueue(string job) {
+    if (isFull()) {
+        cout &lt;&lt; "bench full, " &lt;&lt; job &lt;&lt; " must wait" &lt;&lt; endl;
+        return;
+    }
+    if (isEmpty()) {
+        front = 0;          // first job opens the line
+    }
+    rear = rear + 1;        // step REAR to the next free slot
+    jobs[rear] = job;
+    cout &lt;&lt; "queued " &lt;&lt; job &lt;&lt; endl;
+}
+
+void dequeue() {
+    if (isEmpty()) {
+        cout &lt;&lt; "no jobs, saw idle" &lt;&lt; endl;
+        return;
+    }
+    cout &lt;&lt; "cutting " &lt;&lt; jobs[front] &lt;&lt; endl;
+    if (front == rear) {
+        front = -1;         // last job left, reset the line
+        rear = -1;
+    } else {
+        front = front + 1;  // step FRONT forward
+    }
+}
+
+int main() {
+    enqueue("truss-A");
+    enqueue("truss-B");
+    enqueue("truss-C");
+    dequeue();              // cuts truss-A
+    dequeue();              // cuts truss-B
+    enqueue("truss-D");
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save it, compile, run:
+    <code>g++ -std=c++17 sawqueue.cpp -o sawqueue &amp;&amp; ./sawqueue</code></p>
+    <p>Truss build step: on a real roof you cut in the order the trusses will be
+    lifted, so the first one off the saw is the first one craned onto the wall
+    plate. Feed jobs into the queue in lift order and the FIFO rule keeps the
+    cutting list matched to the lifting list, no re-sorting on the roof.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>The problem with the simple queue.</strong> Look at REAR. It only
+    ever moves right. After you dequeue a few jobs the front slots sit empty,
+    but <code>isFull()</code> still fires the moment <code>rear</code> hits the
+    last index. The free space at the front is stranded. You have a five-slot
+    bench reporting "full" with two jobs on it.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" width="260" height="260">
+      <rect x="1" y="1" width="258" height="258" fill="none" stroke="#C9D4DB"/>
+      <circle cx="130" cy="130" r="80" fill="none" stroke="#C9D4DB"/>
+      <!-- four slots around the ring -->
+      <rect x="112" y="30"  width="36" height="26" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="204" y="117" width="36" height="26" fill="#F6F8FA" stroke="#16232B"/>
+      <rect x="112" y="204" width="36" height="26" fill="none"    stroke="#C9D4DB" stroke-dasharray="4 3"/>
+      <rect x="20"  y="117" width="36" height="26" fill="#F6F8FA" stroke="#16232B"/>
+      <text x="130" y="48"  text-anchor="middle" font-size="11" fill="#16232B">0</text>
+      <text x="222" y="135" text-anchor="middle" font-size="11" fill="#16232B">1</text>
+      <text x="130" y="222" text-anchor="middle" font-size="11" fill="#56676F">2</text>
+      <text x="38"  y="135" text-anchor="middle" font-size="11" fill="#16232B">3</text>
+      <text x="130" y="20"  text-anchor="middle" font-size="10" fill="#B57C33">REAR wraps here</text>
+      <text x="130" y="252" text-anchor="middle" font-size="10" fill="#1D5A80">FRONT moves round the ring</text>
+      <path d="M 168 44 A 80 80 0 0 1 216 96" fill="none" stroke="#B57C33" stroke-width="2"/>
+      <path d="M 216 96 L 214 88 L 208 94 Z" fill="#B57C33"/>
+    </svg>
+    <figcaption>A circular queue treats the array as a ring. When REAR passes
+    the last index it wraps back to 0 and reuses freed slots.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>The circular queue</strong> fixes it. Treat the array as a ring:
+    when a marker runs off the end, wrap it back to index 0 with modulo
+    arithmetic, <code>(rear + 1) % SIZE</code>. Now freed front slots get
+    reused. One catch: with wrapping, "front and rear on the same slot" is
+    ambiguous between empty and full, so keep a <code>count</code> of items and
+    read that instead.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+const int SIZE = 4;
+string ring[SIZE];
+int front = -1;
+int rear = -1;
+int itemCount = 0;
+
+bool isEmpty() {
+    return itemCount == 0;
+}
+
+bool isFull() {
+    return itemCount == SIZE;
+}
+
+void enqueue(string job) {
+    if (isFull()) {
+        cout &lt;&lt; "ring full, " &lt;&lt; job &lt;&lt; " waits" &lt;&lt; endl;
+        return;
+    }
+    rear = (rear + 1) % SIZE;   // wrap past the end
+    ring[rear] = job;
+    if (front == -1) {
+        front = 0;
+    }
+    itemCount = itemCount + 1;
+    cout &lt;&lt; "in  " &lt;&lt; job &lt;&lt; endl;
+}
+
+void dequeue() {
+    if (isEmpty()) {
+        cout &lt;&lt; "ring empty" &lt;&lt; endl;
+        return;
+    }
+    cout &lt;&lt; "out " &lt;&lt; ring[front] &lt;&lt; endl;
+    front = (front + 1) % SIZE; // wrap past the end
+    itemCount = itemCount - 1;
+}
+
+int main() {
+    enqueue("A");
+    enqueue("B");
+    enqueue("C");
+    dequeue();      // frees slot 0
+    dequeue();      // frees slot 1
+    enqueue("D");
+    enqueue("E");   // reuses a wrapped slot, no false "full"
+    return 0;
+}</code></pre>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge</p>
+    <p>Predict the output of the circular-queue program above, line by line,
+    before you run it. Watch the two <code>dequeue</code> calls free slots 0 and
+    1, then check whether <code>enqueue("E")</code> prints <code>in  E</code> or
+    <code>ring full</code>. (Answer: all four enqueues succeed because SIZE is 4
+    and only two items are ever in the ring at once by the time E arrives, so it
+    prints <code>in  E</code>. The simple queue from earlier would have refused
+    E.)</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>A queue with a linked list</strong> needs no SIZE at all. Each
+    job is a node; <code>front</code> and <code>rear</code> are pointers.
+    Enqueue links a new node onto the rear; dequeue unlinks the front node and
+    frees it. It is never "full" until the machine runs out of memory, so
+    <code>isFull</code> disappears.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+struct Node {
+    string job;
+    Node* next;
+};
+
+Node* front = nullptr;
+Node* rear = nullptr;
+
+bool isEmpty() {
+    return front == nullptr;
+}
+
+void enqueue(string job) {
+    Node* n = new Node;
+    n-&gt;job = job;
+    n-&gt;next = nullptr;
+    if (isEmpty()) {
+        front = n;
+        rear = n;
+    } else {
+        rear-&gt;next = n;   // link onto the back
+        rear = n;
+    }
+    cout &lt;&lt; "queued " &lt;&lt; job &lt;&lt; endl;
+}
+
+void dequeue() {
+    if (isEmpty()) {
+        cout &lt;&lt; "queue empty" &lt;&lt; endl;
+        return;
+    }
+    Node* old = front;
+    cout &lt;&lt; "serving " &lt;&lt; front-&gt;job &lt;&lt; endl;
+    front = front-&gt;next;
+    if (front == nullptr) {
+        rear = nullptr;   // line is now empty
+    }
+    delete old;           // free the served node
+}
+
+int main() {
+    enqueue("view-point");
+    enqueue("waterfall");
+    dequeue();            // serving view-point
+    enqueue("old-fort");
+    dequeue();            // serving waterfall
+    dequeue();            // serving old-fort
+    dequeue();            // queue empty
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p><code>g++ -std=c++17 llqueue.cpp -o llqueue &amp;&amp; ./llqueue</code></p>
+    <p>Same theme, different job: a tour bus visits stops in the order tourists
+    booked them. Book a stop, it joins the rear; arrive at the front stop, it
+    leaves the queue. The linked-list version grows and shrinks with the day's
+    bookings, no fixed bench size to guess up front.</p>
+  </div>
+
+  <h2>Exam questions</h2>
+
+  <div class="exam-q">
+    <p>Q1. Define the terms FRONT and REAR as used in a queue.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>FRONT</strong> is the position (index or pointer) of the oldest
+    item in the queue, the next one to be removed by a dequeue. <strong>REAR</strong>
+    is the position of the newest item, where the last enqueue placed it and
+    where the next enqueue will add. In FIFO order, items leave at FRONT and
+    join at REAR. When FRONT and REAR both signal no items (for an array queue,
+    both set to -1), the queue is empty.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Write the algorithm for enqueue on a simple array queue that holds up
+    to SIZE items.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>enqueue(item):
+    if rear == SIZE - 1:        // no room at the back
+        report "queue full"
+        stop
+    if front == -1:             // queue was empty
+        front = 0
+    rear = rear + 1             // move REAR to next slot
+    queue[rear] = item          // store the item
+</code></pre>
+    <p>Key points: refuse when full (<code>rear == SIZE - 1</code>), open the
+    line by setting <code>front = 0</code> on the first item, then advance REAR
+    and store. Removal is the mirror: read <code>queue[front]</code>, then
+    advance FRONT, resetting both to -1 when the last item leaves.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Implement a queue using an array in C++, with working
+    <code>enqueue</code>, <code>dequeue</code>, <code>isFull</code> and
+    <code>isEmpty</code> operations.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+using namespace std;
+
+const int SIZE = 5;
+int q[SIZE];
+int front = -1;
+int rear = -1;
+
+bool isEmpty() { return front == -1; }
+bool isFull()  { return rear == SIZE - 1; }
+
+void enqueue(int x) {
+    if (isFull()) { cout &lt;&lt; "full" &lt;&lt; endl; return; }
+    if (isEmpty()) front = 0;
+    rear = rear + 1;
+    q[rear] = x;
+}
+
+int dequeue() {
+    if (isEmpty()) { cout &lt;&lt; "empty" &lt;&lt; endl; return -1; }
+    int x = q[front];
+    if (front == rear) { front = -1; rear = -1; }
+    else front = front + 1;
+    return x;
+}
+
+int main() {
+    enqueue(10);
+    enqueue(20);
+    cout &lt;&lt; dequeue() &lt;&lt; endl;   // 10
+    cout &lt;&lt; dequeue() &lt;&lt; endl;   // 20
+    return 0;
+}</code></pre>
+    <p>The two guards keep it safe: <code>isFull</code> stops an overflow past
+    the last index, <code>isEmpty</code> stops a read from an empty queue.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Implement a queue using a linked list in C++.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+using namespace std;
+
+struct Node { int data; Node* next; };
+Node* front = nullptr;
+Node* rear = nullptr;
+
+bool isEmpty() { return front == nullptr; }
+
+void enqueue(int x) {
+    Node* n = new Node;
+    n-&gt;data = x;
+    n-&gt;next = nullptr;
+    if (isEmpty()) { front = n; rear = n; }
+    else { rear-&gt;next = n; rear = n; }
+}
+
+int dequeue() {
+    if (isEmpty()) return -1;
+    Node* old = front;
+    int x = front-&gt;data;
+    front = front-&gt;next;
+    if (front == nullptr) rear = nullptr;
+    delete old;
+    return x;
+}
+
+int main() {
+    enqueue(1);
+    enqueue(2);
+    cout &lt;&lt; dequeue() &lt;&lt; endl;   // 1
+    cout &lt;&lt; dequeue() &lt;&lt; endl;   // 2
+    return 0;
+}</code></pre>
+    <p>No fixed size and no <code>isFull</code>: the queue grows with
+    <code>new</code> and shrinks with <code>delete</code>. Enqueue links onto
+    the rear; dequeue unlinks the front and frees it, resetting rear to
+    <code>nullptr</code> when the last node leaves.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q5. Compare a simple (linear) array queue with a circular queue.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <ul>
+      <li><strong>Simple queue:</strong> REAR only moves forward and never
+      returns. Once REAR reaches the last index the queue reports full, even
+      when dequeues have freed slots at the front. That free space is wasted
+      unless you shift every item down, which is slow.</li>
+      <li><strong>Circular queue:</strong> the array is treated as a ring.
+      Markers wrap with <code>(index + 1) % SIZE</code>, so freed front slots
+      are reused and the whole array stays available. It needs a
+      <code>count</code> (or a spare slot) to tell empty from full, since FRONT
+      meeting REAR is otherwise ambiguous.</li>
+    </ul>
+    <p>In short: the circular queue uses the array fully at the cost of a little
+    extra bookkeeping; the simple queue is easier to write but wastes space.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q6. Give two real-world uses of a queue.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <ul>
+      <li><strong>Print spooling:</strong> documents sent to a shared printer
+      are held in a queue and printed in the order they arrived, first come
+      first served.</li>
+      <li><strong>Job or task scheduling:</strong> a saw, a CPU, or a service
+      counter takes waiting jobs in arrival order, so the oldest request is
+      handled next and nobody is starved.</li>
+    </ul>
+    <p>Both rely on FIFO fairness: the item that has waited longest is served
+    next.</p>
+  </div>
+</section>

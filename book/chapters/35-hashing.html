@@ -1,0 +1,387 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 35</p>
+  <h1>Hash Tables</h1>
+
+  <div class="hook">
+    <p>Walk into a busy hotel and hand over your coat. The clerk does not
+    search a pile; he reads your ticket number, walks straight to that one
+    numbered hook, and hangs the coat. Later you give the same number and he
+    walks to the same hook. No searching, no scanning down a list, just a
+    number that points at a place. A hash table is that coat-check built in
+    code: turn a key (a name, a word, a room) into a number, and use the number
+    to jump straight to where the value lives.</p>
+  </div>
+
+  <div class="idea">
+    <p>A <strong>hash table</strong> is an array of slots (call them
+    <strong>buckets</strong>) plus a rule for deciding which bucket a key
+    belongs to. That rule is the <strong>hash function</strong>: it takes a key
+    and returns a bucket index, a plain integer in range. Store a value by
+    hashing its key to an index and dropping it in that bucket; retrieve it by
+    hashing the same key again and looking in the same bucket.</p>
+    <p>The whole point is speed. A linked list or an unsorted array makes you
+    walk item by item to find something, which is slow when there are many
+    items. A hash table skips the walk: the hash function computes the address
+    directly, so a lookup takes about the same short time whether the table
+    holds ten items or ten thousand. That near-constant lookup time, written
+    O(1) on average, is why hash tables sit under dictionaries, database
+    indexes, and the symbol tables inside compilers.</p>
+    <p>A good hash function has two jobs: it must always send the same key to
+    the same bucket (or you could never find anything again), and it should
+    spread different keys evenly across the buckets so no single bucket gets
+    crowded. A common simple one for text keys adds up the character codes and
+    takes the remainder modulo the table size, so the answer always lands inside
+    the array.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 220" width="460" height="220">
+      <rect x="1" y="1" width="458" height="218" fill="none" stroke="#C9D4DB"/>
+      <text x="120" y="24" text-anchor="middle" font-size="11" fill="#1D5A80">key</text>
+      <text x="230" y="24" text-anchor="middle" font-size="11" fill="#B57C33">hash function</text>
+      <text x="390" y="24" text-anchor="middle" font-size="11" fill="#1D5A80">bucket index</text>
+      <!-- key box -->
+      <rect x="70" y="90" width="100" height="34" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="120" y="112" text-anchor="middle" font-size="12" fill="#16232B">"beef"</text>
+      <!-- arrow to function -->
+      <line x1="170" y1="107" x2="200" y2="107" stroke="#56676F" stroke-width="2"/>
+      <polygon points="200,107 192,103 192,111" fill="#56676F"/>
+      <!-- function box -->
+      <rect x="200" y="80" width="120" height="54" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="260" y="102" text-anchor="middle" font-size="10" fill="#16232B">sum char codes</text>
+      <text x="260" y="120" text-anchor="middle" font-size="10" fill="#16232B">then % 7</text>
+      <!-- arrow to index -->
+      <line x1="320" y1="107" x2="352" y2="107" stroke="#56676F" stroke-width="2"/>
+      <polygon points="352,107 344,103 344,111" fill="#56676F"/>
+      <!-- index box -->
+      <rect x="352" y="90" width="70" height="34" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="387" y="112" text-anchor="middle" font-size="14" fill="#16232B">3</text>
+      <text x="230" y="180" text-anchor="middle" font-size="10" fill="#56676F">Same key in gives the same index out, every time.</text>
+    </svg>
+    <figcaption>The hash function is the middle step: it turns a key into a
+    bucket index so you can jump straight to the slot.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p>Here is a small table that maps a dish name to its price. It builds the
+    array of buckets, hashes each key, and reads one back. This version uses
+    chaining (explained just below) so that two dishes landing in the same
+    bucket can both live there.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;list&gt;
+
+const int SIZE = 7;
+
+// Hash function: sum the character codes, then wrap into range.
+int hashKey(const std::string&amp; key) {
+    int sum = 0;
+    for (char c : key) sum += c;
+    return sum % SIZE;
+}
+
+int main() {
+    // Each bucket is a list of (name, price) pairs.
+    std::vector&lt;std::list&lt;std::pair&lt;std::string, int&gt;&gt;&gt; table(SIZE);
+
+    // store: hash the key, drop the pair in that bucket.
+    auto store = [&amp;](const std::string&amp; name, int price) {
+        table[hashKey(name)].push_back({name, price});
+    };
+
+    // retrieve: hash the key, scan only that one bucket.
+    auto price = [&amp;](const std::string&amp; name) -&gt; int {
+        for (const auto&amp; entry : table[hashKey(name)])
+            if (entry.first == name) return entry.second;
+        return -1; // not found
+    };
+
+    store("sadza", 3);
+    store("rice", 2);
+    store("beef", 5);
+
+    std::cout &lt;&lt; "beef costs " &lt;&lt; price("beef") &lt;&lt; '\n';
+    std::cout &lt;&lt; "rice lives in bucket " &lt;&lt; hashKey("rice") &lt;&lt; '\n';
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save the listing as <code>menu.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 menu.cpp -o menu &amp;&amp; ./menu</code></p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Collisions.</strong> A hash function squeezes a huge range of
+    possible keys into a small range of buckets, so sooner or later two
+    different keys hash to the same index. That clash is a
+    <strong>collision</strong>. It is not a bug and you cannot avoid it in
+    general; you just need a rule for what to do when it happens. Two standard
+    rules exist.</p>
+    <ul>
+      <li><strong>Chaining (separate chaining):</strong> each bucket holds a
+      small list, and colliding keys just get appended to that bucket's list.
+      To find a key, hash to its bucket then walk that short list. This is what
+      the menu program above does: the bucket is a <code>std::list</code>.</li>
+      <li><strong>Open addressing:</strong> every key lives directly in the
+      array, one per slot. On a collision you probe for another slot by a fixed
+      rule. The simplest is <strong>linear probing</strong>: if the slot is
+      taken, step to the next slot, and the next, wrapping around, until you
+      find a free one. Lookup repeats the same walk until it finds the key or an
+      empty slot.</li>
+    </ul>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 260" width="480" height="260">
+      <rect x="1" y="1" width="478" height="258" fill="none" stroke="#C9D4DB"/>
+      <text x="240" y="22" text-anchor="middle" font-size="11" fill="#1D5A80">Chaining: each bucket is a list; collisions extend the list.</text>
+      <!-- bucket column -->
+      <!-- bucket 0 -->
+      <rect x="40" y="40" width="70" height="28" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="20" y="59" text-anchor="middle" font-size="11" fill="#56676F">0</text>
+      <text x="75" y="59" text-anchor="middle" font-size="10" fill="#16232B">(empty)</text>
+      <!-- bucket 1 -->
+      <rect x="40" y="76" width="70" height="28" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="20" y="95" text-anchor="middle" font-size="11" fill="#56676F">1</text>
+      <text x="75" y="95" text-anchor="middle" font-size="10" fill="#16232B">rice</text>
+      <!-- bucket 2 -->
+      <rect x="40" y="112" width="70" height="28" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="20" y="131" text-anchor="middle" font-size="11" fill="#56676F">2</text>
+      <text x="75" y="131" text-anchor="middle" font-size="10" fill="#16232B">(empty)</text>
+      <!-- bucket 3, collision -->
+      <rect x="40" y="148" width="70" height="28" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="20" y="167" text-anchor="middle" font-size="11" fill="#56676F">3</text>
+      <text x="75" y="167" text-anchor="middle" font-size="10" fill="#16232B">beef</text>
+      <!-- chain from bucket 3 -->
+      <line x1="110" y1="162" x2="150" y2="162" stroke="#B57C33" stroke-width="2"/>
+      <polygon points="150,162 142,158 142,166" fill="#B57C33"/>
+      <rect x="150" y="148" width="70" height="28" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="185" y="167" text-anchor="middle" font-size="10" fill="#16232B">okra</text>
+      <line x1="220" y1="162" x2="260" y2="162" stroke="#B57C33" stroke-width="2"/>
+      <polygon points="260,162 252,158 252,166" fill="#B57C33"/>
+      <rect x="260" y="148" width="70" height="28" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+      <text x="295" y="167" text-anchor="middle" font-size="10" fill="#16232B">kale</text>
+      <!-- bucket 4 -->
+      <rect x="40" y="184" width="70" height="28" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="20" y="203" text-anchor="middle" font-size="11" fill="#56676F">4</text>
+      <text x="75" y="203" text-anchor="middle" font-size="10" fill="#16232B">sadza</text>
+      <!-- bucket 5 -->
+      <rect x="40" y="220" width="70" height="28" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+      <text x="20" y="239" text-anchor="middle" font-size="11" fill="#56676F">5</text>
+      <text x="75" y="239" text-anchor="middle" font-size="10" fill="#16232B">(empty)</text>
+      <text x="240" y="203" font-size="10" fill="#56676F">beef, okra and kale all hashed to bucket 3,</text>
+      <text x="240" y="219" font-size="10" fill="#56676F">so they share one chain and are searched in turn.</text>
+    </svg>
+    <figcaption>Separate chaining: beef, okra, and kale collide in bucket 3, so
+    they hang off it as a short list. A lookup hashes to bucket 3 and walks that
+    list only.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p>Open addressing keeps everything in one flat array, no lists. Here is
+    linear probing storing tourist-site names. On a clash it steps forward to
+    the next free slot; a lookup retraces those steps.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+const int SIZE = 7;
+std::string slot[SIZE];
+bool used[SIZE] = { false };
+
+int hashKey(const std::string&amp; key) {
+    int sum = 0;
+    for (char c : key) sum += c;
+    return sum % SIZE;
+}
+
+// store: on a clash, step forward until a free slot appears.
+void store(const std::string&amp; key) {
+    int i = hashKey(key);
+    while (used[i]) i = (i + 1) % SIZE; // linear probe
+    slot[i] = key;
+    used[i] = true;
+}
+
+// find: retrace the same probe walk; stop at the key or an empty slot.
+int find(const std::string&amp; key) {
+    int i = hashKey(key);
+    int steps = 0;
+    while (used[i] &amp;&amp; steps &lt; SIZE) {
+        if (slot[i] == key) return i;
+        i = (i + 1) % SIZE;
+        ++steps;
+    }
+    return -1; // not found
+}
+
+int main() {
+    store("victoria");
+    store("kariba");
+    store("nyanga");
+
+    std::cout &lt;&lt; "kariba sits in slot " &lt;&lt; find("kariba") &lt;&lt; '\n';
+    std::cout &lt;&lt; "hwange found? " &lt;&lt; (find("hwange") != -1 ? "yes" : "no") &lt;&lt; '\n';
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save as <code>sites.cpp</code>, then:</p>
+    <p><code>g++ -std=c++17 sites.cpp -o sites &amp;&amp; ./sites</code></p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Pros and cons.</strong> A hash table's strength is speed: store,
+    retrieve, and delete all run in about O(1) time on average, far faster than
+    walking a list or array. Its costs are the flip side of that trick.</p>
+    <ul>
+      <li><strong>Good:</strong> average constant-time lookup, store, and
+      delete; simple idea; ideal for "find by key" work like dictionaries and
+      caches.</li>
+      <li><strong>Bad:</strong> no order is kept, so you cannot read the keys
+      out sorted or ask for the smallest without scanning everything. Worst-case
+      lookup degrades to O(n) if many keys collide into one bucket (a bad hash
+      function, or a table too full). It needs spare room to stay fast, so it
+      trades memory for speed, and picking a good hash function and table size
+      takes care.</li>
+    </ul>
+    <p>The <strong>load factor</strong> (items divided by buckets) is the dial:
+    keep it low and buckets stay short and fast; let it climb toward full and
+    collisions pile up. Real libraries grow the table and rehash everything once
+    the load factor passes a threshold, roughly 0.7 for open addressing.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge (predict the output)</p>
+    <p>Take the open-addressing program with <code>SIZE = 7</code>. Suppose two
+    site names both hash to slot 4, and slot 4 is already taken but slots 5 and
+    6 are free. Into which slot does linear probing place the second name, and
+    how many probe steps did it take past the first? Then answer: what would
+    <code>find</code> return for a name that hashes to slot 4 but was never
+    stored, assuming slots 4, 5, 6 are all full of other keys?</p>
+    <p>(Answer: it lands in slot 5, one step past the clash. For the missing
+    name, <code>find</code> keeps probing 4, 5, 6 and only stops when it hits an
+    empty slot or has checked every slot; since none match, it returns
+    <code>-1</code>. This is why open addressing must never leave the table
+    completely full: with no empty slot, a failed search has to walk the whole
+    array.)</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. What is a hash table, and what is the role of the hash function
+    within it?</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A hash table is a data structure that stores key-value pairs in an array
+    of slots called buckets, and gives near constant-time (O(1) average) store
+    and retrieve by key. Instead of searching through the items, it computes
+    where each item belongs.</p>
+    <p>The hash function is what computes that location: it takes a key and
+    returns a bucket index, an integer within the array's range (for example, by
+    summing the key's character codes and taking the remainder modulo the table
+    size). Its role is to map every key to a bucket so that storing hashes the
+    key to pick a slot, and retrieving hashes the same key to look in the same
+    slot. A good hash function is consistent (the same key always gives the same
+    index) and spreads keys evenly across the buckets to keep collisions
+    rare.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. A collision happens when two keys hash to the same bucket. Describe
+    two techniques for resolving collisions.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>1. Chaining (separate chaining).</strong> Each bucket holds a
+    list of entries. When two keys hash to the same bucket, both are kept in
+    that bucket's list. To store, hash the key and append to the bucket's list;
+    to retrieve, hash the key and scan only that one short list. The array never
+    fills up, because each bucket can grow, though very long chains slow lookups
+    down.</p>
+    <p><strong>2. Open addressing.</strong> Every entry is stored directly in
+    the array, one per slot. When the target slot is taken, the algorithm probes
+    for another slot by a fixed rule. In linear probing, it steps to the next
+    slot (wrapping around the end) until it finds a free one; storing places the
+    key in the first free slot found, and retrieving retraces the same steps
+    until it finds the key or reaches an empty slot. This uses no extra lists,
+    but the table must keep some free slots or it slows to a full scan.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Draw a hash table with 5 buckets that uses chaining, after inserting
+    keys that produce a collision. Explain how a lookup then works.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Suppose a hash function sends keys to these buckets: apple to 1, mango to
+    3, guava to 3 (a collision with mango), and plum to 4. With chaining, mango
+    and guava share bucket 3 as a two-item list:</p>
+    <figure class="diagram">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" width="420" height="240">
+        <rect x="1" y="1" width="418" height="238" fill="none" stroke="#C9D4DB"/>
+        <text x="210" y="22" text-anchor="middle" font-size="11" fill="#1D5A80">5-bucket table with chaining</text>
+        <!-- bucket 0 -->
+        <rect x="60" y="40" width="80" height="30" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="40" y="60" text-anchor="middle" font-size="11" fill="#56676F">0</text>
+        <text x="100" y="60" text-anchor="middle" font-size="10" fill="#16232B">(empty)</text>
+        <!-- bucket 1 -->
+        <rect x="60" y="78" width="80" height="30" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="40" y="98" text-anchor="middle" font-size="11" fill="#56676F">1</text>
+        <text x="100" y="98" text-anchor="middle" font-size="10" fill="#16232B">apple</text>
+        <!-- bucket 2 -->
+        <rect x="60" y="116" width="80" height="30" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="40" y="136" text-anchor="middle" font-size="11" fill="#56676F">2</text>
+        <text x="100" y="136" text-anchor="middle" font-size="10" fill="#16232B">(empty)</text>
+        <!-- bucket 3 collision -->
+        <rect x="60" y="154" width="80" height="30" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="40" y="174" text-anchor="middle" font-size="11" fill="#56676F">3</text>
+        <text x="100" y="174" text-anchor="middle" font-size="10" fill="#16232B">mango</text>
+        <line x1="140" y1="169" x2="180" y2="169" stroke="#B57C33" stroke-width="2"/>
+        <polygon points="180,169 172,165 172,173" fill="#B57C33"/>
+        <rect x="180" y="154" width="80" height="30" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/>
+        <text x="220" y="174" text-anchor="middle" font-size="10" fill="#16232B">guava</text>
+        <!-- bucket 4 -->
+        <rect x="60" y="192" width="80" height="30" fill="#F6F8FA" stroke="#1D5A80" stroke-width="2"/>
+        <text x="40" y="212" text-anchor="middle" font-size="11" fill="#56676F">4</text>
+        <text x="100" y="212" text-anchor="middle" font-size="10" fill="#16232B">plum</text>
+      </svg>
+      <figcaption>Bucket 3 holds a chain of two entries because mango and guava
+      collided.</figcaption>
+    </figure>
+    <p>A lookup for guava hashes the key, gets bucket 3, then walks that
+    bucket's list comparing keys: it passes mango (no match) and reaches guava
+    (match). Only the entries in bucket 3 are ever examined, not the whole
+    table, which is why the search stays fast as long as chains stay short.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. State two advantages and two disadvantages of a hash table.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Advantages:</strong></p>
+    <ul>
+      <li>Very fast average lookup, insertion, and deletion by key: about O(1),
+      independent of how many items the table holds.</li>
+      <li>Simple and natural for "find the value for this key" tasks, such as
+      dictionaries, caches, and database indexes.</li>
+    </ul>
+    <p><strong>Disadvantages:</strong></p>
+    <ul>
+      <li>No ordering is kept, so you cannot list keys in sorted order or find
+      the smallest or largest without scanning everything.</li>
+      <li>Performance depends on a good hash function and spare capacity: many
+      collisions (a poor hash function or a table too full) degrade lookups to
+      O(n), and keeping the table fast means using extra memory.</li>
+    </ul>
+  </div>
+</section>

@@ -143,6 +143,44 @@ int main() {
     no matter how thick the stack.</p>
   </div>
 
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 158" width="520" height="158">
+      <g font-family="Helvetica">
+        <text x="63" y="52" font-size="11" fill="#1D5A80" text-anchor="middle">head</text>
+        <line x1="63" y1="58" x2="63" y2="82" stroke="#1D5A80" stroke-width="2.2"/>
+        <polygon points="63,86 58,76 68,76" fill="#1D5A80"/>
+        <!-- new node (highlighted) -->
+        <g stroke="#B57C33" stroke-width="2.2" stroke-linejoin="round">
+          <rect x="18" y="88" width="90" height="42" fill="#FAF6EE"/>
+          <line x1="76" y1="88" x2="76" y2="130"/>
+        </g>
+        <text x="47" y="114" font-size="11" fill="#22201B" text-anchor="middle">Rafter</text>
+        <circle cx="92" cy="109" r="3" fill="#B57C33"/>
+        <!-- old-head node -->
+        <g stroke="#22201B" stroke-width="2.2" stroke-linejoin="round">
+          <rect x="200" y="88" width="90" height="42" fill="#FAF6EE"/>
+          <line x1="258" y1="88" x2="258" y2="130"/>
+          <rect x="380" y="88" width="90" height="42" fill="#FAF6EE"/>
+          <line x1="438" y1="88" x2="438" y2="130"/>
+        </g>
+        <text x="229" y="114" font-size="11" fill="#22201B" text-anchor="middle">Ridge</text>
+        <circle cx="274" cy="109" r="3" fill="#22201B"/>
+        <text x="409" y="114" font-size="11" fill="#22201B" text-anchor="middle">Bolts</text>
+        <circle cx="454" cy="109" r="3" fill="#22201B"/>
+        <!-- arrows -->
+        <line x1="92" y1="109" x2="198" y2="109" stroke="#B57C33" stroke-width="2.2"/>
+        <polygon points="200,109 190,104 190,114" fill="#B57C33"/>
+        <text x="145" y="100" font-size="10" fill="#B57C33" text-anchor="middle">new next = old head</text>
+        <line x1="274" y1="109" x2="378" y2="109" stroke="#22201B" stroke-width="2.2"/>
+        <polygon points="380,109 370,104 370,114" fill="#22201B"/>
+        <line x1="454" y1="109" x2="492" y2="109" stroke="#22201B" stroke-width="2.2"/>
+        <text x="504" y="113" font-size="11" fill="#56676F" text-anchor="middle">null</text>
+      </g>
+    </svg>
+    <figcaption>Insert at the front: the new node points at the old head, then
+    head moves to it. Nothing else moves.</figcaption>
+  </figure>
+
   <pre class="code"><code>#include &lt;iostream&gt;
 #include &lt;string&gt;
 
@@ -267,6 +305,36 @@ int main() {
     node so its memory goes back. The special case is deleting the head, since no
     node points to it; then you just move the head forward.</p>
   </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" width="520" height="150">
+      <g font-family="Helvetica">
+        <g stroke="#22201B" stroke-width="2.2" stroke-linejoin="round">
+          <rect x="18" y="78" width="90" height="42" fill="#FAF6EE"/>
+          <line x1="76" y1="78" x2="76" y2="120"/>
+          <rect x="380" y="78" width="90" height="42" fill="#FAF6EE"/>
+          <line x1="438" y1="78" x2="438" y2="120"/>
+        </g>
+        <text x="47" y="104" font-size="11" fill="#22201B" text-anchor="middle">Rafter</text>
+        <circle cx="92" cy="99" r="3" fill="#22201B"/>
+        <text x="409" y="104" font-size="11" fill="#22201B" text-anchor="middle">Bolts</text>
+        <rect x="199" y="78" width="90" height="42" fill="#F3ECE0" stroke="#B57C33" stroke-width="2.2" stroke-dasharray="5 4" stroke-linejoin="round"/>
+        <text x="244" y="104" font-size="11" fill="#B57C33" text-anchor="middle">Ridge</text>
+        <line x1="212" y1="88" x2="276" y2="112" stroke="#B57C33" stroke-width="1.6"/>
+        <line x1="276" y1="88" x2="212" y2="112" stroke="#B57C33" stroke-width="1.6"/>
+        <text x="244" y="140" font-size="10" fill="#B57C33" text-anchor="middle">delete this node</text>
+        <line x1="92" y1="99" x2="197" y2="99" stroke="#C9BBA3" stroke-width="1.6" stroke-dasharray="4 3"/>
+        <path d="M92 96 C 180 40, 300 40, 378 92" fill="none" stroke="#1D5A80" stroke-width="2.2"/>
+        <polygon points="380,94 369,90 373,80" fill="#1D5A80"/>
+        <text x="235" y="42" font-size="10.5" fill="#1D5A80" text-anchor="middle">re-route past the removed node</text>
+        <circle cx="454" cy="99" r="3" fill="#22201B"/>
+        <line x1="454" y1="99" x2="492" y2="99" stroke="#22201B" stroke-width="2.2"/>
+        <text x="504" y="103" font-size="11" fill="#56676F" text-anchor="middle">null</text>
+      </g>
+    </svg>
+    <figcaption>Delete a node by re-routing: the node before it points past it
+    to the node after, then the removed node is freed.</figcaption>
+  </figure>
 
   <pre class="code"><code>#include &lt;iostream&gt;
 #include &lt;string&gt;

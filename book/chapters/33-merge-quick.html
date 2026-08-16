@@ -1,0 +1,477 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 33</p>
+  <h1>Merge Sort and Quick Sort</h1>
+
+  <div class="hook">
+    <p>Chapter 18 sorted boards by hand, one comparison at a time: bubble,
+    selection, insertion. All three crawl on a big pile, because they do work
+    that grows like the pile squared. Now the foreman drops a thousand boards on
+    site and wants them in length order before lunch. The trick every fast sorter
+    uses is the same one a good site manager uses: do not sort the whole pile
+    yourself. Split it, hand each half to a mate, and deal only with joining
+    their two sorted halves at the end. Split enough times and each mate holds one
+    board, which is already sorted. That idea, called divide and conquer, is what
+    turns a squared-time crawl into an n log n sprint.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Divide and conquer</strong> is a three-step plan for a problem too
+    big to swallow whole:</p>
+    <ul>
+      <li><strong>Divide:</strong> split the problem into smaller problems of the
+      same shape.</li>
+      <li><strong>Conquer:</strong> solve each small problem (usually by splitting
+      it again, until it is tiny enough to be trivial).</li>
+      <li><strong>Combine:</strong> stitch the small answers back into the answer
+      for the whole.</li>
+    </ul>
+    <p>Both sorters in this chapter follow that plan on a list. They differ only
+    in where they put the hard work. <strong>Merge sort</strong> splits blindly
+    down the middle and does its real work in the combine step, merging two sorted
+    halves. <strong>Quick sort</strong> does its real work up front, partitioning
+    the list around a chosen value, so the combine step is free.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Merge sort, step by step.</strong> To sort a list:</p>
+    <ul>
+      <li>If the list has 0 or 1 elements, it is already sorted; stop. This is the
+      base case that ends the splitting.</li>
+      <li>Otherwise split it into a left half and a right half.</li>
+      <li>Merge sort the left half. Merge sort the right half. (Each half splits
+      again, all the way down to single boards.)</li>
+      <li>Merge the two sorted halves into one sorted list.</li>
+    </ul>
+    <p>The picture below sorts <code>38 27 43 3</code>. The top half of the
+    drawing splits the list down to singles; the bottom half merges the singles
+    back up in order.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+      <rect x="1" y="1" width="478" height="298" fill="none" stroke="#C9D4DB"/>
+      <text x="10" y="18" font-size="11" fill="#1D5A80">split down</text>
+      <text x="400" y="18" font-size="11" fill="#B57C33">merge up</text>
+      <!-- level 0 -->
+      <rect x="180" y="28" width="120" height="26" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="240" y="46" text-anchor="middle" font-size="12" fill="#16232B">38 27 43 3</text>
+      <!-- split arrows -->
+      <line x1="210" y1="54" x2="120" y2="88" stroke="#56676F" stroke-width="1"/>
+      <line x1="270" y1="54" x2="360" y2="88" stroke="#56676F" stroke-width="1"/>
+      <!-- level 1 -->
+      <rect x="80" y="90" width="80" height="26" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="120" y="108" text-anchor="middle" font-size="12" fill="#16232B">38 27</text>
+      <rect x="320" y="90" width="80" height="26" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="360" y="108" text-anchor="middle" font-size="12" fill="#16232B">43 3</text>
+      <line x1="100" y1="116" x2="60" y2="150" stroke="#56676F" stroke-width="1"/>
+      <line x1="140" y1="116" x2="180" y2="150" stroke="#56676F" stroke-width="1"/>
+      <line x1="340" y1="116" x2="300" y2="150" stroke="#56676F" stroke-width="1"/>
+      <line x1="380" y1="116" x2="420" y2="150" stroke="#56676F" stroke-width="1"/>
+      <!-- level 2 singles -->
+      <rect x="40" y="152" width="40" height="26" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="60" y="170" text-anchor="middle" font-size="12" fill="#16232B">38</text>
+      <rect x="160" y="152" width="40" height="26" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="180" y="170" text-anchor="middle" font-size="12" fill="#16232B">27</text>
+      <rect x="280" y="152" width="40" height="26" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="300" y="170" text-anchor="middle" font-size="12" fill="#16232B">43</text>
+      <rect x="400" y="152" width="40" height="26" fill="#F6F8FA" stroke="#1D5A80"/>
+      <text x="420" y="170" text-anchor="middle" font-size="12" fill="#16232B">3</text>
+      <!-- merge up arrows -->
+      <line x1="60" y1="178" x2="100" y2="212" stroke="#B57C33" stroke-width="1"/>
+      <line x1="180" y1="178" x2="140" y2="212" stroke="#B57C33" stroke-width="1"/>
+      <line x1="300" y1="178" x2="340" y2="212" stroke="#B57C33" stroke-width="1"/>
+      <line x1="420" y1="178" x2="380" y2="212" stroke="#B57C33" stroke-width="1"/>
+      <!-- merged pairs -->
+      <rect x="80" y="214" width="80" height="26" fill="#F6F8FA" stroke="#B57C33"/>
+      <text x="120" y="232" text-anchor="middle" font-size="12" fill="#16232B">27 38</text>
+      <rect x="320" y="214" width="80" height="26" fill="#F6F8FA" stroke="#B57C33"/>
+      <text x="360" y="232" text-anchor="middle" font-size="12" fill="#16232B">3 43</text>
+      <line x1="120" y1="240" x2="210" y2="266" stroke="#B57C33" stroke-width="1"/>
+      <line x1="360" y1="240" x2="270" y2="266" stroke="#B57C33" stroke-width="1"/>
+      <!-- final -->
+      <rect x="180" y="266" width="120" height="26" fill="#F6F8FA" stroke="#B57C33"/>
+      <text x="240" y="284" text-anchor="middle" font-size="12" fill="#16232B">3 27 38 43</text>
+    </svg>
+    <figcaption>Merge sort on 38 27 43 3. Blue splits the list down to single
+    elements (each trivially sorted); timber merges them back up, always joining
+    two already-sorted pieces into a larger sorted one.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>The merge is the heart of it.</strong> Merging takes two lists that
+    are each already sorted and walks them with two fingers, one on the front of
+    each. Compare the two fingered values, copy the smaller into the output, and
+    advance that finger. Repeat until one list runs out, then copy whatever is
+    left of the other. Because both inputs are sorted, the smallest unused value
+    is always under one of the two fingers, so one pass does it.</p>
+    <p>Here is merge on its own: it takes two sorted arrays and returns one sorted
+    array holding all their values.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Merge two already-sorted vectors into one sorted vector.
+std::vector&lt;int&gt; merge(const std::vector&lt;int&gt;&amp; a, const std::vector&lt;int&gt;&amp; b) {
+    std::vector&lt;int&gt; out;
+    out.reserve(a.size() + b.size());
+    size_t i = 0, j = 0;            // one finger on each list
+
+    while (i &lt; a.size() &amp;&amp; j &lt; b.size()) {
+        if (a[i] &lt;= b[j]) out.push_back(a[i++]);
+        else              out.push_back(b[j++]);
+    }
+    while (i &lt; a.size()) out.push_back(a[i++]);   // leftovers from a
+    while (j &lt; b.size()) out.push_back(b[j++]);   // leftovers from b
+    return out;
+}
+
+int main() {
+    std::vector&lt;int&gt; left  = {3, 27, 38};
+    std::vector&lt;int&gt; right = {9, 43, 82};
+    std::vector&lt;int&gt; both = merge(left, right);
+
+    std::cout &lt;&lt; "merged: ";
+    for (int v : both) std::cout &lt;&lt; v &lt;&lt; ' ';
+    std::cout &lt;&lt; std::endl;          // merged: 3 9 27 38 43 82
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p>Wrap that merge in the divide-and-conquer plan and you have a full merge
+    sort: split, sort each half, merge.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+std::vector&lt;int&gt; merge(const std::vector&lt;int&gt;&amp; a, const std::vector&lt;int&gt;&amp; b) {
+    std::vector&lt;int&gt; out;
+    size_t i = 0, j = 0;
+    while (i &lt; a.size() &amp;&amp; j &lt; b.size())
+        out.push_back(a[i] &lt;= b[j] ? a[i++] : b[j++]);
+    while (i &lt; a.size()) out.push_back(a[i++]);
+    while (j &lt; b.size()) out.push_back(b[j++]);
+    return out;
+}
+
+std::vector&lt;int&gt; mergeSort(const std::vector&lt;int&gt;&amp; v) {
+    if (v.size() &lt;= 1) return v;                 // base case: already sorted
+    size_t mid = v.size() / 2;
+    std::vector&lt;int&gt; left(v.begin(), v.begin() + mid);
+    std::vector&lt;int&gt; right(v.begin() + mid, v.end());
+    return merge(mergeSort(left), mergeSort(right));
+}
+
+int main() {
+    std::vector&lt;int&gt; data = {38, 27, 43, 3, 9, 82, 10};
+    std::vector&lt;int&gt; sorted = mergeSort(data);
+
+    std::cout &lt;&lt; "sorted: ";
+    for (int v : sorted) std::cout &lt;&lt; v &lt;&lt; ' ';
+    std::cout &lt;&lt; std::endl;          // sorted: 3 9 10 27 38 43 82
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save the listing as <code>mergesort.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 mergesort.cpp -o mergesort &amp;&amp; ./mergesort</code></p>
+    <p>Count the layers in the split picture: a list of n splits in half about
+    log&#8322;(n) times before it hits singles, and each layer merges every one of
+    the n values once. That is n work per layer times log n layers, so merge sort
+    runs in <strong>O(n log n)</strong> in every case, best, average, and worst.
+    The cost is memory: the merge builds a fresh list, so it needs O(n) extra
+    space.</p>
+  </div>
+
+  <div class="idea">
+    <p><strong>Quick sort, step by step.</strong> Quick sort also divides, but it
+    sorts in place and does its work before the recursion, not after:</p>
+    <ul>
+      <li>If the list has 0 or 1 elements, stop. Base case again.</li>
+      <li>Pick one value as the <strong>pivot</strong>.</li>
+      <li><strong>Partition:</strong> rearrange the list so every value smaller
+      than the pivot sits to its left and every value larger sits to its right.
+      The pivot is now in its final sorted position.</li>
+      <li>Quick sort the left part and the right part. No combine step is needed,
+      because the parts are already on the correct sides of a settled pivot.</li>
+    </ul>
+    <p><strong>What is the pivot?</strong> The pivot is the reference value you
+    compare everything against in one partition pass. Think of the foreman
+    grabbing one board off the pile and saying "shorter than this goes left,
+    longer goes right." That one board is the pivot. After the pass it is exactly
+    where it belongs in the final line, and the two smaller piles either side get
+    the same treatment. The choice of which board to grab (first, last, middle, or
+    random) does not change the answer, but it decides how balanced the two piles
+    are, which decides the speed.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 210" width="480" height="210">
+      <rect x="1" y="1" width="478" height="208" fill="none" stroke="#C9D4DB"/>
+      <text x="10" y="20" font-size="11" fill="#16232B">Partition of 7 2 9 4 3 6 with pivot = 6 (last)</text>
+      <!-- before -->
+      <text x="10" y="52" font-size="10" fill="#56676F">before:</text>
+      <rect x="70"  y="38" width="34" height="26" fill="#F6F8FA" stroke="#1D5A80"/><text x="87"  y="56" text-anchor="middle" font-size="12">7</text>
+      <rect x="106" y="38" width="34" height="26" fill="#F6F8FA" stroke="#1D5A80"/><text x="123" y="56" text-anchor="middle" font-size="12">2</text>
+      <rect x="142" y="38" width="34" height="26" fill="#F6F8FA" stroke="#1D5A80"/><text x="159" y="56" text-anchor="middle" font-size="12">9</text>
+      <rect x="178" y="38" width="34" height="26" fill="#F6F8FA" stroke="#1D5A80"/><text x="195" y="56" text-anchor="middle" font-size="12">4</text>
+      <rect x="214" y="38" width="34" height="26" fill="#F6F8FA" stroke="#1D5A80"/><text x="231" y="56" text-anchor="middle" font-size="12">3</text>
+      <rect x="250" y="38" width="34" height="26" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/><text x="267" y="56" text-anchor="middle" font-size="12">6</text>
+      <text x="252" y="80" font-size="9" fill="#B57C33">pivot</text>
+      <!-- arrow -->
+      <text x="240" y="112" text-anchor="middle" font-size="20" fill="#1D5A80">&#8595;</text>
+      <!-- after -->
+      <text x="10" y="152" font-size="10" fill="#56676F">after:</text>
+      <rect x="70"  y="138" width="34" height="26" fill="#EAF2E6" stroke="#4B7A2B"/><text x="87"  y="156" text-anchor="middle" font-size="12">2</text>
+      <rect x="106" y="138" width="34" height="26" fill="#EAF2E6" stroke="#4B7A2B"/><text x="123" y="156" text-anchor="middle" font-size="12">4</text>
+      <rect x="142" y="138" width="34" height="26" fill="#EAF2E6" stroke="#4B7A2B"/><text x="159" y="156" text-anchor="middle" font-size="12">3</text>
+      <rect x="178" y="138" width="34" height="26" fill="#F6F8FA" stroke="#B57C33" stroke-width="2"/><text x="195" y="156" text-anchor="middle" font-size="12">6</text>
+      <rect x="214" y="138" width="34" height="26" fill="#FBECEC" stroke="#A23B3B"/><text x="231" y="156" text-anchor="middle" font-size="12">7</text>
+      <rect x="250" y="138" width="34" height="26" fill="#FBECEC" stroke="#A23B3B"/><text x="267" y="156" text-anchor="middle" font-size="12">9</text>
+      <text x="90"  y="184" font-size="9" fill="#4B7A2B">smaller than pivot</text>
+      <text x="230" y="184" font-size="9" fill="#A23B3B">larger than pivot</text>
+    </svg>
+    <figcaption>One partition pass with pivot 6. Everything below 6 is swapped to
+    the left, everything above to the right, and 6 lands in its final resting
+    place. Quick sort then repeats on the left group and the right group.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p><strong>The partition (Lomuto scheme).</strong> Take the last element as
+    the pivot. Walk an index <code>i</code> that marks the boundary of the
+    "smaller than pivot" zone. Scan <code>j</code> across the rest: each time
+    <code>arr[j]</code> is below the pivot, grow the zone by one and swap that
+    value into it. At the end, swap the pivot into the slot just past the zone.
+    That slot is the pivot's final index, which the function returns so quick sort
+    knows where to split.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;utility&gt;   // std::swap
+
+// Lomuto partition: pivot = last element. Returns pivot's final index.
+int partition(std::vector&lt;int&gt;&amp; arr, int low, int high) {
+    int pivot = arr[high];
+    int i = low - 1;                       // boundary of the "smaller" zone
+    for (int j = low; j &lt; high; ++j) {
+        if (arr[j] &lt; pivot) {
+            ++i;
+            std::swap(arr[i], arr[j]);     // move a small value into the zone
+        }
+    }
+    std::swap(arr[i + 1], arr[high]);      // drop pivot just past the zone
+    return i + 1;
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {7, 2, 9, 4, 3, 6};
+    int p = partition(arr, 0, (int)arr.size() - 1);
+
+    std::cout &lt;&lt; "pivot landed at index " &lt;&lt; p &lt;&lt; "\n";
+    std::cout &lt;&lt; "array now: ";
+    for (int v : arr) std::cout &lt;&lt; v &lt;&lt; ' ';
+    std::cout &lt;&lt; std::endl;          // e.g. 2 4 3 6 7 9, pivot 6 at index 3
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p>Now recurse on the two sides and you have the full quick sort.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;utility&gt;
+
+int partition(std::vector&lt;int&gt;&amp; arr, int low, int high) {
+    int pivot = arr[high];
+    int i = low - 1;
+    for (int j = low; j &lt; high; ++j) {
+        if (arr[j] &lt; pivot) {
+            ++i;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+
+void quickSort(std::vector&lt;int&gt;&amp; arr, int low, int high) {
+    if (low &gt;= high) return;                 // base case: 0 or 1 element
+    int p = partition(arr, low, high);
+    quickSort(arr, low, p - 1);              // sort the smaller side
+    quickSort(arr, p + 1, high);             // sort the larger side
+}
+
+int main() {
+    std::vector&lt;int&gt; data = {38, 27, 43, 3, 9, 82, 10};
+    quickSort(data, 0, (int)data.size() - 1);
+
+    std::cout &lt;&lt; "sorted: ";
+    for (int v : data) std::cout &lt;&lt; v &lt;&lt; ' ';
+    std::cout &lt;&lt; std::endl;          // sorted: 3 9 10 27 38 43 82
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>Save the listing as <code>quicksort.cpp</code>, then compile and run:</p>
+    <p><code>g++ -std=c++17 quicksort.cpp -o quicksort &amp;&amp; ./quicksort</code></p>
+    <p>When the pivot splits the list roughly in half each time, quick sort has
+    log n layers of n work, so it averages <strong>O(n log n)</strong> and sorts
+    in place with no extra array. The trap is a bad pivot: on an already-sorted
+    list, taking the last element peels off just one value per pass, giving n
+    layers and a <strong>O(n&#178;)</strong> worst case. Picking a random or middle
+    pivot dodges that in practice.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge (predict the output)</p>
+    <p>Run the <code>partition</code> function on the array
+    <code>{4, 1, 7, 2, 5}</code> with <code>low = 0</code> and
+    <code>high = 4</code>, so the pivot is 5. Before you compile, write down the
+    final array and the index the function returns. Then a harder question: why
+    does merge sort keep its O(n log n) even on this input while quick sort could
+    slow to O(n&#178;) on a different one?</p>
+    <p>(Answer: the array becomes <code>4 1 2 5 7</code> and the function returns
+    <code>3</code>, the pivot's index. Values 4, 1, 2 are below 5 and get swept
+    left; 7 stays right; 5 drops into index 3. Merge sort always splits exactly in
+    half regardless of the values, so it cannot degrade; quick sort's split depends
+    on the pivot, so a poorly chosen pivot can leave one side nearly empty.)</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Describe the steps of merge sort and state its time complexity. Explain
+    why it has that complexity.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Merge sort is a divide-and-conquer sort. The steps:</p>
+    <ol>
+      <li>If the list has 0 or 1 elements it is already sorted, so return it (the
+      base case).</li>
+      <li>Split the list into a left half and a right half at the middle.</li>
+      <li>Merge sort the left half and merge sort the right half, recursively.
+      Each half keeps splitting until every piece is a single element.</li>
+      <li>Merge the two sorted halves into one sorted list by comparing their
+      front elements and copying the smaller each time.</li>
+    </ol>
+    <p>Its time complexity is <strong>O(n log n)</strong> in the best, average, and
+    worst case. The reason: halving the list repeatedly makes about log&#8322;(n)
+    levels of splitting, and at each level the merges together touch all n
+    elements exactly once. So the work is n per level times log n levels, giving
+    n log n. It also uses O(n) extra memory for the merged output.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Write a C++ function that merges two already-sorted arrays (or vectors)
+    into a single sorted array. State the reasoning behind the algorithm.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Because both inputs are already sorted, the smallest value not yet used is
+    always at the front of one of the two lists. So keep one index on each list,
+    compare the two fronted values, copy the smaller to the output, and advance
+    that index. When one list empties, copy the rest of the other.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+std::vector&lt;int&gt; merge(const std::vector&lt;int&gt;&amp; a, const std::vector&lt;int&gt;&amp; b) {
+    std::vector&lt;int&gt; out;
+    size_t i = 0, j = 0;
+    while (i &lt; a.size() &amp;&amp; j &lt; b.size()) {
+        if (a[i] &lt;= b[j]) out.push_back(a[i++]);
+        else              out.push_back(b[j++]);
+    }
+    while (i &lt; a.size()) out.push_back(a[i++]);
+    while (j &lt; b.size()) out.push_back(b[j++]);
+    return out;
+}
+
+int main() {
+    std::vector&lt;int&gt; a = {1, 4, 7};
+    std::vector&lt;int&gt; b = {2, 3, 8, 9};
+    for (int v : merge(a, b)) std::cout &lt;&lt; v &lt;&lt; ' ';   // 1 2 3 4 7 8 9
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+    <p>The merge does one pass over both lists, so it runs in O(n + m) time for
+    inputs of sizes n and m.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. Describe the steps of quick sort, and explain what the pivot is and why
+    the choice of pivot matters.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Quick sort is divide-and-conquer done in place. The steps:</p>
+    <ol>
+      <li>If the section has 0 or 1 elements, stop (base case).</li>
+      <li>Choose one element as the pivot.</li>
+      <li>Partition: rearrange the section so all values smaller than the pivot
+      are to its left and all larger are to its right. The pivot is now in its
+      final sorted position.</li>
+      <li>Recursively quick sort the left part and the right part. No merge step
+      is needed.</li>
+    </ol>
+    <p>The <strong>pivot</strong> is the reference value that one partition pass
+    compares every other element against: smaller goes left, larger goes right.
+    After the pass, the pivot sits exactly where it belongs in the final order.</p>
+    <p>The choice matters because it decides how evenly the section splits. A
+    pivot near the median splits it roughly in half, giving about log n levels and
+    an average of <strong>O(n log n)</strong>. A pivot that is the smallest or
+    largest value leaves one side almost empty; if that happens every time (for
+    example, always taking the last element of an already-sorted list), there are
+    n levels and the sort degrades to <strong>O(n&#178;)</strong>. Choosing a
+    random or middle element avoids that worst case in practice.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Write the partition function used by quick sort (Lomuto scheme, pivot =
+    last element) and explain what value it returns.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <pre class="code"><code>#include &lt;utility&gt;   // std::swap
+#include &lt;vector&gt;
+
+int partition(std::vector&lt;int&gt;&amp; arr, int low, int high) {
+    int pivot = arr[high];         // pivot is the last element
+    int i = low - 1;               // last index of the "smaller than pivot" zone
+    for (int j = low; j &lt; high; ++j) {
+        if (arr[j] &lt; pivot) {
+            ++i;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[i + 1], arr[high]);   // put the pivot just past the zone
+    return i + 1;                       // the pivot's final index
+}</code></pre>
+    <p>It returns the index where the pivot ends up after the rearrangement. That
+    index is the pivot's final sorted position, so quick sort recurses on
+    <code>[low, index - 1]</code> and <code>[index + 1, high]</code>, never
+    touching the pivot again.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q5. Both merge sort and quick sort average O(n log n). Give one clear
+    difference between them in extra memory used and in worst-case time.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p><strong>Extra memory:</strong> merge sort needs O(n) extra space, because
+    each merge builds a new list to hold the combined result. Quick sort sorts in
+    place by swapping within the same array, so it needs only O(log n) extra space
+    for the recursion, no second array.</p>
+    <p><strong>Worst-case time:</strong> merge sort stays O(n log n) even in the
+    worst case, because it always splits exactly in half regardless of the values.
+    Quick sort's worst case is O(n&#178;), which happens when the pivot is
+    repeatedly the smallest or largest value (for example, taking the last element
+    of an already-sorted list) so one side of each partition is empty.</p>
+  </div>
+</section>

@@ -1,0 +1,268 @@
+<section class="chapter">
+  <p class="eyebrow">Chapter 12</p>
+  <h1>Characters and Strings</h1>
+
+  <div class="hook">
+    <p>Look around a build site and text is everywhere. Every truss member
+    carries a label ("top chord", "king post"). Every spec string names a
+    grade ("C24 timber"). Every recipe in the site canteen has a name ("Jollof
+    Rice"). A program that cannot hold and handle text cannot handle any of
+    this. That is what characters and strings are for.</p>
+  </div>
+
+  <div class="idea">
+    <p>Two tools, one job. A <code>char</code> holds exactly one character: a
+    single letter, digit, or symbol. You write its value in <b>single</b>
+    quotes, like <code>'A'</code>. A <code>std::string</code> holds a run of
+    characters of any length, from empty to a whole sentence. You write its
+    value in <b>double</b> quotes, like <code>"top chord"</code>. Rule of
+    thumb: one character means <code>char</code>; a word, a name, or a label
+    means <code>std::string</code>. To use <code>std::string</code> you add
+    <code>#include &lt;string&gt;</code> at the top.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 130" width="360" height="130">
+      <text x="30" y="25" font-size="12" fill="#16232B">std::string s = "TRUSS";</text>
+      <g font-size="18" fill="#16232B" text-anchor="middle">
+        <rect x="30" y="45" width="50" height="45" fill="#F6F8FA" stroke="#1D5A80"/>
+        <rect x="80" y="45" width="50" height="45" fill="#F6F8FA" stroke="#1D5A80"/>
+        <rect x="130" y="45" width="50" height="45" fill="#F6F8FA" stroke="#1D5A80"/>
+        <rect x="180" y="45" width="50" height="45" fill="#F6F8FA" stroke="#1D5A80"/>
+        <rect x="230" y="45" width="50" height="45" fill="#F6F8FA" stroke="#1D5A80"/>
+        <text x="55" y="74">T</text>
+        <text x="105" y="74">R</text>
+        <text x="155" y="74">U</text>
+        <text x="205" y="74">S</text>
+        <text x="255" y="74">S</text>
+      </g>
+      <g font-size="12" fill="#B57C33" text-anchor="middle">
+        <text x="55" y="108">0</text>
+        <text x="105" y="108">1</text>
+        <text x="155" y="108">2</text>
+        <text x="205" y="108">3</text>
+        <text x="255" y="108">4</text>
+      </g>
+      <text x="155" y="126" font-size="11" fill="#56676F" text-anchor="middle">index of each character</text>
+    </svg>
+    <figcaption>A string is a row of characters. Each sits at a numbered index,
+    counting from 0. So <code>s[0]</code> is <code>'T'</code> and
+    <code>s[4]</code> is <code>'S'</code>.</figcaption>
+  </figure>
+
+  <div class="idea">
+    <p>Here is one <code>char</code> and one <code>std::string</code> side by
+    side, so the two kinds of quote are clear.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    char grade = 'A';                  // one character, single quotes
+    std::string member = "top chord";  // many characters, double quotes
+
+    std::cout &lt;&lt; "Grade:  " &lt;&lt; grade &lt;&lt; "\n";
+    std::cout &lt;&lt; "Member: " &lt;&lt; member &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p><b>Reading and printing.</b> Printing is easy: send the string to
+    <code>std::cout</code>. Reading a whole line (spaces and all) uses
+    <code>std::getline(std::cin, name)</code>. Plain <code>std::cin &gt;&gt;
+    name</code> would stop at the first space, so "Cape Coast" would come in
+    as just "Cape". For labels and place names, reach for
+    <code>getline</code>.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    std::string label;
+    std::cout &lt;&lt; "Enter the member label: ";
+    std::getline(std::cin, label);
+    std::cout &lt;&lt; "You labelled it: " &lt;&lt; label &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p><b>The common operations.</b> Five you will use constantly, shown on a
+    recipe name. <code>.length()</code> counts the characters.
+    <code>+</code> joins (concatenates) two strings. <code>[i]</code> reaches
+    one character by index. <code>.substr(start, count)</code> cuts out a
+    piece. <code>==</code> compares two strings for an exact match.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    std::string recipe = "Jollof Rice";
+
+    std::cout &lt;&lt; "Length: " &lt;&lt; recipe.length() &lt;&lt; "\n";   // 11
+
+    std::string full = recipe + " and Chicken";           // concatenate
+    std::cout &lt;&lt; "Full:   " &lt;&lt; full &lt;&lt; "\n";
+
+    std::cout &lt;&lt; "First:  " &lt;&lt; recipe[0] &lt;&lt; "\n";           // J
+    std::cout &lt;&lt; "Piece:  " &lt;&lt; recipe.substr(0, 6) &lt;&lt; "\n"; // Jollof
+
+    if (recipe == "Jollof Rice") {
+        std::cout &lt;&lt; "Names match.\n";
+    }
+    return 0;
+}</code></pre>
+
+  <div class="idea">
+    <p><b>Char arrays: the older way.</b> Before <code>std::string</code>, C++
+    (inherited from C) stored text in a <code>char</code> array ending in a
+    hidden null terminator <code>'\0'</code> that marks the end. You still meet
+    them, so know the shape: <code>char spot[] = "Cape Coast";</code> makes an
+    array sized to fit the text plus that terminator. Index it like any array.
+    Prefer <code>std::string</code> in your own code (it grows, compares, and
+    concatenates for you), but recognise the array form when you see it.</p>
+  </div>
+
+  <pre class="code"><code>#include &lt;iostream&gt;
+
+int main() {
+    char spot[] = "Cape Coast";  // char array, auto sized (adds '\0')
+    std::cout &lt;&lt; "Spot:  " &lt;&lt; spot &lt;&lt; "\n";
+    std::cout &lt;&lt; "First: " &lt;&lt; spot[0] &lt;&lt; "\n";  // C
+
+    spot[0] = 'K';               // change one character in place
+    std::cout &lt;&lt; "Now:   " &lt;&lt; spot &lt;&lt; "\n";     // Kape Coast
+    return 0;
+}</code></pre>
+
+  <div class="buildit">
+    <p class="eyebrow">Build it</p>
+    <p>On the truss job, print a tidy label for every member. Save the recipe
+    listing as <code>ops.cpp</code>, then:</p>
+    <p><code>g++ -std=c++17 ops.cpp -o ops &amp;&amp; ./ops</code></p>
+    <p>Truss step: replace <code>"Jollof Rice"</code> with a member name such as
+    <code>"king post"</code>, add <code>" (C24)"</code> with <code>+</code> to
+    stamp the timber grade onto the label, and rebuild. That joined string is
+    exactly what you would paint or print on the physical member.</p>
+  </div>
+
+  <div class="challenge">
+    <p class="eyebrow">Challenge: predict the output</p>
+    <p>Read it, do not run it. What three things print, and on what one line?</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    std::string truss = "howe";
+    std::cout &lt;&lt; truss[0] &lt;&lt; truss[3] &lt;&lt; truss.length();
+    return 0;
+}</code></pre>
+    <p><b>Answer:</b> <code>he4</code> on one line. <code>truss[0]</code> is
+    <code>'h'</code>, <code>truss[3]</code> is <code>'e'</code>, and
+    <code>"howe"</code> has 4 characters, so <code>length()</code> is
+    <code>4</code>. There is no newline in the code, so it is all one line.</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <div class="exam-q">
+    <p>Q1. Define a <code>char</code> and a <code>std::string</code>, and
+    explain the difference between them. Give one example of each.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>A <code>char</code> is a data type that holds exactly <b>one</b>
+    character (a letter, digit, or symbol), written in single quotes, for
+    example <code>'A'</code>. A <code>std::string</code> is a type that holds a
+    <b>sequence</b> of characters of any length, written in double quotes, for
+    example <code>"top chord"</code>. The difference: a <code>char</code> is a
+    single fixed character, while a <code>std::string</code> is a run of many
+    characters that can grow, shrink, be joined, and be compared as a whole. In
+    short, use <code>char</code> for one character and <code>std::string</code>
+    for words or labels. (Using <code>std::string</code> needs
+    <code>#include &lt;string&gt;</code>.)</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q2. Write a complete C++ program that stores the recipe name
+    <code>"Waakye"</code> in a string, then prints its length, its first
+    character, the first three characters, and the name joined with the word
+    <code>" Special"</code>.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Use <code>.length()</code>, index <code>[0]</code>,
+    <code>.substr(0, 3)</code>, and <code>+</code> for the join.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    std::string recipe = "Waakye";
+
+    std::cout &lt;&lt; "Length: " &lt;&lt; recipe.length() &lt;&lt; "\n";     // 6
+    std::cout &lt;&lt; "First:  " &lt;&lt; recipe[0] &lt;&lt; "\n";             // W
+    std::cout &lt;&lt; "First3: " &lt;&lt; recipe.substr(0, 3) &lt;&lt; "\n";   // Waa
+    std::cout &lt;&lt; "Joined: " &lt;&lt; recipe + " Special" &lt;&lt; "\n";   // Waakye Special
+    return 0;
+}</code></pre>
+  </div>
+
+  <div class="exam-q">
+    <p>Q3. An array holds five tourist spots in no particular order. Write a
+    complete C++ program that sorts them into alphabetical order using
+    <b>Selection Sort</b>, then prints them.</p>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>Selection Sort walks the array. For each position <code>i</code>, it
+    scans the rest to find the smallest remaining string, then swaps that
+    smallest into position <code>i</code>. Strings compare with
+    <code>&lt;</code>, which C++ evaluates alphabetically (dictionary order),
+    so no special comparison code is needed.</p>
+    <pre class="code"><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    std::string spots[5] = {"Kumasi", "Accra", "Tamale", "Cape Coast", "Bolga"};
+    int n = 5;
+
+    // Selection Sort: pick the smallest, put it at the front, repeat.
+    for (int i = 0; i &lt; n - 1; i++) {
+        int min = i;
+        for (int j = i + 1; j &lt; n; j++) {
+            if (spots[j] &lt; spots[min]) {   // alphabetical compare
+                min = j;
+            }
+        }
+        std::string temp = spots[min];     // swap i and min
+        spots[min] = spots[i];
+        spots[i] = temp;
+    }
+
+    for (int i = 0; i &lt; n; i++) {
+        std::cout &lt;&lt; spots[i] &lt;&lt; "\n";
+    }
+    return 0;
+}</code></pre>
+    <p>Output, in order: <code>Accra</code>, <code>Bolga</code>,
+    <code>Cape Coast</code>, <code>Kumasi</code>, <code>Tamale</code>.</p>
+  </div>
+
+  <div class="exam-q">
+    <p>Q4. Spot the bug. A student wants to store a single grade letter but the
+    program will not compile. What is wrong, and how do you fix it?</p>
+    <pre class="code"><code>char grade = "A";
+</code></pre>
+  </div>
+  <div class="exam-a">
+    <p class="eyebrow">Model answer</p>
+    <p>The value <code>"A"</code> uses <b>double</b> quotes, which make a string
+    (a run of characters), but <code>grade</code> is a <code>char</code>, which
+    holds one character. The types do not match. Fix it with <b>single</b>
+    quotes: <code>char grade = 'A';</code>. If a full word were really needed
+    instead, the other fix is to change the type:
+    <code>std::string grade = "A";</code>.</p>
+  </div>
+</section>

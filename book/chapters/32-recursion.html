@@ -75,8 +75,8 @@ int main() {
     <p class="eyebrow">Build it</p>
     <p>Save as <code>factorial.cpp</code>, then compile and run:</p>
     <p><code>g++ -std=c++17 factorial.cpp -o factorial &amp;&amp; ./factorial</code></p>
-    <p>It prints 0! = 1 up to 6! = 720. Each line is five or six calls stacked up
-    and then unwound.</p>
+    <p>It prints 0! = 1 up to 6! = 720. Each line is a few calls stacked up, then
+    unwound.</p>
   </div>
 
   <div class="idea">
@@ -126,8 +126,8 @@ int main() {
     number without ever writing a multiply, using one neat fact: the square of n
     is the square of (n-1) plus (2n - 1). That is just the odd-number pattern
     (1, 1+3=4, 4+5=9, 9+7=16). Base case: the square of 0 is 0. The program below
-    reads a number from the user and squares it this way. It uses the absolute
-    value so a negative input squares correctly, since (-5) squared is 25.</p>
+    reads a number and squares it this way. It takes the absolute value first, so a
+    negative input squares correctly: (-5) squared is 25.</p>
   </div>
 
   <pre class="code"><code>#include &lt;iostream&gt;
@@ -222,6 +222,71 @@ int main() {
     </svg>
     <figcaption>Tower of Hanoi: all discs start on the "from" peg (solid), and
     must end on the "to" peg (dashed goal), using the middle peg as a spare.</figcaption>
+  </figure>
+
+  <figure class="diagram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" width="520" height="200">
+      <g font-family="Helvetica" stroke-linejoin="round" stroke-linecap="round">
+        <!-- three panels, each a 3-peg board -->
+        <!-- panel 1: move n-1 discs from F to spare -->
+        <g>
+          <line x1="20" y1="150" x2="150" y2="150" stroke="#22201B" stroke-width="2.2"/>
+          <line x1="40" y1="102" x2="40" y2="150" stroke="#56676F" stroke-width="3"/>
+          <line x1="85" y1="102" x2="85" y2="150" stroke="#56676F" stroke-width="3"/>
+          <line x1="130" y1="102" x2="130" y2="150" stroke="#56676F" stroke-width="3"/>
+          <!-- n-1 stack on F -->
+          <rect x="23" y="136" width="34" height="12" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+          <rect x="27" y="122" width="26" height="12" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+          <text x="40" y="114" text-anchor="middle" font-size="10" fill="#22201B">n-1</text>
+          <!-- move arrow F -> spare -->
+          <path d="M40 108 L85 122" fill="none" stroke="#1D5A80" stroke-width="2.2"/>
+          <polygon points="85,122 76,117 79,127" fill="#1D5A80"/>
+          <text x="15" y="168" font-size="11" fill="#1D5A80">from</text>
+          <text x="72" y="168" font-size="11" fill="#56676F">spare</text>
+          <text x="122" y="168" font-size="11" fill="#B57C33">to</text>
+          <text x="85" y="188" text-anchor="middle" font-size="11" fill="#22201B">1. n-1 to spare</text>
+        </g>
+        <!-- panel 2: move the big disc n from F to target -->
+        <g>
+          <line x1="190" y1="150" x2="320" y2="150" stroke="#22201B" stroke-width="2.2"/>
+          <line x1="210" y1="102" x2="210" y2="150" stroke="#56676F" stroke-width="3"/>
+          <line x1="255" y1="102" x2="255" y2="150" stroke="#56676F" stroke-width="3"/>
+          <line x1="300" y1="102" x2="300" y2="150" stroke="#56676F" stroke-width="3"/>
+          <!-- big disc n on F -->
+          <rect x="188" y="134" width="44" height="14" fill="#B57C33" stroke="#22201B" stroke-width="2.2"/>
+          <text x="210" y="126" text-anchor="middle" font-size="10" fill="#22201B">n</text>
+          <!-- move arrow F -> to -->
+          <path d="M210 120 L300 132" fill="none" stroke="#B57C33" stroke-width="2.2"/>
+          <polygon points="300,132 291,127 293,137" fill="#B57C33"/>
+          <text x="185" y="168" font-size="11" fill="#1D5A80">from</text>
+          <text x="242" y="168" font-size="11" fill="#56676F">spare</text>
+          <text x="292" y="168" font-size="11" fill="#B57C33">to</text>
+          <text x="255" y="188" text-anchor="middle" font-size="11" fill="#22201B">2. disc n to target</text>
+        </g>
+        <!-- panel 3: move n-1 discs from spare to target -->
+        <g>
+          <line x1="360" y1="150" x2="490" y2="150" stroke="#22201B" stroke-width="2.2"/>
+          <line x1="380" y1="102" x2="380" y2="150" stroke="#56676F" stroke-width="3"/>
+          <line x1="425" y1="102" x2="425" y2="150" stroke="#56676F" stroke-width="3"/>
+          <line x1="470" y1="102" x2="470" y2="150" stroke="#56676F" stroke-width="3"/>
+          <!-- n-1 stack on spare -->
+          <rect x="408" y="136" width="34" height="12" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+          <rect x="412" y="122" width="26" height="12" fill="#FAF6EE" stroke="#22201B" stroke-width="2.2"/>
+          <text x="425" y="114" text-anchor="middle" font-size="10" fill="#22201B">n-1</text>
+          <!-- move arrow spare -> to -->
+          <path d="M425 108 L470 122" fill="none" stroke="#1D5A80" stroke-width="2.2"/>
+          <polygon points="470,122 461,117 464,127" fill="#1D5A80"/>
+          <text x="355" y="168" font-size="11" fill="#1D5A80">from</text>
+          <text x="412" y="168" font-size="11" fill="#56676F">spare</text>
+          <text x="462" y="168" font-size="11" fill="#B57C33">to</text>
+          <text x="425" y="188" text-anchor="middle" font-size="11" fill="#22201B">3. n-1 onto target</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>The recursive case in three moves: shift the top n-1 discs to the
+    spare peg, move the big disc n straight to the target, then shift those n-1
+    discs on top of it. Each n-1 move is the same puzzle, one disc smaller, so the
+    function calls itself.</figcaption>
   </figure>
 
   <pre class="code"><code>#include &lt;iostream&gt;

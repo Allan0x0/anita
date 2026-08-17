@@ -83,7 +83,7 @@ wkhtmltopdf \
   --footer-spacing 3 \
   --footer-html "$BOOK_DIR/footer.html" \
   toc \
-  --toc-header-text "Contents" \
+  --xsl-style-sheet "$BOOK_DIR/toc.xsl" \
   "$BODY" \
   "$OUT"
 

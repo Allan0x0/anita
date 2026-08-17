@@ -1,0 +1,23 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { background: #F3EDE1; font-family: Helvetica, Arial, sans-serif; }
+  .wrap { padding: 0 16mm 6mm; text-align: center; }
+  .rule { border: none; border-top: 1px solid #6A5F4C; margin: 0 0 3mm; }
+  .num { font-size: 12pt; color: #6A5F4C; }
+</style>
+<script>
+  function subst() {
+    var vars = {}, q = document.location.search.substring(1).split('&');
+    for (var i = 0; i < q.length; i++) { var p = q[i].split('='); vars[p[0]] = unescape(p[1]); }
+    var e = document.getElementsByClassName('page');
+    for (var j = 0; j < e.length; j++) e[j].textContent = vars['page'];
+  }
+</script></head>
+<body onload="subst()">
+  <div class="wrap">
+    <hr class="rule">
+    <span class="num page"></span>
+  </div>
+</body></html>

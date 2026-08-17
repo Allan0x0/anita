@@ -1,11 +1,12 @@
 /* BITH132 Field Guide - print stylesheet.
    Look: "Site Journal" - a builder's site notebook. Warm timber paper,
-   blueprint blue, a real reading serif at a large, glasses-friendly size.
+   blueprint blue, a large reading serif.
    Target: wkhtmltopdf 0.12.6 (patched Qt4 WebKit).
    That engine is ancient (~2012): NO CSS custom properties, NO flex gap,
    NO grid. Everything here is literal hex + block/table layout on purpose.
-   Serif body = Georgia (ships on Mac/Windows) so it renders without an
-   embedded font file; falls back to the platform serif. Light theme only. */
+   Fonts sized large (body 19pt) for easy reading with glasses.
+   Full-bleed: page margins are 0 in build.sh; the timber ground comes from
+   the body background, and this padding insets the text from the paper edge. */
 
 * { box-sizing: border-box; }
 
@@ -13,10 +14,11 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
+  padding: 4mm 16mm 6mm;       /* inset text; page margins are 0 for full-bleed */
   color: #22201B;              /* ink */
-  background: #F3EDE1;         /* timber paper */
+  background: #F3EDE1;         /* timber paper - fills the whole page */
   font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
-  font-size: 12.75pt;          /* large + readable; was 11pt */
+  font-size: 19pt;             /* large + readable (was 12.75pt) */
   line-height: 1.6;
 }
 
@@ -27,17 +29,17 @@ h1, h2, h3, h4 {
   margin: 0 0 .45em;
   font-weight: 700;
 }
-h1 { font-size: 25pt; letter-spacing: -.01em; }
-h2 { font-size: 18pt; color: #1D5A80; margin-top: .8em; }   /* blueprint blue */
-h3 { font-size: 14.5pt; color: #1D5A80; }
-h4 { font-size: 12.75pt; }
+h1 { font-size: 37pt; letter-spacing: -.01em; }
+h2 { font-size: 27pt; color: #1D5A80; margin-top: .8em; }   /* blueprint blue */
+h3 { font-size: 22pt; color: #1D5A80; }
+h4 { font-size: 19pt; }
 
 p { margin: 0 0 .75em; }
 a { color: #1D5A80; text-decoration: none; }
 
 .eyebrow {
   font-family: "Courier New", Courier, monospace;
-  font-size: 9.5pt; letter-spacing: .14em; text-transform: uppercase;
+  font-size: 14pt; letter-spacing: .14em; text-transform: uppercase;
   color: #1D5A80; font-weight: 700; margin: 0 0 .35em;
 }
 
@@ -59,11 +61,11 @@ section.front { padding: 0; }
 
 /* ---- hook: the "why care" opener --------------------------------------- */
 .hook {
-  border-left: 4px solid #B57C33;   /* sawn pine / timber */
+  border-left: 5px solid #B57C33;   /* sawn pine / timber */
   background: #ECE0CB;              /* timber, one shade down from the page */
-  padding: 12px 16px;
+  padding: 14px 18px;
   margin: 0 0 1.1em;
-  font-size: 13pt;
+  font-size: 19.5pt;
 }
 .hook p:last-child { margin-bottom: 0; }
 
@@ -73,15 +75,19 @@ section.front { padding: 0; }
 /* ---- figure.diagram: inline SVG ---------------------------------------- */
 figure.diagram {
   margin: 1.1em 0;
-  padding: 14px;
+  padding: 16px;
   border: 1px solid #CBB48F;        /* timber frame */
   background: #FAF6EE;              /* warm off-white so SVGs stay legible */
   text-align: center;
 }
-figure.diagram svg { max-width: 100%; height: auto; }
+/* NOTE: no `height:auto` here. wkhtmltopdf's Qt4 WebKit collapses an inline
+   SVG to zero height when height is auto, which blanks every diagram. All
+   diagrams are <= 520px wide (narrower than the text column), so they render
+   at native size without scaling and keep their aspect ratio. */
+figure.diagram svg { max-width: 100%; }
 figure.diagram figcaption {
-  margin-top: 8px;
-  font-size: 10.5pt;
+  margin-top: 10px;
+  font-size: 16pt;
   color: #6A5F4C;
   font-style: italic;
 }
@@ -89,13 +95,13 @@ figure.diagram figcaption {
 /* ---- pre.code: C++ listings -------------------------------------------- */
 pre.code {
   margin: 1.1em 0;
-  padding: 14px 16px;
+  padding: 16px 18px;
   background: #2A2620;      /* warm dark slab (timber-toned) */
   color: #F0E9DB;
   border: 1px solid #1C1913;
   border-radius: 4px;
   font-family: "Courier New", Courier, monospace;
-  font-size: 10.5pt;
+  font-size: 16pt;
   line-height: 1.5;
   white-space: pre-wrap;    /* wrap long lines instead of clipping in PDF */
   word-wrap: break-word;
@@ -103,7 +109,7 @@ pre.code {
 /* inline code inside prose */
 code {
   font-family: "Courier New", Courier, monospace;
-  font-size: 10.5pt;
+  font-size: 16pt;
   background: rgba(29,90,128,.12);
   padding: 1px 5px;
   border-radius: 3px;
@@ -114,9 +120,9 @@ pre.code code { background: transparent; padding: 0; color: inherit; }
 /* ---- buildit: build-step callout --------------------------------------- */
 .buildit {
   margin: 1.1em 0;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border: 1px solid #B57C33;
-  border-left: 4px solid #B57C33;
+  border-left: 5px solid #B57C33;
   background: #F6ECD6;
 }
 .buildit .eyebrow { color: #A9701F; }
@@ -124,7 +130,7 @@ pre.code code { background: transparent; padding: 0; color: inherit; }
 /* ---- challenge: predict-output / spot-the-bug -------------------------- */
 .challenge {
   margin: 1.1em 0;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border: 1px dashed #1D5A80;
   background: #E7EEF3;
 }
@@ -133,14 +139,14 @@ pre.code code { background: transparent; padding: 0; color: inherit; }
 /* ---- exam question + worked answer ------------------------------------- */
 .exam-q {
   margin: 1.1em 0 .4em;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border: 1px solid #C9BFA6;
   background: #EDE7D7;
   font-weight: 700;
 }
 .exam-a {
   margin: 0 0 1.1em;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border: 1px solid #C9BFA6;
   border-top: none;
   background: #FBF8F1;
@@ -152,18 +158,18 @@ table {
   border-collapse: collapse;
   width: 100%;
   margin: 1.1em 0;
-  font-size: 11pt;
+  font-size: 16.5pt;
 }
 th, td {
   border: 1px solid #C9BFA6;
-  padding: 7px 9px;
+  padding: 9px 12px;
   text-align: left;
   vertical-align: top;
 }
 th { background: #E4D6BC; }
 
 /* ---- cover ------------------------------------------------------------- */
-.cover { text-align: center; padding-top: 30%; }
-.cover h1 { font-size: 38pt; }
-.cover .subtitle { font-size: 15pt; color: #6A5F4C; margin-top: .5em; }
-.cover .rule { width: 40%; margin: 24px auto; border-top: 2px solid #B57C33; }
+.cover { text-align: center; padding-top: 26%; }
+.cover h1 { font-size: 56pt; }
+.cover .subtitle { font-size: 22pt; color: #6A5F4C; margin-top: .5em; }
+.cover .rule { width: 40%; margin: 30px auto; border-top: 2px solid #B57C33; }

@@ -74,19 +74,14 @@ wkhtmltopdf \
   --enable-local-file-access \
   --print-media-type \
   --page-size A4 \
-  --margin-top 22mm \
-  --margin-bottom 18mm \
-  --margin-left 18mm \
-  --margin-right 18mm \
-  --header-spacing 6 \
-  --header-font-size 8 \
-  --header-font-name "Helvetica" \
-  --header-center "BITH132 - The Field Guide" \
-  --header-line \
-  --footer-spacing 5 \
-  --footer-font-size 8 \
-  --footer-font-name "Helvetica" \
-  --footer-center "[page]" \
+  --margin-top 26mm \
+  --margin-bottom 15mm \
+  --margin-left 0mm \
+  --margin-right 0mm \
+  --header-spacing 4 \
+  --header-html "$BOOK_DIR/header.html" \
+  --footer-spacing 3 \
+  --footer-html "$BOOK_DIR/footer.html" \
   toc \
   --toc-header-text "Contents" \
   "$BODY" \
